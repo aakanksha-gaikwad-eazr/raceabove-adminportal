@@ -21,7 +21,7 @@ import TargetIcon from "@/icons/Target"; // CUSTOM DUMMY DATA
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteTarget,
-  editTarget,
+  updateTarget,
   getTargetById,
   getTargets,
 } from "../../../store/apps/target";
@@ -31,6 +31,7 @@ import TargetEditForm from "./targetEditForm";
 import TargetDeleteForm from "./deleteTargetForm";
 import DeleteModal from "@/components/delete-modal";
 import toast from "react-hot-toast";
+// REMOVED THE INCORRECT IMPORT: import { i } from "vite/dist/node/types.d-aGj9QkWt";
 
 const HeadingWrapper = styled(FlexBetween)(({ theme }) => ({
   gap: 8,
@@ -52,7 +53,7 @@ const HeadingWrapper = styled(FlexBetween)(({ theme }) => ({
 export default function TargetsGridPageView() {
   const [pageSize] = useState(8);
   const [pageIndex, setPageIndex] = useState(1);
-  const [selectTab, setSelectTab] = useState("");
+  const [selectTab, setSelectTab] = useState("all"); // Changed to "all" as default
   const [searchValue, setSearchValue] = useState("");
   const [products, setProducts] = useState([]);
 
@@ -84,15 +85,25 @@ export default function TargetsGridPageView() {
     setProducts(targets);
   }, [targets]);
 
+  const handleChangeTab = (_, newTab) => setSelectTab(newTab);
+
   const filteredProducts = products.filter((item) => {
+    // Tab filtering logic
+    if (selectTab === "active") {
+      // Active targets only: deletedAt should be null/undefined
+      if (item.deletedAt != null) {
+        return false;
+      }
+    }
+    // If selectTab === "all", show all targets (no filtering by deleted status)
+
+    // Search filtering logic
     if (searchValue) {
       return item.name?.toLowerCase().includes(searchValue.toLowerCase()) ||
              item.description?.toLowerCase().includes(searchValue.toLowerCase());
     }
     return true;
   });
-
-  const handleChangeTab = (_, newTab) => setSelectTab(newTab);
 
   const handleDeleteProduct = (id) => {
     dispatch(getTargetById(id));
@@ -104,10 +115,10 @@ export default function TargetsGridPageView() {
     dispatch(deleteTarget(deleteTargetId)).then((response) => {
       if (response.payload?.status === 200) {
         setOpenDeleteTargetForm(false);
-        toast.success("succesfully deleted");
+        toast.success("successfully deleted");
         dispatch(getTargets());
       } else {
-        console.log("error::",)
+        console.log("error::")
         toast.error("error in deleting target");
       }
     });
@@ -128,15 +139,12 @@ export default function TargetsGridPageView() {
             </IconWrapper>
             <H6 fontSize={16}>Targets</H6>
           </FlexBox>
-          {/* <Button
-            variant="contained"
-            startIcon={<Add />}
-            LinkComponent={Link}
-            onClick={handleOpen}
-          >
-            Add Target
-          </Button> */}
         </HeadingWrapper>
+
+        <TabList variant="scrollable" onChange={handleChangeTab} sx={{ mb: 2 }}>
+          <Tab label="All" value="all" />
+          <Tab label="Active" value="active" />
+        </TabList>
 
         <SearchArea
           value={searchValue}

@@ -108,6 +108,7 @@ export const updateSports = createAsyncThunk('appSports/updateSports', async (re
     }
   
     let url = `${ip}/v1/sports/${req.id}`
+    console.log("req", req)
 
     const response = await axiosInstance.patch(url,req?.data, {
       headers: {

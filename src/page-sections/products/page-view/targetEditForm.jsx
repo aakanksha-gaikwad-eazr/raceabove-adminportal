@@ -25,7 +25,7 @@ import { Box, Chip } from "@mui/material";
 import toast from "react-hot-toast";
 import {
   createTarget,
-  editTarget,
+  updateTarget,
   getTargetById,
   getTargets,
 } from "../../../store/apps/target";
@@ -109,7 +109,7 @@ export default function TargetEditForm({
 
       try {
         const response = await dispatch(
-          editTarget({ id: editTargetId, data: formData })
+          updateTarget({ id: editTargetId, data: formData })
         );
         console.log("res target", response);
         if (response?.payload?.status === 200) {

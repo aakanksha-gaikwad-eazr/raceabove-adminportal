@@ -25,13 +25,13 @@ import { Box, Chip } from "@mui/material";
 import toast from "react-hot-toast";
 import {
   createTarget,
-  editTarget,
+  updateTarget,
   getTargetById,
   getTargets,
 } from "../../../store/apps/target";
 import { FlexBetween, FlexBox } from "@/components/flexbox";
 import IconWrapper from "@/components/icon-wrapper/IconWrapper";
-import GroupSenior from "@/icons/GroupSenior";
+import TargetIcon from "@/icons/Target";
 import { Paragraph } from "@/components/typography";
 
 const StyledAppModal = styled(Modal)(({ theme }) => ({
@@ -61,7 +61,7 @@ export default function TargetEditForm({
   singleTargets,
 }) {
 
-  console.log("editTargetId", editTargetId)
+  // console.log("editTargetId", editTargetId)
   const dispatch = useDispatch();
   const objectUrlRef = useRef(null);
 
@@ -100,28 +100,35 @@ export default function TargetEditForm({
     initialValues,
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
+      console.log("values", values)
       const formData = new FormData();
       formData.append("name", values.name);
 
-      if (values.banner) {
-        formData.append("file", values.banner);
+      if (values.banner && typeof values.banner !== "string") {
+        formData.append("bannerFile", values.banner);
+        console.log("Appending new file:", values.banner);
+      } else if (typeof values.banner === "string") {
+        console.log("Banner is existing URL:", values.banner);
+ 
       }
+      console.log("formData", formData)
 
       try {
         const response = await dispatch(
-          editTarget({ id: editTargetId, data: formData })
+          updateTarget({ id: editTargetId, data: formData })
         );
+        console.log("update response", response)
         if (response?.payload?.status === 200) {
           toast.success(
-            response?.payload?.message || "target created successfully!"
+            response?.payload?.message || "target update successfully!"
           );
           dispatch(getTargets());
           // resetForm();
         } else {
-          toast.error("Failed to create target.");
+          toast.error("Failed to update target.");
         }
       } catch (error) {
-        toast.error("An error occurred while creating the target.");
+        toast.error("An error occurred while update the target.");
       }
       handleClose();
     },
@@ -172,10 +179,10 @@ export default function TargetEditForm({
   <FlexBetween mb={2}>
     <FlexBox alignItems="center" gap={1}>
       <IconWrapper>
-        <GroupSenior sx={{ color: "primary.main" }} />
+        <TargetIcon sx={{ color: "primary.main" }} />
       </IconWrapper>
       <Paragraph fontSize={20} fontWeight="bold">
-        Edit Target
+        Update Target
       </Paragraph>
     </FlexBox>
   </FlexBetween>
@@ -197,7 +204,7 @@ export default function TargetEditForm({
           </div>
 
           <div>
-            <p className="label">Banner File</p>
+            <p className="label">Target Banner File</p>
             <Box
               display="flex"
               alignItems="center"

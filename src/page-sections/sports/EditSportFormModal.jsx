@@ -18,6 +18,7 @@ import { getSportsById, updateSports, getSports } from "../../store/apps/sports"
 import toast from "react-hot-toast";
 
 export default function EditSportFormModal({ open, handleClose, sportsId }) {
+  console.log("sportsId",sportsId)
   const [previewUrl, setPreviewUrl] = useState(null);
   const [iconFile, setIconFile] = useState(null);
   const dispatch = useDispatch();
@@ -60,8 +61,8 @@ export default function EditSportFormModal({ open, handleClose, sportsId }) {
           console.log("form", response);
           toast.success("Sport updated successfully");
           await dispatch(getSports());
-          await dispatch(getSportsById(sportsId));
-          handleClose();  
+          // await dispatch(getSportsById(sportsId));
+          handleClose();    
           resetForm();
           setIconFile(null);  
           setPreviewUrl(null);

@@ -14,6 +14,7 @@ import { H6, Paragraph, Small } from "@/components/typography"; // CUSTOM DEFINE
 import useAuth from "@/hooks/useAuth"; // CUSTOM UTILS METHOD
 import { useDispatch } from "react-redux";
 import { getSingleOrganizers } from "@/store/apps/organisers";
+import { getSingleAdmin } from "@/store/apps/admins";
 
 const StyledButtonBase = styled(ButtonBase)(({ theme }) => ({
   marginLeft: 8,
@@ -35,18 +36,18 @@ const StyledSmall = styled(Paragraph)(({ theme }) => ({
 export default function ProfilePopover() {
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
-  const [organizerId, setOrganizerId] = useState(null);
-  const [organizerDetails, setOrganizerDetails] = useState([]);
+  const [adminId, setAdminId] = useState(null);
+  const [adminDetails, setAdminDetails] = useState([]);
 
   const navigate = useNavigate();
   const { logout } = useAuth();
 
   const HandleSetData = () => {
-    const organizerData = JSON.parse(localStorage.getItem("raceabove"));
-    if (organizerData && organizerData?.id) {
-      setOrganizerId(organizerData?.id);
+    const adminData = JSON.parse(localStorage.getItem("raceabove"));
+    if (adminData && adminData?.id) {
+      setAdminId(adminData?.id);
     } else {
-      console.warn("organizer ID not found in localStorage");
+      console.warn("admin ID not found in localStorage");
     }
   };
 
@@ -56,21 +57,21 @@ export default function ProfilePopover() {
 
   const dispatch = useDispatch();
   useEffect(() => {
-    if (!organizerId) return;
+    if (!adminId) return;
 
-    const response = dispatch(getSingleOrganizers(organizerId));
+    const response = dispatch(getSingleAdmin(adminId));
     response
       .then((res) => {
-        setOrganizerDetails(res?.payload);
+        setAdminDetails(res?.payload);
       })
       .catch((err) => console.log(err));
-  }, [dispatch, organizerId]);
+  }, [dispatch, adminId]);
 
   const handleMenuItem = (path) => () => {
     navigate(path);
     setOpen(false);
   };
-  console.log("dasd",organizerDetails)
+  console.log("dasd",adminDetails)
 
   return (
     <Fragment>
@@ -78,7 +79,7 @@ export default function ProfilePopover() {
         <AvatarLoading
           alt="user"
           percentage={60}
-          src={organizerDetails?.companyLogo}
+          src={adminDetails?.companyLogo}
           sx={{
             width: 35,
             height: 35,
@@ -96,7 +97,7 @@ export default function ProfilePopover() {
         title={
           <FlexBox alignItems="center" gap={1}>
             <Avatar
-              src={organizerDetails?.companyLogo}
+              src={adminDetails?.companyLogo}
               sx={{
                 width: 35,
                 height: 35,
@@ -104,12 +105,12 @@ export default function ProfilePopover() {
             />
 
             <div>
-              <H6 fontSize={14}>{organizerDetails?.name || "N/A"}</H6>
+              <H6 fontSize={14}>{adminDetails?.name || "N/A"}</H6>
               {/* <Small color="text.secondary" display="block">
                 {adminDetails?.email}
               </Small> */}
               <Small color="text.secondary" display="block">
-                {organizerDetails?.companyName || "N/A"}
+                {adminDetails?.companyName || "N/A"}
               </Small>
             </div>
           </FlexBox>

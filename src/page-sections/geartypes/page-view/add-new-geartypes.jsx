@@ -59,7 +59,7 @@ export default function CreateGearTypesFormModal({ handleClose }) {
         if (response?.status === 200 || response?.status === 201) {
           toast.success("Gear type created successfully!");
           dispatch(getGearTypes());
-          navigate("/geartypes-grid-2");
+          navigate("/geartypes-list-2");
         } else {
           toast.error(
             response?.message || "Failed to create gear type."
@@ -85,7 +85,7 @@ export default function CreateGearTypesFormModal({ handleClose }) {
 
   return (
     <div className="pt-2 pb-4">
-      <Card sx={{ p: 3, width: "60%" }}>
+      <Card sx={{ p: 3, width:"60%" }}>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             <Grid item xs={8}>
@@ -156,7 +156,7 @@ export default function CreateGearTypesFormModal({ handleClose }) {
                   </Stack>
                 </Grid>
 
-                <Grid item xs={8}>
+                <Grid item xs={4}>
                   <FlexBox justifyContent="space-around">
                     <Button
                       onClick={handleClose}

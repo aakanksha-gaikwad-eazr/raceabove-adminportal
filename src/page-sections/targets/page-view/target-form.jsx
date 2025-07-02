@@ -26,8 +26,8 @@ import toast from "react-hot-toast";
 import { createTarget, getTargets } from "../../../store/apps/target";
 import { FlexBetween, FlexBox } from "@/components/flexbox";
 import IconWrapper from "@/components/icon-wrapper/IconWrapper";
-import GroupSenior from "@/icons/GroupSenior";
 import { Paragraph } from "@/components/typography";
+import TargetIcon from "@/icons/Target";
 
 const StyledAppModal = styled(Modal)(({ theme }) => ({
   "& .add-btn": {
@@ -82,7 +82,7 @@ export default function TargetForm({ open, handleClose }) {
       formData.append("name", values.name);
 
       if (values.banner) {
-        formData.append("file", values.banner);
+        formData.append("bannerFile", values.banner);
       }else{
         console.error("No banner file selected");
       }
@@ -116,10 +116,11 @@ export default function TargetForm({ open, handleClose }) {
         <FlexBetween mb={2}>
           <FlexBox alignItems="center" gap={1}>
             <IconWrapper>
-              <GroupSenior sx={{ color: "primary.main" }} />
+              <TargetIcon sx={{ color: "primary.main" }} />
+
             </IconWrapper>
             <Paragraph fontSize={20} fontWeight="bold">
-              Add Target
+              Add New Target
             </Paragraph>
           </FlexBox>
         </FlexBetween>
@@ -141,7 +142,7 @@ export default function TargetForm({ open, handleClose }) {
           </div>
 
           <div>
-            <p className="label">Banner File</p>
+            <p className="label">Target Banner File</p>
             <Dropzone onDrop={(files) => {
                console.log("Selected File:", files[0]); // Debugging
               setFieldValue("banner", files[0])} }/>

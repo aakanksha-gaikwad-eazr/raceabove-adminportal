@@ -19,7 +19,7 @@ import TargetIcon from '@/icons/Target'; // CUSTOM DUMMY DATA
 
 import { PRODUCTS } from '@/__fakeData__/products'; // STYLED COMPONENT
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteTarget, editTarget, getTargetById, getTargets } from '../../../store/apps/target';
+import { deleteTarget, updateTarget, getTargetById, getTargets } from '../../../store/apps/target';
 import ProjectForm from '@/page-sections/challenge/project-form';
 import TargetForm from './target-form';
 import TargetEditForm from './targetEditForm';
