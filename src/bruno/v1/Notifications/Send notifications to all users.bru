@@ -1,0 +1,23 @@
+meta {
+  name: Send notifications to all users
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{host}}/v1/notifications
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "title": "Welcome to the App!",
+    "body": "This is Marketing notification!",
+    "type": "marketing"
+  }
+}

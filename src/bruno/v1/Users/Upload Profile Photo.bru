@@ -1,0 +1,19 @@
+meta {
+  name: Upload Profile Photo
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/v1/users/{{user_id}}/upload-profile-photo
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  file: @file(/home/prasad/Pictures/Wallpapers/lake-mountains.jpg)
+}

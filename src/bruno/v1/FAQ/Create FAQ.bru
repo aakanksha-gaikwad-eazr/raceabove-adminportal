@@ -1,0 +1,18 @@
+meta {
+  name: Create FAQ
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/frequently-asked-questions
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "question": "What is the new event start time?",
+    "answer": "The event now starts at 10 AM."
+  }
+}

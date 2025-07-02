@@ -1,0 +1,19 @@
+meta {
+  name: Check Email
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{host}}/v1/auth/check-email?email=mayur@gma
+  body: none
+  auth: bearer
+}
+
+params:query {
+  email: mayur@gma
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

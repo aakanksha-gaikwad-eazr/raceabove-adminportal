@@ -1,0 +1,27 @@
+meta {
+  name: Update User By Admin
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{host}}/v1/users/ada8b1f4-5c2a-41a9-b9ec-212609530c78/admin
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "targets": ["3601a279-b135-4f33-b73c-0962e069a008", "d361e639-79f0-479c-b579-428d84b24679"]
+  }
+}
+
+body:multipart-form {
+  targets[0]: fa4fd955-5f04-435c-9f8e-e73b5b36821d
+  profilePhoto: @file(/home/prasad/Pictures/Wallpapers/apple-macbook-pro-stock-2021-apple-event-2021-dark-mode-3840x2160-6759.jpg)
+  ~targets[1]: d361e639-79f0-479c-b579-428d84b24679
+}

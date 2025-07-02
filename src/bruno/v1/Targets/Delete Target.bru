@@ -1,0 +1,15 @@
+meta {
+  name: Delete Target
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{host}}/v1/targets/fa4fd955-5f04-435c-9f8e-e73b5b36821d
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

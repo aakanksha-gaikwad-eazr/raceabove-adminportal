@@ -1,0 +1,15 @@
+meta {
+  name: Get All Organizer
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/v1/organizers
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

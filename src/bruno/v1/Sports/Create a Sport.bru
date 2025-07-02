@@ -1,0 +1,20 @@
+meta {
+  name: Create a Sport
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/sports
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  name: Testing 1
+  iconFile: @file(/home/prasad/Pictures/Wallpapers/macos-monterey-stock-blue-dark-mode-layers-5k-3840x2160-5895.jpg)
+}

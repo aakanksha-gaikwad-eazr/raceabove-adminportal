@@ -1,0 +1,25 @@
+meta {
+  name: Create Podcast
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/v1/podcasts
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  thumbnailFile: @file(C:\Users\Lenovo\Pictures\Picture1-1024x576.png)
+  title: Test
+  description: Test Company
+  speaker: Test
+  url: https://example.com/podcast.mp3
+  isLive: false
+  scheduleTime: 2025-03-08T12:00:00Z
+}

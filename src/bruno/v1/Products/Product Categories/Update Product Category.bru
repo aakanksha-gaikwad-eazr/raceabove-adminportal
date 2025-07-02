@@ -1,0 +1,25 @@
+meta {
+  name: Update Product Category
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/v1/product-categories/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "isActive": false
+  }
+}

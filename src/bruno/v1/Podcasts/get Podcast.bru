@@ -1,0 +1,15 @@
+meta {
+  name: get Podcast
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/v1/podcasts
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

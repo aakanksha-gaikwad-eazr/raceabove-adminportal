@@ -1,0 +1,15 @@
+meta {
+  name: Disable Notifications
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/v1/notifications/users/{userId}/disable
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

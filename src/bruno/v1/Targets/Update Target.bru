@@ -1,0 +1,20 @@
+meta {
+  name: Update Target
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/v1/targets/57b8a73f-8bc9-4599-8ffa-fa30346fb639
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  targets[0]: 3601a279-b135-4f33-b73c-0962e069a008
+  targets[1]: d361e639-79f0-479c-b579-428d84b24679
+}

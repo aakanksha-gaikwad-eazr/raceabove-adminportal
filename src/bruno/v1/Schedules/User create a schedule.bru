@@ -1,0 +1,27 @@
+meta {
+  name: User create a schedule
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/v1/users/{{user_id}}/schedules
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Morning Sprint",
+    "sportId": "daeac52b-ac83-4082-bf60-dc2e84e3c47f",
+    "scheduledAt": "2025-02-14T04:43:00.000"
+  }
+}
+
+script:post-response {
+  bru.setEnvVar("schedule_id", res.body.data.id)
+}

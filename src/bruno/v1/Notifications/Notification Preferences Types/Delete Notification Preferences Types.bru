@@ -1,0 +1,21 @@
+meta {
+  name: Delete Notification Preferences Types
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{host}}/v1/notifications/preferences-types
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "type": "weekly_digest"
+  }
+}

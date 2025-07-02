@@ -1,0 +1,19 @@
+meta {
+  name: Delete Challenge
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{host}}/v1/challenges/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: e5b60e89-db17-4a25-b945-9bac09ab8833
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

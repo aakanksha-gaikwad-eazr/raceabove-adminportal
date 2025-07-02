@@ -1,0 +1,23 @@
+meta {
+  name: Save or Update Steps
+  type: http
+  seq: 1
+}
+
+patch {
+  url: {{host}}/v1/users/{{user_id}}/steps
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "count": 100,
+    "source": "pedometer",
+    "date": "2025-05-30"
+  }
+}

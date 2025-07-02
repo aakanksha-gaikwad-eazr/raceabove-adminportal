@@ -1,0 +1,19 @@
+meta {
+  name: User Get Activity
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/v1/users/{{user_id}}/activities/:activityId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  activityId: a4c66af4-1574-48db-8232-4f59d03c7dba
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

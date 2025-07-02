@@ -1,0 +1,17 @@
+meta {
+  name: Cashfree Verify Order
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://api.prod.eazr.in/common/cashfree/verify-order
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "orderId": "Eazr_1743482736249"
+  }
+}

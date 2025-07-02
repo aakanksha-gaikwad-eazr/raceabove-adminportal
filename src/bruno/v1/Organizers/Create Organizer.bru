@@ -1,0 +1,24 @@
+meta {
+  name: Create Organizer
+  type: http
+  seq: 20
+}
+
+post {
+  url: {{host}}/v1/organizers
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  name: Aakanksha Gaikwad
+  phoneNumber: +917678017610
+  email: aakanksha@geteazr.com
+  companyName: Eazr Digipayments Pvt. Ltd.
+  companyLogoFile: @file(C:\Users\Lenovo\OneDrive\Documents\Downloads\pexels-rdne-9034285.jpg)
+  commission: 2
+}

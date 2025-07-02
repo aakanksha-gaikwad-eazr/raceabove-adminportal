@@ -1,0 +1,19 @@
+meta {
+  name: Get Event Participation
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/v1/users/{{user_id}}/event-participations/:eventParticipationId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  eventParticipationId: 4592740e-a16b-4d46-86da-b031e95af1df
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

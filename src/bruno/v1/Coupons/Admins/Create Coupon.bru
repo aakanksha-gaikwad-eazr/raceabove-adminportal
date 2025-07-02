@@ -1,0 +1,29 @@
+meta {
+  name: Create Coupon
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/coupons
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "code": "TEST100",
+    "description": "Rs. 100 Off",
+    "discountType": "flat",
+    "discountValue": 100,
+    "startDate": "2025-05-01",
+    "endDate": "2025-08-31",
+    "usageLimit": 100,
+    "usageLimitPerUser": 1,
+    "maxDiscountValue": 100
+  }
+}

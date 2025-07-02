@@ -1,0 +1,15 @@
+meta {
+  name: Get Followers of User
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/v1/follows/fc062c07-ae6d-4c48-81c0-256e6fd45b8e/followers
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Get Event Participations
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/v1/users/{{user_id}}/event-participations
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

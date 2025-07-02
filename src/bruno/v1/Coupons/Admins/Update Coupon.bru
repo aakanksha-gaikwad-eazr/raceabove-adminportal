@@ -1,0 +1,26 @@
+meta {
+  name: Update Coupon
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{host}}/v1/coupons/:couponId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  couponId: 7703d0fe-7f2f-4750-906e-9cb314082aff
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+     "startDate": "2025-06-24",
+    "endDate": "2025-07-27"
+  }
+}

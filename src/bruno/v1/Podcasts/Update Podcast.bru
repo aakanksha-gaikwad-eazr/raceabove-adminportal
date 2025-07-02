@@ -1,0 +1,19 @@
+meta {
+  name: Update Podcast
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{host}}/v1/podcasts/18573de6-5aec-420b-9653-196ea1d9f783
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  thumbnailFile: @file(C:\Users\Lenovo\Pictures\Screenshots\Screenshot 2025-02-04 155535.png)
+}

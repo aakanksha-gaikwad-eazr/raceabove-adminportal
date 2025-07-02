@@ -1,0 +1,27 @@
+meta {
+  name: Send notification to single user
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{host}}/v1/users/:id/notifications
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 68c4a4b0-b55d-4e5a-a920-f4641dfbcbb2
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "title": "Mayur I have a question?",
+    "body": "Pink color ki chaddi pehne ho na aaj?",
+    "type": "mention"
+  }
+}

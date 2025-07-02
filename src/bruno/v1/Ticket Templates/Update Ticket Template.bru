@@ -1,0 +1,21 @@
+meta {
+  name: Update Ticket Template
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/v1/ticket-templates/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: ff80b8be-4efb-4493-8e5a-992955804e0d
+}
+
+body:json {
+  {
+    "description": "Children Ticket Template"
+  }
+}

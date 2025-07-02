@@ -1,0 +1,19 @@
+meta {
+  name: Delete Product Category
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{host}}/v1/product-categories/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

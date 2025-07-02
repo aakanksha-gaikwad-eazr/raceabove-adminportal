@@ -1,0 +1,39 @@
+meta {
+  name: Participate In Event
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/users/{{user_id}}/events/:eventId/slots/:slotId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  eventId: 79a7b308-0a79-430b-a453-61762be50c95
+  slotId: 727ea52c-0625-4eae-b912-3c0b69f014cb
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "tickets": [
+      {
+        "name": "Abhinav Rawat",
+        "age": 23,
+        "gender": "male"
+      }
+    ],
+    "amountPaid": 1,
+    "provider": "eazr"
+  }
+}
+
+script:post-response {
+  bru.setEnvVar("participation_id", res.body.data.id)
+  bru.setEnvVar("payment_id", res.body.data.payment.paymentId)
+}

@@ -1,0 +1,17 @@
+meta {
+  name: Send OTP
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/auth/send-otp
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "phoneNumber": "+917678027610"
+  }
+}

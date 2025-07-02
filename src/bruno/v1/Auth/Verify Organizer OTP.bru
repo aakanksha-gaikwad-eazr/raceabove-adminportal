@@ -1,0 +1,25 @@
+meta {
+  name: Verify Organizer OTP
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{host}}/v1/auth/verify-otp
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "phoneNumber": "+917678017610",
+    "role": "organizer",
+    "otp": "7710"
+  }
+}
+
+script:post-response {
+  bru.setEnvVar("user_id", res.body.data.id)
+  bru.setEnvVar("access_token", res.body.data.accessToken)
+  bru.setEnvVar("refresh_token", res.body.data.refreshToken)
+}

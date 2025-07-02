@@ -1,0 +1,15 @@
+meta {
+  name: Get Overall Metrics
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/v1/admins/{{user_id}}/metrics
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

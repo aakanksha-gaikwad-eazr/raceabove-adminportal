@@ -1,0 +1,18 @@
+meta {
+  name: Verify OTP
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://api.prod.eazr.in/payments/third-party-verification
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "contactnumber": "9307836462",
+    "otp": "7710"
+  }
+}

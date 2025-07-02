@@ -1,0 +1,26 @@
+meta {
+  name: Verify Order
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{host}}/v1/users/{{user_id}}/event-participations/:eventParticipationId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  eventParticipationId: {{participation_id}}
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "requestId": "efeb794e-9e2a-48d3-935a-27e99f2ffaad",
+    "provider": "eazr"
+  }
+}

@@ -1,0 +1,30 @@
+meta {
+  name: Update Notification Preferences of User
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{host}}/v1/notifications/users/{{user_id}}/preferences
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "preferences": [
+      {
+        "type": "like",
+        "isEnabled": true
+      },
+      {
+        "type": "marketing",
+        "isEnabled": true
+      }
+    ]
+  }
+}

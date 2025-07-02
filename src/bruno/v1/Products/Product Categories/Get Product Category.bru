@@ -1,0 +1,19 @@
+meta {
+  name: Get Product Category
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/v1/product-categories/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

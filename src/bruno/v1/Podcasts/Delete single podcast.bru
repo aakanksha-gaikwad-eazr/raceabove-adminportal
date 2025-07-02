@@ -1,0 +1,15 @@
+meta {
+  name: Delete single podcast
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{host}}/v1/podcasts/3f0538fd-e41c-494b-953d-aa556a175bdf
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

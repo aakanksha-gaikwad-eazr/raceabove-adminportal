@@ -1,0 +1,15 @@
+meta {
+  name: Delete Ticket Type
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{host}}/v1/ticket-types/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 1d8865cb-3914-441e-a0ce-03708b949336
+}

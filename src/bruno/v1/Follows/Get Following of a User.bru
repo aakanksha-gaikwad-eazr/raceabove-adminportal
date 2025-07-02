@@ -1,0 +1,15 @@
+meta {
+  name: Get Following of a User
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/v1/follows/{{user_id}}/following
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

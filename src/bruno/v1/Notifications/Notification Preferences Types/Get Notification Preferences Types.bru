@@ -1,0 +1,15 @@
+meta {
+  name: Get Notification Preferences Types
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/v1/notifications/preferences-types
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

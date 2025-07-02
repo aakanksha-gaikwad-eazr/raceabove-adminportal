@@ -1,0 +1,21 @@
+meta {
+  name: Update Ticket Type
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/v1/ticket-types/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 1d8865cb-3914-441e-a0ce-03708b949336
+}
+
+body:json {
+  {
+    "description": "VIP tickets testing"
+  }
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Get User Participated Challenges
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/v1/users/{{user_id}}/challenges
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

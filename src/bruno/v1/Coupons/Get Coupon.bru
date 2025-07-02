@@ -1,0 +1,19 @@
+meta {
+  name: Get Coupon
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/v1/coupons/:couponId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  couponId: e74867fa-1ca2-4546-a59d-407bd48134f6
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

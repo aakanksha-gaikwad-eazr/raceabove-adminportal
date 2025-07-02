@@ -1,0 +1,23 @@
+meta {
+  name: Update Admin Details
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{host}}/v1/admins/203cba09-39c4-46d2-9d48-185cf0b4513e
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  phoneNumber: +918779939352
+  ~name: Prasad Sawant
+  ~email: prasad.s@geteazr.com
+  ~companyName: Eazr Digipayments Ltd.
+  ~companyLogo: @file(/home/prasad/Downloads/EazrLogo.png)
+}

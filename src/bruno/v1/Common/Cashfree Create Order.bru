@@ -1,0 +1,20 @@
+meta {
+  name: Cashfree Create Order
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://api.prod.eazr.in/common/cashfree/create-order
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "userId": "904fb4da-eb2e-4ea0-b433-901c5a230d94",
+    "fullName": "Hitesh Meghwal",
+    "contactNumber": "+918928597751",
+    "amount": "1.1"
+  }
+}

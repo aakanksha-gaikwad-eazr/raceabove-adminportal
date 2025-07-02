@@ -1,0 +1,29 @@
+meta {
+  name: Update a Sport
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/v1/sports/:id
+  body: multipartForm
+  auth: bearer
+}
+
+params:path {
+  id: 5aa8d2db-d4e5-42f7-bdb5-ab201b6d36e2
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Stretching"
+  }
+}
+
+body:multipart-form {
+  name: Walk
+}

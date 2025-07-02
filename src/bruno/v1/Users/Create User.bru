@@ -1,0 +1,47 @@
+meta {
+  name: Create User
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/users
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Bevon Jacobs",
+    "phoneNumber": "+918558585858",
+    "email": "mayurhdgyuu@gmail.com",
+    "height": 180.4,
+    "weight": 70.5,
+    "gender": "male",
+    "age": 25,
+    "target": "Enhanced Performance",
+    "exerciseLevel": "advanced",
+    "activitiesCount": 20,
+    "isActive": true
+  }
+}
+
+body:multipart-form {
+  name: Alejandrf Garnacho
+  email: alejandso78@manutd.com
+  phoneNumber: +919977887372
+  profilePhoto: @file(D:\lionel-messi-23.png.png)
+  age: 23
+  targets[0]: 1192af38-e467-45fe-90bc-ce56cbf8bf65
+  exerciseLevel: advanced
+  activitiesCount: 20
+  height: 165.82
+  weight: 83.37
+  gender: male
+  reminder: 10:00
+  targets[1]: 3601a279-b135-4f33-b73c-0962e069a008
+}

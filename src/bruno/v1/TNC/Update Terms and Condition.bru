@@ -1,0 +1,21 @@
+meta {
+  name: Update Terms and Condition
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/v1/terms-and-conditions/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 8f0efcf0-a15b-4b77-b7ca-8a4684b195d4
+}
+
+body:json {
+  {
+    "content": "Updated terms: All participants must bring a valid ID and follow the updated event rules."
+  }
+}

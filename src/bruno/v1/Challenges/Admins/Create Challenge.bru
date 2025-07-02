@@ -1,0 +1,31 @@
+meta {
+  name: Create Challenge
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/challenges
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  title: Walk Challenge
+  startDate: 2025-05-30
+  endDate: 2025-06-30
+  targetValue: 20
+  targetUnit: steps
+  targetDescription: Complete 20 steps in a month
+  reward: Digital badge, 10 coins, Merchant Discount
+  description: Fitgo partners with Brodks and challenges you to take part in a 5K. Find strength in every step you take, feel positive energy.
+  bannerFile: @file(/home/prasad/Pictures/Wallpapers/lake-mountains-rocks-evening-scenery-illustration-macos-big-3840x2160-3780.jpg)
+  badgeFile: @file(/home/prasad/Pictures/Wallpapers/samsung-galaxy-book-pro-stock-dark-background-blue-purple-3840x2160-7575.png)
+  rewardCoinsInterval: 1
+  rewardCoinsPerInterval: 1
+  qualifyingSports[]: 5aa8d2db-d4e5-42f7-bdb5-ab201b6d36e2
+}

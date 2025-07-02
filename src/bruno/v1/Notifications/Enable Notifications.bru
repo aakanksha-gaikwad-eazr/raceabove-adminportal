@@ -1,0 +1,22 @@
+meta {
+  name: Enable Notifications
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/notifications/users/af871ded-d430-43ec-ad13-54a7458bea0c/enable
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "deviceType": "android",
+    "notificationToken": "bk3RNwTe3H0:CI2k_HHwgIpoDKCIZvvDMExUdFQ3P1"
+  }
+}

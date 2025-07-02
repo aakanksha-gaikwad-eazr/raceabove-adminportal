@@ -1,0 +1,15 @@
+meta {
+  name: Delete Ticket Template
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{host}}/v1/ticket-templates/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: b86ed56b-836d-4802-a2d8-75611804acbe
+}

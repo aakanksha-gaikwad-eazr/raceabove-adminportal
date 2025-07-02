@@ -1,0 +1,21 @@
+meta {
+  name: User Update Schedule
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{host}}/v1/users/{{user_id}}/schedules/{{schedule_id}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "scheduledAt": "2025-02-10T18:06:00"
+  }
+}

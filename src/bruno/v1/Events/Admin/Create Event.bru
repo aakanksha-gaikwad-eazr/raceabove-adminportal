@@ -1,0 +1,316 @@
+meta {
+  name: Create Event
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/events
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  bannerFile: @file(D:\banner.png)
+  title: testing run events2
+  description: A thrilling marathon experience with multiple obstacle stations and challenges for all fitness levels.
+  date: 2025-06-24
+  startTime: 06:00
+  endTime: 10:00
+  location[address]: One World Centre, Mumbai, Maharashtra, India
+  location[coordinate][type]: Point
+  location[coordinate][coordinates][0]: 19.00646138520581
+  location[coordinate][coordinates][1]: 72.83213738154801
+  location[isActive]: true
+  participation: Test Participation - Open to all age groups above 18. Registration required.
+  obstacles: Test Obstacles - 5km run with 3 obstacle stations including mud crawl and wall climb.
+  enduranceLevel: Beginner to Advanced - Suitable for all fitness levels.
+  couponIds[0]: 8e056c77-0f28-4e19-84c5-599d2a495176
+  addOns[0][productId]: d991e799-4275-456d-af91-99ff9cc79fb6
+  addOns[0][quantity]: 50
+  addOns[0][isActive]: true
+  price: 500
+  coinsDiscountPercentage: 10.0
+  slots[0][startTime]: 06:00
+  slots[0][endTime]: 08:00
+  slots[0][eventTickets][0][ticketTemplateId]: 3fc08737-559b-49f9-9965-f16d476a7f43
+  slots[0][eventTickets][0][isActive]: true
+  slots[0][isActive]: true
+  slots[1][startTime]: 08:30
+  slots[1][endTime]: 10:00
+  slots[1][eventTickets][0][ticketTemplateId]: 3fc08737-559b-49f9-9965-f16d476a7f43
+  slots[1][eventTickets][0][isActive]: true
+  slots[1][isActive]: true
+  maxTicketsPerUser: 5
+  frequentlyAskedQuestionsIds[0]: 6aa9d53d-bd62-45bf-b970-d2c4431ce0ea
+  frequentlyAskedQuestionsIds[1]: b5f3da37-91cb-4ced-af54-3a8bcfbba04b
+  termsAndConditionsId: d34f51e4-448e-4b4c-9bea-9c90d4740749
+  privacyPolicyId: 47f03139-6dd0-4997-9562-263442c8ef71
+  isActive: true
+}
+
+script:post-response {
+  if (res.body.status === 201) {
+    const data = res.body.data;
+    bru.setEnvVar("event_id", data.id);
+    console.log("Event created with ID:", data.id);
+  }
+}
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.body.status).to.equal(201);
+    expect(res.body.statusText).to.equal("Created");
+  });
+  
+  test("Response has required fields", function() {
+    const response = res.body;
+    expect(res.body).to.have.property("message");
+    expect(res.body).to.have.property("data");
+    expect(res.body.data).to.have.property("id");
+    expect(res.body.data).to.have.property("title");
+    expect(res.body.data).to.have.property("banner");
+    expect(res.body.data).to.have.property("slots");
+    expect(res.body.data).to.have.property("addOns");
+  });
+  
+  test("Event created successfully", function() {
+    const response = res.body;
+    expect(response.message).to.equal("Event created successfully");
+  });
+  
+  test("Event has correct title", function() {
+    const response = res.body;
+    expect(response.data.title).to.equal("Hitesh is not working at all");
+  });
+  
+  test("Event has banner URL", function() {
+    const response = res.body;
+    expect(response.data.banner).to.be.a("string");
+    expect(response.data.banner).to.include("amazonaws.com");
+  });
+  
+  test("Event has slots", function() {
+    const response = res.body;
+    expect(response.data.slots).to.be.an("array");
+    expect(response.data.slots).to.have.length(2);
+  });
+  
+  test("Each slot has event tickets", function() {
+    const response = res.body;
+    response.data.slots.forEach(slot => {
+      expect(slot.eventTickets).to.be.an("array");
+      expect(slot.eventTickets).to.have.length(1);
+    });
+  });
+  
+  test("Event has add-ons", function() {
+    const response = res.body;
+    expect(response.data.addOns).to.be.an("array");
+    expect(response.data.addOns).to.have.length(1);
+  });
+  
+  test("Add-on has correct structure", function() {
+    const response = res.body;
+    const addOn = response.data.addOns[0];
+    expect(addOn).to.have.property("id");
+    expect(addOn).to.have.property("name");
+    expect(addOn).to.have.property("description");
+    expect(addOn).to.have.property("image");
+    expect(addOn).to.have.property("price");
+    expect(addOn).to.have.property("quantity");
+    expect(addOn).to.have.property("soldQuantity");
+    expect(addOn).to.have.property("category");
+    expect(addOn).to.have.property("isActive");
+  });
+  
+  test("Add-on quantity is correct", function() {
+    const response = res.body;
+    const addOn = response.data.addOns[0];
+    expect(addOn.quantity).to.equal(50);
+    expect(addOn.soldQuantity).to.equal(0);
+  });
+}
+
+docs {
+  title: Create Event
+  description: Creates a new event with all related data including slots, tickets, location, add-ons, and banner image.
+  
+  request:
+    - name: bannerFile
+      type: file
+      required: true
+      description: Event banner image (JPEG, PNG, WebP, max 5MB)
+    
+    - name: title
+      type: string
+      required: true
+      description: Event title (3-250 characters)
+    
+    - name: description
+      type: string
+      required: true
+      description: Event description (min 10 characters)
+    
+    - name: date
+      type: date
+      required: true
+      description: Event date (YYYY-MM-DD format)
+    
+    - name: startTime
+      type: string
+      required: true
+      description: Event start time (HH:mm format)
+    
+    - name: endTime
+      type: string
+      required: true
+      description: Event end time (HH:mm format)
+    
+    - name: location[address]
+      type: string
+      required: true
+      description: Event location address
+    
+    - name: location[coordinate][type]
+      type: string
+      required: true
+      description: Coordinate type (Point)
+    
+    - name: location[coordinate][coordinates][0]
+      type: number
+      required: true
+      description: Latitude coordinate
+    
+    - name: location[coordinate][coordinates][1]
+      type: number
+      required: true
+      description: Longitude coordinate
+    
+    - name: location[isActive]
+      type: boolean
+      required: false
+      description: Whether location is active (default: true)
+    
+    - name: participation
+      type: string
+      required: true
+      description: Participation details (max 512 characters)
+    
+    - name: obstacles
+      type: string
+      required: true
+      description: Obstacles description (max 512 characters)
+    
+    - name: enduranceLevel
+      type: string
+      required: true
+      description: Endurance level description (max 512 characters)
+    
+    - name: couponIds
+      type: array
+      required: false
+      description: Array of coupon UUIDs for event discounts
+    
+    - name: addOns
+      type: array
+      required: false
+      description: Array of add-on products with quantities and settings
+    
+    - name: addOns[][productId]
+      type: string
+      required: true
+      description: Product UUID for the add-on
+    
+    - name: addOns[][quantity]
+      type: number
+      required: false
+      description: Available quantity for this add-on (default: 0)
+    
+    - name: addOns[][isActive]
+      type: boolean
+      required: false
+      description: Whether the add-on is active (default: true)
+    
+    - name: price
+      type: number
+      required: true
+      description: Event price (decimal with 2 decimal places)
+    
+    - name: coinsDiscountPercentage
+      type: number
+      required: true
+      description: Coins discount percentage (0-100 with 2 decimal places)
+    
+    - name: slots
+      type: array
+      required: true
+      description: Event slots with their tickets
+    
+    - name: maxTicketsPerUser
+      type: number
+      required: true
+      description: Maximum tickets per user (1-100)
+    
+    - name: frequentlyAskedQuestionsIds
+      type: array
+      required: true
+      description: Array of FAQ UUIDs
+    
+    - name: termsAndConditionsId
+      type: string
+      required: true
+      description: Terms and conditions UUID
+    
+    - name: privacyPolicyId
+      type: string
+      required: true
+      description: Privacy policy UUID
+    
+    - name: isActive
+      type: boolean
+      required: false
+      description: Whether event is active (default: true)
+  
+  response:
+    - status: 201
+      description: Event created successfully
+      body:
+        message: Event created successfully
+        data:
+          id: uuid
+          title: string
+          description: string
+          banner: string (S3 URL)
+          slots: array
+          addOns: array
+            - id: uuid
+            - name: string
+            - description: string
+            - image: string
+            - price: number
+            - quantity: number
+            - soldQuantity: number
+            - category: object
+            - isActive: boolean
+    
+    - status: 400
+      description: Validation error
+      body:
+        message: string
+        error: string
+    
+    - status: 401
+      description: Unauthorized
+      body:
+        message: Unauthorized
+    
+    - status: 500
+      description: Internal server error
+      body:
+        message: string
+}

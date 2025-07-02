@@ -1,0 +1,15 @@
+meta {
+  name: Get Push Notifications of a User
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/v1/users/{{user_id}}/notifications
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

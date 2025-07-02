@@ -1,0 +1,21 @@
+meta {
+  name: Update a Gear
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/v1/gears/ed86c386-4595-4b1a-976b-5faadd289afb
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  typeId: 6334db21-b368-405f-ba58-c04ab9d5e4ac
+  sportId: b918691f-993c-4c54-96b5-3cba5ed51e20
+  photoFile: @file(/home/prasad/Downloads/gears/ultraboost-og-toedown.jpg)
+}

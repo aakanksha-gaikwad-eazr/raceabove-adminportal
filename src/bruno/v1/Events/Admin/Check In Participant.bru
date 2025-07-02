@@ -1,0 +1,30 @@
+meta {
+  name: Check In Participant
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/v1/event-participations/:eventParticipationId
+  body: json
+  auth: bearer
+}
+
+params:path {
+  eventParticipationId: ed453b73-3e6c-4497-b6c6-6672d39d33c0
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "tickets": [
+      {
+        "id": "fd0689ac-c149-442a-b51d-805358206844",
+        "isCheckedIn": true
+      }
+    ]
+  }
+}

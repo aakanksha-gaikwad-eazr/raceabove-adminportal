@@ -1,0 +1,19 @@
+meta {
+  name: Get Product
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/v1/products/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

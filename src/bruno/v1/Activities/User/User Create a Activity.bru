@@ -1,0 +1,35 @@
+meta {
+  name: User Create a Activity
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/users/{{user_id}}/activities
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  sportId: 03075d0a-3c55-4fda-aa04-d63807a108e0
+  completedAt: 2025-06-05T12:00:00
+  distanceInKM: 2.5
+  durationInSeconds: 1800
+  stepsCount: 4000
+  name: Morning Run
+  description: A refreshing morning jog
+  mapType: standard
+  exertion: moderate
+  mediaFiles: @file(/home/prasad/Pictures/Wallpapers/apple-macbook-pro-stock-2021-apple-event-2021-dark-mode-3840x2160-6757.jpg|/home/prasad/Pictures/Wallpapers/apple-macbook-pro-stock-2021-apple-event-2021-dark-mode-3840x2160-6759.jpg)
+  polyline: _p~iF~ps|U_ulLnnqC_mqNvxq`@
+  ~gearId: f2658330-524c-4a1e-a771-57980d04d932
+  ~hideStatistics: calories
+}
+
+script:post-response {
+  // bru.setEnvVar("activity_id", res.body.data.id)
+}

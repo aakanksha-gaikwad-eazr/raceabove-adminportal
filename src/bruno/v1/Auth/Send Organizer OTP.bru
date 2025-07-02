@@ -1,0 +1,17 @@
+meta {
+  name: Send Organizer OTP
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/v1/organizers/send-otp
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "phoneNumber": "+917678017610"
+  }
+}

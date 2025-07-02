@@ -1,0 +1,36 @@
+meta {
+  name: Update User
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{host}}/v1/users/{{user_id}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Hitesh",
+    "phoneNumber": "+918928590042",
+    "email": "meghwal8@gmail.com",
+    "height": 170,
+    "weight": 65,
+    "gender": "male",
+    "age": 17,
+    "exerciseLevel": "beginner",
+    "activitiesCount": 15,
+    "profilePhoto": "https://raceabove-dev.s3.ap-south-1.amazonaws.com/users/7b9cab5f-91d2-4fca-b88d-3e9b20969001/profile/photo.png"
+  }
+}
+
+body:multipart-form {
+  targets[0]: fa4fd955-5f04-435c-9f8e-e73b5b36821d
+  targets[1]: d361e639-79f0-479c-b579-428d84b24679
+  ~profilePhoto: @file(/home/prasad/Pictures/Wallpapers/apple-macbook-pro-stock-2021-apple-event-2021-dark-mode-3840x2160-6759.jpg)
+}

@@ -1,0 +1,18 @@
+meta {
+  name: Create Ticket Type
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/ticket-types
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Children",
+    "description": "Children Ticket"
+  }
+}

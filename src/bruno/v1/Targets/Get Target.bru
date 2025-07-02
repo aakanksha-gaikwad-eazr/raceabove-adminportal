@@ -1,0 +1,15 @@
+meta {
+  name: Get Target
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/v1/targets/189549ba-f0d2-4f8a-b226-3fa5cc7fdd5c
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

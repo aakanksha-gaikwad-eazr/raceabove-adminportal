@@ -1,0 +1,24 @@
+meta {
+  name: Create a Gear
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/gears
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  typeId: 3dd92196-e08b-4eb4-a159-fd0f2733020c
+  sportId: 7f675519-73d0-41ff-afb8-d228953d7680
+  brand: Adidas
+  model: Adidas Ultraboost
+  weight: 184.5
+  photoFile: @file(/home/prasad/Downloads/gears/ultraboost-og-toedown.jpg)
+}

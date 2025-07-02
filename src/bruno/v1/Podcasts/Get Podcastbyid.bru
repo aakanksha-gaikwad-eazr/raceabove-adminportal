@@ -1,0 +1,15 @@
+meta {
+  name: Get Podcastbyid
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{host}}/v1/podcasts/18573de6-5aec-420b-9653-196ea1d9f783
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

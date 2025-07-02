@@ -1,0 +1,19 @@
+meta {
+  name: Delete Event
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{host}}/v1/events/:eventId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  eventId: 20223a40-1051-4aa1-af73-9187d000e967
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

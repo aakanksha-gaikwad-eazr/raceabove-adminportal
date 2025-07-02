@@ -1,0 +1,24 @@
+meta {
+  name: Create a Schedule
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/schedules
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:json {
+  {
+    "name": "Morning Run",
+    "sportId": "daeac52b-ac83-4082-bf60-dc2e84e3c47f",
+    "scheduledAt": "2025-02-04T10:28:00",
+    "userId": "904fb4da-eb2e-4ea0-b433-901c5a230d94"
+  }
+}

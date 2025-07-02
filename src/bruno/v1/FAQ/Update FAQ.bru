@@ -1,0 +1,22 @@
+meta {
+  name: Update FAQ
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/v1/frequently-asked-questions/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 77711bc7-4c98-467e-8131-bba374965b8c
+}
+
+body:json {
+  {
+    "question": "What is the event start time?",
+    "answer": "The event will start at 10 AM."
+  }
+}

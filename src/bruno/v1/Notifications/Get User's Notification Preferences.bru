@@ -1,0 +1,15 @@
+meta {
+  name: Get User's Notification Preferences
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/v1/notifications/users/af871ded-d430-43ec-ad13-54a7458bea0c/preferences
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

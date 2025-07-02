@@ -1,0 +1,23 @@
+meta {
+  name: Update Event
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{host}}/v1/events/:id
+  body: multipartForm
+  auth: bearer
+}
+
+params:path {
+  id: fe7b2ba5-0f09-44b7-adac-9c70b1031e9f
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  couponIds[1]: 7703d0fe-7f2f-4750-906e-9cb314082aff
+}

@@ -1,0 +1,22 @@
+meta {
+  name: Create Ticket Templates
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/ticket-templates
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "description": "Child ticket template",
+    "minAge": 5,
+    "maxAge": 12,
+    "price": 100.00,
+    "quantity": 50,
+    "ticketTypeId": "6ad1be97-26b8-4509-8469-01adde7c3838"
+  }
+}

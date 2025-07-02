@@ -1,0 +1,19 @@
+meta {
+  name: Get User Data
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{host}}/v1/admins/users/:userId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  userId: 34eb5486-beaf-47a9-bb09-afed0c768f5e
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

@@ -1,0 +1,25 @@
+meta {
+  name: Update Challenge
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{host}}/v1/challenges/:id
+  body: multipartForm
+  auth: bearer
+}
+
+params:path {
+  id: e95717c4-b138-4ac2-8e59-70b72affccdc
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  startDate: 2025-06-13
+  ~targetUnit: km
+  ~targetValue: 5
+}

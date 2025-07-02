@@ -1,0 +1,21 @@
+meta {
+  name: Get Challenges
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{host}}/v1/challenges?timeFrame=upcoming&categoriseBySports=false&includeParticipants=true
+  body: none
+  auth: bearer
+}
+
+params:query {
+  timeFrame: upcoming
+  categoriseBySports: false
+  includeParticipants: true
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

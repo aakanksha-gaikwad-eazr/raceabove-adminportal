@@ -1,0 +1,19 @@
+meta {
+  name: Get Steps for a date
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/v1/users/{{user_id}}/steps?date=2025-05-30
+  body: none
+  auth: bearer
+}
+
+params:query {
+  date: 2025-05-30
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

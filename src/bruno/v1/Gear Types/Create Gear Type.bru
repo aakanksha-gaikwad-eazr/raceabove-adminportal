@@ -1,0 +1,20 @@
+meta {
+  name: Create Gear Type
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/v1/gear-types
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  name: Bikes
+  iconFile: @file(/home/prasad/Pictures/Wallpapers/samsung-galaxy-book-pro-stock-dark-background-blue-purple-3840x2160-7575.png)
+}

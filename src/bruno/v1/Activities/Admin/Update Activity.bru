@@ -1,0 +1,22 @@
+meta {
+  name: Update Activity
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{host}}/v1/activities/{{activity_id}}
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  userId: 904fb4da-eb2e-4ea0-b433-901c5a230d94
+  distanceInKM: 6.75
+  durationInSeconds: 7200
+  stepsCount: 1600
+}

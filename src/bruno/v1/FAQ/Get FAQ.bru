@@ -1,0 +1,15 @@
+meta {
+  name: Get FAQ
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{host}}/v1/frequently-asked-questions/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 77711bc7-4c98-467e-8131-bba374965b8c
+}

@@ -1,0 +1,23 @@
+meta {
+  name: Create Admin
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/v1/admins
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}
+
+body:multipart-form {
+  name: Prasad Sawant
+  phoneNumber: +918779939359
+  email: prasad.s@geteazr.com
+  companyName: Eazr
+  companyLogoFile: @file(/home/prasad/Pictures/Wallpapers/lake-mountains-rocks-evening-scenery-illustration-macos-big-3840x2160-3780.jpg)
+}

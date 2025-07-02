@@ -1,0 +1,17 @@
+meta {
+  name: Send Admin OTP
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/v1/admins/send-otp
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "phoneNumber": "+917678027610"
+  }
+}

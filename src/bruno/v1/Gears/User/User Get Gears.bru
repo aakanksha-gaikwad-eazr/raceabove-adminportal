@@ -1,0 +1,15 @@
+meta {
+  name: User Get Gears
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/v1/users/{{user_id}}/gears
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{access_token}}
+}

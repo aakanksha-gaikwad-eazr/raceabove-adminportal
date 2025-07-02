@@ -1,0 +1,17 @@
+meta {
+  name: Create Terms and Condition
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/v1/terms-and-conditions
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "content": "All participants must adhere to the event rules and regulations. No refunds will be provided after registration."
+  }
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Update Privacy Policy
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{host}}/v1/privacy-policies/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 9c9e36ca-ed42-44a6-acda-6b42ebb5bd80
+}
+
+body:json {
+  {
+    "content": "Updated privacy policy: We have enhanced our data protection measures."
+  }
+}
