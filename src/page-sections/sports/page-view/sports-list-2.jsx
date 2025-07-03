@@ -102,18 +102,18 @@ const headCells = [
     disablePadding: false,
     label: "Name",
   },
-  {
-    id: "createdBy",
-    numeric: true,
-    disablePadding: false,
-    label: "Created By",
-  },
-  {
-    id: "createdByRole",
-    numeric: true,
-    disablePadding: false,
-    label: "Created By Role",
-  },
+  // {
+  //   id: "createdBy",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Created By",
+  // },
+  // {
+  //   id: "createdByRole",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Created By Role",
+  // },
   {
     id: "updatedBy",
     numeric: true,
@@ -126,18 +126,18 @@ const headCells = [
     disablePadding: false,
     label: "Updated By Role",
   },
-  {
-    id: "deletedBy",
-    numeric: true,
-    disablePadding: false,
-    label: "Deleted By",
-  },
-  {
-    id: "deletedByRole",
-    numeric: true,
-    disablePadding: false,
-    label: "Deleted By Role",
-  },
+  // {
+  //   id: "deletedBy",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Deleted By",
+  // },
+  // {
+  //   id: "deletedByRole",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Deleted By Role",
+  // },
   {
     id: "status",
     numeric: false,
@@ -195,21 +195,17 @@ export default function SportsListPageView() {
     sports || [],
     getComparator(order, orderBy)
   ).filter((item) => {
-    // First, filter out deleted items (deletedAt !== null) from all tabs
     if (item?.deletedAt !== null) {
       return false;
     }
 
-    // Then filter by tab selection based on isActive status
     if (selectTab === "active" && !item?.isActive) {
-      return false; // In "active" tab, show only isActive === true
+      return false; 
     }
     if (selectTab === "inactive" && item?.isActive) {
-      return false; // In "inactive" tab, show only isActive === false
+      return false; 
     }
-    // "all" tab shows all non-deleted items regardless of isActive status
 
-    // Filter by search term
     if (searchFilter) {
       return item?.name?.toLowerCase().includes(searchFilter?.toLowerCase());
     }
@@ -226,12 +222,13 @@ export default function SportsListPageView() {
     } else {
       // Only select non-deleted items by default
       const firstNonDeleted = sports?.find((sport) => sport.deletedAt === null);
-      setSelectedSport(firstNonDeleted || sports?.[0]);
+      setSelectedSport(firstNonDeleted || sports[0]);
     }
   }, [sports]);
 
   // Fixed handleStatusToggle function
   const handleStatusToggle = async (sportId, currentStatus, isDeleted) => {
+    console.log("/---",sportId,currentStatus,isDeleted)
     // Prevent toggling for deleted items
     if (isDeleted) {
       toast.error("Cannot update status of deleted items");
@@ -255,10 +252,7 @@ export default function SportsListPageView() {
       console.log("result", result);
 
       if (
-        result.payload?.data?.status == 200 ||
-        result.meta?.requestStatus === "fulfilled"
-      ) {
-        console.log("Sport status updated successfully");
+        result.payload?.status == 200 ) {
         toast.success("Status updated successfully");
 
         // Force refresh the sports list
@@ -422,7 +416,7 @@ export default function SportsListPageView() {
                                 !isDeleted && setSelectedSport(sport)
                               }
                             >
-                              <BodyTableCell align="left" isDeleted={isDeleted}>
+                              <BodyTableCell align="center" isDeleted={isDeleted}>
                                 <Stack
                                   direction="row"
                                   alignItems="center"
@@ -462,24 +456,24 @@ export default function SportsListPageView() {
                                   </Stack>
                                 </Stack>
                               </BodyTableCell>
-                              <BodyTableCell align="left" isDeleted={isDeleted}>
+                              {/* <BodyTableCell align="left" isDeleted={isDeleted}>
                                 {sport.createdBy ?? "N/A"}
                               </BodyTableCell>
                               <BodyTableCell align="left" isDeleted={isDeleted}>
                                 {sport.createdByRole ?? "N/A"}
-                              </BodyTableCell>
-                              <BodyTableCell align="left" isDeleted={isDeleted}>
+                              </BodyTableCell> */}
+                              <BodyTableCell align="center" isDeleted={isDeleted}>
                                 {sport.updatedBy ?? "N/A"}
                               </BodyTableCell>
-                              <BodyTableCell align="left" isDeleted={isDeleted}>
+                              <BodyTableCell align="center" isDeleted={isDeleted}>
                                 {sport.updatedByRole ?? "N/A"}
                               </BodyTableCell>
-                              <BodyTableCell align="left" isDeleted={isDeleted}>
+                              {/* <BodyTableCell align="left" isDeleted={isDeleted}>
                                 {sport.deletedBy ?? "N/A"}
                               </BodyTableCell>
                               <BodyTableCell align="left" isDeleted={isDeleted}>
                                 {sport.deletedByRole ?? "N/A"}
-                              </BodyTableCell>
+                              </BodyTableCell> */}
 
                               {/* STATUS COLUMN */}
                               <BodyTableCell
@@ -497,7 +491,7 @@ export default function SportsListPageView() {
                                   ) : (
                                     <>
                                       <Switch
-                                        checked={sport?.isActive || false}
+                                        checked={sport?.isActive}
                                         onChange={(e) => {
                                           e.stopPropagation();
                                           handleStatusToggle(
@@ -561,7 +555,7 @@ export default function SportsListPageView() {
                                       </IconButton>
                                     </span>
                                   </Tooltip>
-                                  <Tooltip
+                                  <Tooltip 
                                     title={
                                       isDeleted ? "Already deleted" : "Delete"
                                     }
@@ -614,7 +608,7 @@ export default function SportsListPageView() {
       <EditSportsFormModal
         open={openEditModal}
         handleClose={handleCloseEditModal}
-        data={sportId }
+        data={{ id: sportId }}
       />
 
       <DeleteEventModal

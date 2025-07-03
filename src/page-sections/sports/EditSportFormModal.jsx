@@ -1,4 +1,4 @@
-  // components/CreateSportFormModal.js
+// components/CreateSportFormModal.js
 import {
   Box,
   Button,
@@ -11,147 +11,115 @@ import {
   Avatar,
 } from "@mui/material";
 import { useFormik } from "formik";
-import { useState, useEffect } from "react";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
-import { getSportsById, updateSports, getSports } from "../../store/apps/sports";
+import { updateGearTypes, getGearTypes } from "../../store/apps/geartypes";
+import { useState, useEffect } from "react";
+import CameraAlt from "@mui/icons-material/CameraAlt";
 import toast from "react-hot-toast";
+import { getSports } from "@/store/apps/sports";
+import { updateSports } from "@/store/apps/sports";
 
-export default function EditSportFormModal({ open, handleClose, sportsId }) {
-  console.log("sportsId",sportsId)
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [iconFile, setIconFile] = useState(null);
+export default function EditSportsFormModal({ open, handleClose, data }) {
   const dispatch = useDispatch();
-  const { singleSports } = useSelector((state) => state.sports);
+  const {singleSports}  = useSelector((state) => state.sports);
+  const {sports}  = useSelector((state) => state.sports);
+  // console.log("singleSports", singleSports)
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [sportsData, setSportsData] = useState(null);
 
-  const initialValues = {
-    name: "",
-    iconFile: "",
-  };
-
-  const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Sport name is required"),
-    iconFile: Yup.mixed(),
-  });
-
-  const {
-    values,
-    errors,
-    handleSubmit,
-    handleChange,
-    handleBlur,
-    setFieldValue,
-    touched,
-    resetForm,
-  } = useFormik({
-    initialValues,
-    validationSchema,
-    enableReinitialize: true,
-    onSubmit: async (values) => {
-      const formData = new FormData();
-      formData.append("name", values.name);
-      if (iconFile) {
-        console.log("iconFile", iconFile);
-        formData.append("iconFile", iconFile);
+  useEffect(() => {
+    if (open && data?.id) {
+      const sportsDetails = sports.find(type => type.id === data.id);
+      if (sportsDetails) {
+        setSportsData(sportsDetails);
+        setSelectedImage(sportsDetails.icon);
       }
+    }
+  }, [open, data?.id, sports]);
 
+  const formik = useFormik({
+    initialValues: {
+      name: sportsData?.name || "",
+      iconFile: null,
+    },
+    enableReinitialize: true,
+    validationSchema: Yup.object({
+      name: Yup.string().required("sports name is required"),
+    }),
+    onSubmit: async (values) => {
       try {
-        const response = await dispatch(updateSports({ id: sportsId, data: formData }));
-        if (response?.payload?.data) {
-          console.log("form", response);
-          toast.success("Sport updated successfully");
+        const formData = new FormData();
+        
+        // Append all form values
+        Object.keys(values).forEach((key) => {
+        
+            formData.append(key, values[key]);
+          
+        });
+
+        const response = await dispatch(updateSports({ id: data?.id, data: formData }));
+
+        if (response?.payload?.status === 200 || response?.meta?.requestStatus === 'fulfilled') {
+          toast.success("sports updated successfully!");
           await dispatch(getSports());
-          // await dispatch(getSportsById(sportsId));
-          handleClose();    
-          resetForm();
-          setIconFile(null);  
-          setPreviewUrl(null);
+          handleClose();
+          formik.resetForm();
         } else {
-          toast.error("Failed to update sport");
+          toast.error("Failed to update sports type.");
         }
       } catch (error) {
-        console.error(error);
-        toast.error("Error occurred while updating sport");
+        console.error("Update error:", error);
+        toast.error("Failed to update sports type. Please try again.");
       }
     },
   });
 
-  useEffect(() => {
-    if (sportsId && open) {
-      dispatch(getSportsById(sportsId));
-    }
-  }, [sportsId, open, dispatch]);
-
-  // Update form when singleSports changes
-  useEffect(() => {
-    if (singleSports) {
-      setFieldValue("name", singleSports?.name || "");
-      if (singleSports?.icon) {
-        setPreviewUrl(singleSports.icon || singleSports?.iconUrl);
-      }
-    }
-  }, [singleSports, setFieldValue]);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setIconFile(file);
-      setFieldValue("iconFile", file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Edit Sport</DialogTitle>
-      <form onSubmit={handleSubmit}>
+      <DialogTitle>Edit Sports</DialogTitle>
+      <form onSubmit={formik.handleSubmit}>
         <DialogContent>
           <Stack spacing={2}>
             <TextField
-              label="Sport Name"
+              label="Sports Name"
               name="name"
-              value={values.name}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={touched.name && Boolean(errors.name)}
-              helperText={touched.name && errors.name}
+              value={formik.values.name}
+              onChange={formik.handleChange}
+              error={formik.touched.name && Boolean(formik.errors.name)}
+              helperText={formik.touched.name && formik.errors.name}
               fullWidth
             />
             <Box display="flex" alignItems="center" gap={2}>
-              {previewUrl && (
-                <Avatar
-                  src={previewUrl} alt="sports icon"
-                  sx={{ width: 64, height: 64, bgcolor: "grey.100" }}
-                  onError={() => console.error("Image failed to load:", previewUrl)}
-                />
-              )}
-              {/* {previewUrl && (
-  <img src={previewUrl} alt="Preview" style={{ width: 64, height: 64 }} />
-)} */}
-              <Box>
+              <Avatar
+                src={selectedImage}
+                sx={{ width: 64, height: 64, bgcolor: "grey.100" }}
+              />
+              <label htmlFor="iconFile">
                 <input
-                  accept="image/*"
-                  id="icon-upload"
+                  id="iconFile"
+                  name="iconFile"
                   type="file"
-                  style={{ display: "none" }}
-                  onChange={handleFileChange}
+                  accept="image/*"
+                  hidden
+                  onChange={(event) => {
+                    const file = event.currentTarget.files[0];
+                    if (file) {
+                      formik.setFieldValue("iconFile", file);
+                      setSelectedImage(URL.createObjectURL(file));
+                    }
+                  }}
                 />
-                <label htmlFor="icon-upload">
-                  <Button variant="outlined" component="span">
-                    Upload Icon
-                  </Button>
-                </label>
-                {touched.iconFile && errors.iconFile && (
-                  <Box color="error.main" mt={1} fontSize={12}>
-                    {errors.iconFile}
-                  </Box>
-                )}
-              </Box>
+                <Button variant="outlined" component="span" startIcon={<CameraAlt />}>
+                  Upload Image
+                </Button>
+              </label>
             </Box>
+            {formik.touched.iconFile && formik.errors.iconFile && (
+              <Box sx={{ color: "error.main", fontSize: 13 }}>
+                {formik.errors.iconFile}
+              </Box>
+            )}
           </Stack>
         </DialogContent>
         <DialogActions>

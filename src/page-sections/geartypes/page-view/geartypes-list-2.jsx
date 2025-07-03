@@ -510,7 +510,7 @@ export default function GearTypesList2PageView() {
                                         color="success"
                                         disabled={isDeleted}
                                       />
-                                      {!isDeleted && (
+                                      {/* {!isDeleted && (
                                         <Chip
                                           label={
                                             geartype?.isActive
@@ -525,7 +525,7 @@ export default function GearTypesList2PageView() {
                                           }
                                           variant="outlined"
                                         />
-                                      )}
+                                      )} */}
                                     </>
                                   )}
                                 </Stack>
