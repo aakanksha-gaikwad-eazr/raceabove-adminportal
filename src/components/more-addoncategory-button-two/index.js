@@ -1,1 +1,1 @@
-export { default } from './MoreAddoncategoryButtonTwo';
+export { default } from './MoreAddoncategoryButtontwo';
