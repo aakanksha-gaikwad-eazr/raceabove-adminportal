@@ -23,7 +23,6 @@ import ProductTableHead from '../ProductTableHead';
 import ProductTableActions from '../ProductTableActions'; // CUSTOM DUMMY DATA
 
 import { PRODUCTS } from '@/__fakeData__/products'; //  STYLED COMPONENTS
-import SearchArea from '../../addons/SearchArea';
 
 const ListWrapper = styled('div')(({
   theme

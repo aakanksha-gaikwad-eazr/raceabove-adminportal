@@ -41,7 +41,7 @@ const StyledDatePickerWrapper = styled("div")(({ theme, error }) => ({
     color: theme.palette.text.primary,
     backgroundColor: theme.palette.background.paper,
     border: `1px solid ${error ? theme.palette.error.main : theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.23)" : "rgba(0, 0, 0, 0.23)"}`,
-    borderRadius: theme.shape.borderRadius,
+    // borderRadius: theme.shape.borderRadius,
     borderRadius: "7px",
     transition: theme.transitions.create(["border-color", "box-shadow"]),
     "&:hover": {

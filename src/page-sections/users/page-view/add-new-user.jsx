@@ -439,17 +439,19 @@ export default function AddNewUserPageView() {
                         touched.targets && errors.targets
                       )}
                       displayEmpty
-                      renderValue={(selected) => {
-                        if (selected.length === 0) {
-                          return <span style={{ color: '#9e9e9e' }}>Select Targets</span>;
-                        }
-                        return selected
-                          .map(
-                            (id) =>
-                              targets.find((t) => t.id === id)?.name
-                          )
-                          .join(", ");
-                      }}
+
+                      // renderValue={(selected) => {
+                      //   if (selected.length === 0) {
+                      //     return <span style={{ color: '#9e9e9e' }}>Select Targets</span>;
+                      //   }
+                      //   return selected
+                      //     .map(
+                      //       (id) =>
+                      //         targets.find((t) => t.id === id)?.name
+                      //     )
+                      //     .join(", ");
+                      // }}
+                      
                     >
                       {targets.map((target) => (
                         <MenuItem key={target.id} value={target.id}>

@@ -21,11 +21,11 @@ export const navigations = [
   //   icon: duotone.Bookings,
   //   path: "/bookings/version-3",
   // },
-  // {
-  //   name: "Users",
-  //   icon: duotone.UserList,
-  //   path: "/user-list-2",
-  // },
+  {
+    name: "Users",
+    icon: duotone.UserList,
+    path: "/user-list-2",
+  },
   // {
   //   name: "Organizers",
   //   icon: duotone.Accounts,

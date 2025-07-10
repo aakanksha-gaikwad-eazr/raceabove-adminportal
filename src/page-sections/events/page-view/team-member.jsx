@@ -182,7 +182,7 @@ export default function TeamMemberPageView({ open, handleClose }) {
       enduranceLevel: "",
       rewardCoinsInterval: "",
       coupons: [],
-      faq: [],
+      // faq: [],
       location: {
         address: "",
         coordinate: {
