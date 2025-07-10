@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
-import { getTicketType, updateTicketTypes,getSingleTicketType } from "@/store/apps/tickettype";
+import { getTicketType,getSingleTicketType } from "@/store/apps/tickettype";
 
 const SwitchWrapper = styled("div")({
   width: "100%",
@@ -62,12 +62,12 @@ export default function EditTicketTypePageView() {
 
 
   const initialValues = {
-    name: "",
+    title: "",
     description: "",
   };
 
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Name is required"),
+    title: Yup.string().required("Title is required"),
     description: Yup.string().required("Description is required"),
   });
 
@@ -82,18 +82,20 @@ export default function EditTicketTypePageView() {
     setFieldValue,
   } = useFormik({
     initialValues,
-    // validationSchema,
+    validationSchema,
     enableReinitialize: true,
     onSubmit: async (values) => {
+      console.log("values", values)
       try {
-        const payload = {...values};
-        const res = await dispatch(
-          updateTicketTypes({ editId: id, changedData: payload })
-        );
+        const payload = {
+    title: values.title,
+    description: values.description,
+  };
+   
         if (res?.payload?.status === 200) {
           toast.success("ticket type updated successfully");
           dispatch(getTicketType());
-          navigate("/ticket-type-grid");
+          navigate("/ticket-type-list-2");
         } else {
           toast.error("Update failed");
         }
@@ -122,11 +124,7 @@ export default function EditTicketTypePageView() {
 
   return (
     <div className="pt-2 pb-4">
-      <Card sx={{ p: 3 }}>
-        <Grid container spacing={3}>
-         
-          <Grid size={{ xs: 12 }}>
-            <FlexBox alignItems="center">
+       <FlexBox mb={2} alignItems="center">
               <IconWrapper>
                 <GroupSenior sx={{ color: "primary.main" }} />
               </IconWrapper>
@@ -134,11 +132,12 @@ export default function EditTicketTypePageView() {
                 Edit Ticket Type
               </Paragraph>
             </FlexBox>
-          </Grid>
 
+
+        <Grid container spacing={3}>
+ 
           <Grid
             size={{
-              md: 8,
               xs: 12,
             }}
             sx={{ margin: "auto" }}
@@ -148,23 +147,21 @@ export default function EditTicketTypePageView() {
                 <Grid container spacing={3}>
                   <Grid
                     size={{
-                      sm: 6,
                       xs: 12,
                     }}
                   >
                     <TextField
                       fullWidth
-                      name="name"
+                      name="title"
                       label="Ticket Type Name"
-                      value={values.name}
+                      value={values.title}
                       onChange={handleChange}
-                      helperText={touched.name && errors.name}
-                      error={Boolean(touched.name && errors.name)}
+                      helperText={touched.title && errors.title}
+                      error={Boolean(touched.title && errors.title)}
                     />
                   </Grid>
                   <Grid
                     size={{
-                      sm: 6,
                       xs: 12,
                     }}
                   >
@@ -192,7 +189,6 @@ export default function EditTicketTypePageView() {
             </Card>
           </Grid>
         </Grid>
-      </Card>
     </div>
   );
 }

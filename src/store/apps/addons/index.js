@@ -5,7 +5,6 @@ import axiosInstance from "@/utils/axiosInstance";
 import { ip } from '../../../config/config'
 
 //** fetch all addons
-
 export const getAddOns = createAsyncThunk('appAddOns/getAddOns', async () => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
@@ -28,57 +27,8 @@ export const getAddOns = createAsyncThunk('appAddOns/getAddOns', async () => {
   }
 })
 
-//add addons
-export const createAddOns = createAsyncThunk('appAddOns/createAddOns', async (data) => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    if (!accessToken) {
-      throw new Error('Access token not found in localStorage')
-    }
-
-    let url = `${ip}/v1/products`
-
-    const response = await axiosInstance.post(url,data, {
-   
-      headers: {
-        Authorization: `Bearer ${accessToken}`, 
-      } 
-    })
-    console.log("created addons data", response)
-
-    return response?.data
-
-  } catch (error) {
-    console.error("❌ API Request Failed:", error.response?.data || error.message);
-    throw new Error('Failed to Create addons')
-  }
-})
-
-//delete addons
-export const deleteAddOns = createAsyncThunk('appAddOns/deleteAddOns', async id => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    const url = `${ip}/v1/products/${id}`
-
-    const response = await axiosInstance.delete(url, {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    })
-
-    console.log('deleted the add-on', response.data)
-
-    return response.data
-  } catch (error) {
-    console.log("Couldn't delete addon", error)
-    throw error;
-  }
-})
-
-//update the addons
-export const updateAddOns = createAsyncThunk('appAddOns/updateAddOns', async (req) => {
+//review the addons
+export const reviewAddOns = createAsyncThunk('appAddOns/reviewAddOns', async (req) => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
     const accessToken = adminData.accessToken
@@ -89,22 +39,21 @@ export const updateAddOns = createAsyncThunk('appAddOns/updateAddOns', async (re
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/products/${req.id}`
+    let url = `${ip}/v1/products/${req.id}/review`
     
     const response = await axiosInstance.patch(url, req.data, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'multipart/form-data'
       } 
     })
     
-    console.log("update addons data", response.data)
+    console.log("review addons data", response.data)
 
     return response?.data
 
   } catch (error) {
     console.error("❌ API Request Failed:", error.response?.data || error.message);
-    throw new Error('Failed to update addons details')
+    throw new Error('Failed to review addons details')
   }
 })
 
@@ -142,22 +91,17 @@ export const singleAddOn = createAsyncThunk('appAddOns/singleAddOn', async (id) 
 export const appAddOnsSlice = createSlice({
   name: 'appTicketType',
   initialState: {
-    addOns:[],
+    allAddOns:[],
     singleAddOns:{}
   },
   reducers: {},
   extraReducers: builder => {
     builder
     .addCase(getAddOns.fulfilled, (state, action) => {
-      state.addOns = action.payload 
+      state.allAddOns = action.payload 
     })
-    .addCase(createAddOns.fulfilled, (state, action) => {
-      state.success = true
-    })
-    .addCase(deleteAddOns.fulfilled, (state, action) => {
-      state.success = true
-    })
-    .addCase(updateAddOns.fulfilled, (state, action) => {
+  
+    .addCase(reviewAddOns.fulfilled, (state, action) => {
       state.success = true
     })
     .addCase(singleAddOn.fulfilled, (state, action) => {

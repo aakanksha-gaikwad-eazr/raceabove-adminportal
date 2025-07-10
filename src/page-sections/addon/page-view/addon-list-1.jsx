@@ -11,14 +11,15 @@ import Scrollbar from '@/components/scrollbar';
 import { TableDataNotFound, TableToolbar } from '@/components/table'; // CUSTOM PAGE SECTION COMPONENTS
 
 import SearchArea from '../SearchArea';
-import HeadingArea from '../HeadingAreaCoupon';
-import UserTableRow from '../TicketTemplateTableRow';
-import UserTableHead from '../TicketTemplateTableHead'; // CUSTOM DEFINED HOOK
+import HeadingArea from '../HeadingArea';
+import UserTableRow from '../AddonTableRow';
+import UserTableHead from '../AddonTableHead'; // CUSTOM DEFINED HOOK
 
 import useMuiTable, { getComparator, stableSort } from '@/hooks/useMuiTable'; // CUSTOM DUMMY DATA
 
 import { USER_LIST } from '@/__fakeData__/users';
-export default function TicketTemplate1PageView() {
+
+export default function Addon1PageView() {
   const [users, setUsers] = useState([...USER_LIST]);
   const [userFilter, setUserFilter] = useState({
     role: '',

@@ -38,7 +38,7 @@ import toast from "react-hot-toast";
 
 // ==============================================================
 
-export default function UserDetails({ data }) {
+export default function TicketTemplateDetails({ data }) {
   const theme = useTheme();
   const navigate = useNavigate();
 

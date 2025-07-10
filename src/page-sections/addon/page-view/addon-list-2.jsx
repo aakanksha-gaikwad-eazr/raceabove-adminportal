@@ -14,28 +14,39 @@ import TableSortLabel from "@mui/material/TableSortLabel";
 import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
 import styled from "@mui/material/styles/styled"; // CUSTOM COMPONENTS
+
 import { H6 } from "@/components/typography";
 import Scrollbar from "@/components/scrollbar";
 import { TableDataNotFound } from "@/components/table"; // CUSTOM PAGE SECTION COMPONENTS
+
 import SearchArea from "../SearchArea";
-import UserDetails from "../TickettypeDetails"; // CUSTOM DEFINED HOOK
+import UserDetails from "../AddonDetails"; // CUSTOM DEFINED HOOK
+
 import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable"; // CUSTOM UTILS METHOD
+
 import { isDark } from "@/utils/constants"; // CUSTOM DUMMY DATA
+
+import { USER_LIST } from "@/__fakeData__/users"; // STYLED COMPONENTS
 import { useDispatch, useSelector } from "react-redux";
 import { getUsers } from "../../../store/apps/user";
-import HeadingAreaCoupon from "../HeadingAreaCoupon";
-import { getTicketType } from "@/store/apps/tickettype";
-import { Button, Chip, Switch } from "@mui/material";
+// import SearchFilter from "page-sections/challenge/SearchFilter";
+import SearchFilter from "../../challenge/SearchFilter";
+// import SearchFilter from "page-sections/challenge/SearchFilter";
+import StatusFilter from "../../challenge/StatusFilter";
+import { getAddOnsCategory } from "@/store/apps/addonscategory";
+import HeadingAreaCoupon from "../HeadingArea";
+import { Chip, Switch } from "@mui/material";
 import DeleteIcon from "@/icons/Delete";
 import EditIcon from "@/icons/Edit";
-import DeleteModal from "@/components/delete-modal";
+import DeleteModal from "@/components/delete-modal/DeleteModal";
+// import { deleteAddOnsCategory } from "@/store/apps/addonscategory";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { getAddOns } from "@/store/apps/addons";
+import { reviewAddOns } from "@/store/apps/addons";
 import ApprovalModal from "@/components/approval-modal";
 import { Paragraph } from "@/components/typography";
-import { reviewTicketTypes } from "@/store/apps/tickettype";
-
-
+import { Button } from "@mui/material";
 
 
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
@@ -67,10 +78,10 @@ const BodyTableRow = styled(TableRow, {
 }));
 const headCells = [
   {
-    id: "title",
+    id: "name",
     numeric: true,
     disablePadding: false,
-    label: "Title",
+    label: "Name",
   },
   {
     id: "description",
@@ -78,20 +89,18 @@ const headCells = [
     disablePadding: false,
     label: "Description",
   },
-
   {
     id: "approvalStatus",
     numeric: true,
     disablePadding: false,
     label: "Approval Status",
   },
-   {
+  {
     id: "reviewedby",
     numeric: false,
     disablePadding: false,
     label: "Reviewed By",
   },
-
   {
     id: "actions",
     numeric: true,
@@ -100,12 +109,9 @@ const headCells = [
   },
 ];
 
-export default function TicketType2PageView() {
+export default function Addon2PageView() {
   // const [users] = useState([...USER_LIST]);
   const [searchFilter, setSearchFilter] = useState("");
-  const [selectedTicketType, setSelectedTicketTypes] = useState();
-  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
-  const [ticketTypeToReview, setTickettypeToReview] = useState(null);
 
   const {
     page,
@@ -121,50 +127,52 @@ export default function TicketType2PageView() {
   });
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
-  const { tickettypes } = useSelector((state) => state.tickettype);
+  const {allAddOns}  = useSelector((state) => state.addons);
+  const [selectedAddon, setSelectedAddon] = useState();
+  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
+  const [addonToReview, setAddonToReview] = useState(null);
+  const navigate = useNavigate()
 
-  const filteredTicketTypes = stableSort(
-    tickettypes,
+  const addOnsArray = Array.isArray(allAddOns) ? allAddOns : [];
+
+  const filteredAddon = stableSort(
+    addOnsArray,
     getComparator(order, orderBy)
   ).filter((item) => {
     if (searchFilter)
-      return item?.title?.toLowerCase().includes(searchFilter?.toLowerCase());
+      return item?.name?.toLowerCase().includes(searchFilter?.toLowerCase());
     else return true;
   });
-
-  useEffect(() => {
-    dispatch(getTicketType());
+    useEffect(() => {
+    dispatch(getAddOns());
   }, [dispatch]);
 
   useEffect(() => {
-    if (selectedTicketType) {
-      const updatedTicketType = tickettypes.find(
-        (tickettypes) => tickettypes.id === selectedTicketType.id
+    if (selectedAddon) {
+      const updatedAddon = addOnsArray.find(
+        (addOns) => addOns.id === selectedAddon.id
       );
-      if (updatedTicketType) setSelectedTicketTypes(updatedTicketType);
+      if (updatedAddon) setSelectedAddon(updatedAddon);
     } else {
-      setSelectedTicketTypes(tickettypes[0]);
+      setSelectedAddon(allAddOns[0]);
     }
-  }, [tickettypes]);
+  }, [addOnsArray]);
 
-  const handleReviewClick = (tickettype) => {
-    setTickettypeToReview(tickettype);
+  const handleReviewClick = (addOns) => {
+    setAddonToReview(addOns);
     setApprovalModalOpen(true);
   };
-
   const handleApprovalCancel = () => {
     setApprovalModalOpen(false);
-    setTickettypeToReview(null);
+    setAddonToReview(null);
   };
 
-    const handleApprovalSubmit = async (formData) => {
-      console.log("formData1223",formData)
-        if (ticketTypeToReview) {
+     const handleApprovalSubmit = async (formData) => {
+        if (addonToReview) {
           try {
             const reviewData = {
-              id: ticketTypeToReview.id,
+              id: addonToReview.id,
               data:{
                 approvalStatus: String(formData.approvalStatus).toLowerCase().trim(),
                 reviewReason: String(formData.reviewReason).trim(),
@@ -181,42 +189,44 @@ export default function TicketType2PageView() {
               toast.error("Review reason is required");
               return;
             }
-            const result = await dispatch(reviewTicketTypes(reviewData));
+            const result = await dispatch(reviewAddOns(reviewData));
             console.log("result", result)
             if (result?.payload?.status === 200) {
-              dispatch(getTicketType());
+              dispatch(getAddOns());
               
               // Show success toast based on approval status
               switch (reviewData?.data?.approvalStatus) {
                 case "approved":
-                  toast.success("Ticket Type approved successfully!");
+                  toast.success("Product are approved successfully!");
                   break;
                 case "rejected":
-                  toast.success("Ticket Type rejected successfully!");
+                  toast.success("Product are rejected successfully!");
                   break;
                 default:
-                  toast.success("Ticket Type reviewed successfully!");
+                  toast.success("Product are reviewed successfully!");
               }
               // Reset state
               setApprovalModalOpen(false);
-              setTickettypeToReview(null);
+              setAddonToReview(null);
             } else {
               // Handle API error response
-              const errorMessage = result.payload?.message || result.error?.message || "Failed to review Ticket type";
+              const errorMessage = result.payload?.message || result.error?.message || "Failed to review Product";
               toast.error(errorMessage);
             }
             
           } catch (error) {
-            console.error("Error reviewing Ticket Type:", error);
-            const errorMessage = error.response?.data?.message || error.message || "Failed to review Ticket type. Please try again.";
+            console.error("Error reviewing Product:", error);
+            const errorMessage = error.response?.data?.message || error.message || "Failed to review Product. Please try again.";
             toast.error(errorMessage);
           }
         }
       };
 
+
   return (
     <div className="pt-2 pb-4">
       <HeadingAreaCoupon />
+
       <Grid container>
         <Grid
           size={{
@@ -236,8 +246,8 @@ export default function TicketType2PageView() {
               <SearchArea
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
-                gridRoute="/ticket-type-grid"
-                listRoute="/ticket-type-list-2"
+                gridRoute="/addon-grid"
+                listRoute="/addon-list-2"
               />
             </Box>
 
@@ -270,18 +280,20 @@ export default function TicketType2PageView() {
 
                   {/* TABLE BODY AND DATA */}
                   <TableBody>
-                    {filteredTicketTypes
+                    {filteredAddon
                       .slice(
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
-                      ).filter(tickettype=>tickettype.deletedAt === null)
-                      .map((tickettype) => (
+                      ).filter(addon=>addon.deletedAt === null)
+                      .map((addon) => (
                         <BodyTableRow
-                          key={tickettype.id}
+                          key={addon.id}
                           active={
-                            selectedTicketType?.id === tickettype.id ? 1 : 0
+                            selectedAddon?.id === addon.id
+                              ? 1
+                              : 0
                           }
-                          onClick={() => setSelectedTicketTypes(tickettype)}
+                          onClick={() => setSelectedAddon(addon)}
                         >
                           <BodyTableCell>
                             <Stack
@@ -289,30 +301,43 @@ export default function TicketType2PageView() {
                               alignItems="center"
                               spacing={1}
                             >
+                              <Avatar
+                                src={addon.profilePhoto}
+                                sx={{
+                                  borderRadius: "20%",
+                                  backgroundColor: "grey.100",
+                                }}
+                              />
+
                               <H6 fontSize={12} color="text.primary">
-                                {tickettype.title ?? "N/A"}
+                                {addon.name ?? "N/A"}
                               </H6>
                             </Stack>
                           </BodyTableCell>
                           <BodyTableCell>
-                            {tickettype.description ?? "N/A"}
+                            {addon.description
+                              ? addon.description.length > 25
+                                ? `${addon.description.substring(0, 25)}...`
+                                : addon.description
+                              : "N/A"}
                           </BodyTableCell>
-                          <BodyTableCell>
+                          <BodyTableCell alignItems="center">
+                            {/* {addon.approvalStatus ?? "N/A"} */}
                             <Chip
                               label={
-                                tickettype.approvalStatus
-                                  ? tickettype.approvalStatus
+                                addon.approvalStatus
+                                  ? addon.approvalStatus
                                       .charAt(0)
                                       .toUpperCase() +
-                                    tickettype.approvalStatus.slice(1)
+                                    addon.approvalStatus.slice(1)
                                   : "N/A"
                               }
-                            color={
-                                  tickettype.approvalStatus === "approved"
+                              color={
+                                  addon.approvalStatus === "approved"
                                     ? "success"
-                                    : tickettype.approvalStatus === "pending"
+                                    : addon.approvalStatus === "pending"
                                     ? "warning"
-                                    : tickettype.approvalStatus === "rejected"
+                                    : addon.approvalStatus === "rejected"
                                     ? "error"
                                     : "default"
                                 }
@@ -320,28 +345,29 @@ export default function TicketType2PageView() {
                               size="small"
                             />
                           </BodyTableCell>
-                       <BodyTableCell align="center">
-                                                 <Paragraph>{tickettype?.reviewedBy ?? "N/A"}</Paragraph>
-                                             </BodyTableCell>
+                           <BodyTableCell align="center">
+                                                                             <Paragraph>{addon?.reviewedBy ?? "N/A"}</Paragraph>
+                                                                         </BodyTableCell>
                           <BodyTableCell>
-                               <Button
-                                                              size="small"
-                                                              variant="outlined"
-                                                              disabled={tickettype.approvalStatus === "approved" || tickettype.approvalStatus === "rejected"}
-                                                              onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleReviewClick(tickettype);
-                                                              }}
-                                                            >
-                                                              Review
-                                                            </Button>
+                            <Button
+                                  size="small"
+                                  variant="outlined"
+                                  disabled={addon.approvalStatus === "approved" || addon.approvalStatus === "rejected"}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleReviewClick(addon);
+                                  }}
+                                >
+                                  Review
+                                </Button>
                           </BodyTableCell>
-
-                        
+                
                         </BodyTableRow>
                       ))}
 
-                    {filteredTicketTypes.length === 0 && <TableDataNotFound />}
+                    {filteredAddon.length === 0 && (
+                      <TableDataNotFound />
+                    )}
                   </TableBody>
                 </Table>
               </Scrollbar>
@@ -352,7 +378,7 @@ export default function TicketType2PageView() {
               page={page}
               component="div"
               rowsPerPage={rowsPerPage}
-              count={filteredTicketTypes.length}
+              count={filteredAddon.length}
               onPageChange={handleChangePage}
               rowsPerPageOptions={[5, 10, 25]}
               onRowsPerPageChange={handleChangeRowsPerPage}
@@ -360,15 +386,16 @@ export default function TicketType2PageView() {
           </Card>
         </Grid>
       </Grid>
-       {/* APPROVAL MODAL */}
+
+   {/* APPROVAL MODAL */}
       <ApprovalModal
         open={approvalModalOpen}
         handleClose={handleApprovalCancel}
-        title="Review Ticket Types"
+        title="Review Products"
         onSubmit={handleApprovalSubmit}
         initialData={{
-          approvalStatus: ticketTypeToReview?.approvalStatus || "",
-          reviewReason: ticketTypeToReview?.reviewReason || ""
+          approvalStatus: addonToReview?.approvalStatus || "",
+          reviewReason: addonToReview?.reviewReason || ""
         }}
       />
     </div>

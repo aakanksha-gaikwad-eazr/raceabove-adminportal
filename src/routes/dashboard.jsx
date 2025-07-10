@@ -174,26 +174,6 @@ const TicketTemplateGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/tickettemplate/tickettemplate-grid-2"))
 );
 
-// add on categoy
-const AddNewAddonCategory = Loadable(
-  lazy(() => import("@/pages/dashboard/addoncategory/add-new-addonscategory"))
-);
-const EditAddonCategory = Loadable(
-  lazy(() => import("@/pages/dashboard/addoncategory/edit-addonscategory"))
-);
-const AddonCategoryListView = Loadable(
-  lazy(() => import("@/pages/dashboard/addoncategory/addonscategory-list-1"))
-);
-const AddonCategoryGridView = Loadable(
-  lazy(() => import("@/pages/dashboard/addoncategory/addoncategory-grid-1"))
-);
-const AddonCategoryListView2 = Loadable(
-  lazy(() => import("@/pages/dashboard/addoncategory/addoncategory-list-2"))
-);
-const AddonCategoryGridView2 = Loadable(
-  lazy(() => import("@/pages/dashboard/addoncategory/addoncategory-grid-2"))
-);
-
 // sports
 const AddNewSports = Loadable(
   lazy(() => import("@/pages/dashboard/sports/add-new-sports"))
@@ -396,23 +376,6 @@ const EditEvents = Loadable(
   lazy(() => import("@/pages/dashboard/events/edit-event"))
 );
 
-//add-ons page
-const AddOnsList = Loadable(
-  lazy(() => import("@/pages/dashboard/addons/list"))
-);
-const AddOnsGrid = Loadable(
-  lazy(() => import("@/pages/dashboard/addons/grid"))
-);
-const AddOnsCreate = Loadable(
-  lazy(() => import("@/pages/dashboard/addons/create"))
-);
-const AddOnsDetails = Loadable(
-  lazy(() => import("@/pages/dashboard/addons/details"))
-);
-const AddOnsEdit = Loadable(
-  lazy(() => import("@/pages/dashboard/addons/editaddon"))
-);
-
 // Faq
 const AddNewFaq = Loadable(
   lazy(() => import("@/pages/dashboard/faqsection/add-new-faq"))
@@ -433,7 +396,46 @@ const FaqGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/faqsection/faq-grid-2"))
 );
 
+// add on categoy
+const AddNewAddonCategory = Loadable(
+  lazy(() => import("@/pages/dashboard/addoncategory/add-new-addonscategory"))
+);
+const EditAddonCategory = Loadable(
+  lazy(() => import("@/pages/dashboard/addoncategory/edit-addonscategory"))
+);
+const AddonCategoryListView = Loadable(
+  lazy(() => import("@/pages/dashboard/addoncategory/addonscategory-list-1"))
+);
+const AddonCategoryGridView = Loadable(
+  lazy(() => import("@/pages/dashboard/addoncategory/addoncategory-grid-1"))
+);
+const AddonCategoryListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/addoncategory/addoncategory-list-2"))
+);
+const AddonCategoryGridView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/addoncategory/addoncategory-grid-2"))
+);
+// add ons
+const AddNewAddon = Loadable(
+  lazy(() => import("@/pages/dashboard/addon/add-new-addon"))
+);
+const EditAddon = Loadable(
+  lazy(() => import("@/pages/dashboard/addon/edit-addon"))
+);
+const AddonListView = Loadable(
+  lazy(() => import("@/pages/dashboard/addon/addon-list-1"))
+);
+const AddonGridView = Loadable(
+  lazy(() => import("@/pages/dashboard/addon/addon-grid-1"))
+);
+const AddonListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/addon/addon-list-2"))
+);
+const AddonGridView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/addon/addon-grid-2"))
+);
 
+//bookings
 const BookingsV1 = Loadable(
   lazy(() => import("@/pages/dashboard/bookings/version-1"))
 );
@@ -630,10 +632,7 @@ export const DashboardRoutes = [
       {
         path: "coupons-grid-2",
         element: <CouponsGridView2 />,
-      },
-
-
-      
+      }, 
 // privacypolicy
       {
         path: "add-privacy-policy",
@@ -741,7 +740,8 @@ export const DashboardRoutes = [
         path: "ticket-template-grid-2",
         element: <TicketTemplateGridView2 />,
       },
-
+       
+// addon category
       {
         path: "add-addoncategory",
         element: <AddNewAddonCategory />,
@@ -763,6 +763,34 @@ export const DashboardRoutes = [
         path: "addoncategory-list-2",
         element: <AddonCategoryListView2 />,
       },
+// addon 
+      {
+        path: "add-addon",
+        element: <AddNewAddon />,
+      },
+      {
+        path: "edit-addon/:id",
+        element: <EditAddon />,
+      },
+      {
+        path: "addon-list",
+        element: <AddonListView />,
+      },
+      {
+        path: "addon-grid",
+        element: <AddonGridView />,
+      },
+
+      {
+        path: "addon-list-2",
+        element: <AddonListView2 />,
+      },
+      // sports
+      {
+        path: "add-sports",
+        element: <AddNewSports />,
+      },
+     
       {
         path: "add-sports",
         element: <AddNewSports />,
@@ -1072,27 +1100,7 @@ export const DashboardRoutes = [
           },
         ],
       },
-      {
-        path: "add-ons",
-        children: [
-          {
-            path: "create-add-ons",
-            element: <AddOnsCreate />,
-          },
-          {
-            path: "add-ons-details",
-            element: <AddOnsDetails />,
-          },
-          {
-            path: "add-ons-list",
-            element: <AddOnsList />,
-          },
-          {
-            path: "edit-add-ons",
-            element: <AddOnsEdit />,
-          },
-        ],
-      },
+    
 
     ],
   },

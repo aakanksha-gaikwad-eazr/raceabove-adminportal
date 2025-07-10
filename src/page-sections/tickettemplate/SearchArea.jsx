@@ -16,7 +16,7 @@ import { Card } from '@mui/material';
 // ==========================================================================================
 export default function SearchArea(props) {
   const {
-    value = '',
+    value,
     onChange,
     gridRoute,
     listRoute
@@ -41,24 +41,24 @@ export default function SearchArea(props) {
       }
     }} sx={{
       // maxWidth: 400,
-      width: '100%'
+      width: '40%'
     }} />
 
       {
       /* NAVIGATION BUTTONS */
     }
-      <Box flexShrink={0} className="actions">
-        {/* <IconButton onClick={() => navigate(listRoute)}>
+  {/* <Box flexShrink={0} className="actions">
+        <IconButton onClick={() => navigate(listRoute)}>
           <FormatBullets sx={{
           color: activeColor(listRoute)
         }} />
-        </IconButton> */}
+        </IconButton>
 
-        {/* <IconButton onClick={() => navigate(gridRoute)}>
+        <IconButton onClick={() => navigate(gridRoute)}>
           <Apps sx={{
           color: activeColor(gridRoute)
         }} />
-        </IconButton> */}
-      </Box>
+        </IconButton>
+      </Box> */}
     </FlexBetween>;
 }

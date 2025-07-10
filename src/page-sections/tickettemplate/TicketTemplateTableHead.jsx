@@ -38,7 +38,7 @@ const headCells = [{
   label: 'Actions'
 } //   { id: "" },
 ];
-export default function UserTableHead(props) {
+export default function TicketTemplateTableHead(props) {
   const {
     onSelectAllRows,
     order,

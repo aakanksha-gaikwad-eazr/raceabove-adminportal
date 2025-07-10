@@ -52,7 +52,7 @@ const StyledAppModal = styled(Modal)(({ theme }) => ({
 })); // ==============================================================
 
 // ====================================================== ========
-export default function AddoncategoryFormEdit({ open, handleClose, couponId }) {
+export default function AddonFormEdit({ open, handleClose, couponId }) {
   const [date, setDate] = useState(new Date());
   const [categoryAnchorEl, setCategoryAnchorEl] = useState(null);
 

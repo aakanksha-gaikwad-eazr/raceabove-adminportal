@@ -18,23 +18,19 @@ import MoreVertical from "@/icons/MoreVertical"; // CUSTOM UTILS METHOD
 
 import { paginate } from "@/utils/paginate"; // CUSTOM DUMMY DATA
 
-// import { USER_LIST } from "@/__fakeData__/users";
 import { useDispatch, useSelector } from "react-redux";
 import { getUsers } from "../../../store/apps/user/index";
 
 export default function AddoncategoryGrid2PageView() {
   const [userPerPage] = useState(21);
   const [page, setPage] = useState(1);
-  // const [users] = useState([...USER_LIST]);
   const [searchValue, setSearchValue] = useState("");
 
   //store
   const dispatch = useDispatch();
   const store = useSelector((state) => state);
-  console.log("store", store);
 
   const { users } = useSelector((state) => state.user);
-  console.log("users", users);
 
   useEffect(() => {
     dispatch(
@@ -83,8 +79,7 @@ export default function AddoncategoryGrid2PageView() {
             <SearchArea
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              gridRoute="/sports-grid-2"
-              listRoute="/user-list-2"
+            
             />
 
             <Grid container spacing={3}>
@@ -173,16 +168,6 @@ export default function AddoncategoryGrid2PageView() {
             </Grid>
           </Card>
         </Grid>
-
-        {/* <Grid
-          size={{
-            lg: 3,
-            md: 4,
-            xs: 12,
-          }}
-        >
-          <UserDetails data={selectedItem} />
-        </Grid> */}
       </Grid>
     </div>
   );

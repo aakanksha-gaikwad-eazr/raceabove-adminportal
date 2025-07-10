@@ -91,7 +91,7 @@ export default function AddContactForm({ handleCancel, data }) {
         }
       });
     } catch (error) {
-      toast.error("Failed to update ticke. Please try again.");
+      toast.error("Failed to update addon. Please try again.");
     } finally {
       setSubmitting(false);
     }

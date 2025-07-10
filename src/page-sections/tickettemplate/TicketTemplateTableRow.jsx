@@ -14,7 +14,7 @@ import { Paragraph } from '@/components/typography';
 import { TableMoreMenuItem, TableMoreMenu } from '@/components/table'; // ==============================================================
 
 // ==============================================================
-export default function UserTableRow(props) {
+export default function TicketTemplateTableRow(props) {
   const {
     user,
     isSelected,

@@ -40,7 +40,7 @@ export default function HeadingAreaCoupon({
         </IconWrapper>
 
         <Paragraph fontSize={20} fontWeight="bold">
-          Ticket Template
+          Ticket Templates
         </Paragraph>
       </FlexBox>
 
@@ -54,13 +54,13 @@ export default function HeadingAreaCoupon({
         </TabListWrapper>
       </TabContext> */}
 
-      <Button
+      {/* <Button
         variant="contained"
         startIcon={<Add />}
         onClick={() => navigate("/add-ticket-template")}
       >
-        Add Ticket Template
-      </Button>
+        Add Ticket Templates
+      </Button> */}
     </FlexBetween>
   );
 }

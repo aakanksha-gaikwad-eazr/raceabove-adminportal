@@ -49,8 +49,8 @@ export default function HeadingArea({
         </TabListWrapper>
       </TabContext> */}
 
-      <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/add-addoncategory')}>
+      {/* <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/add-addoncategory')}>
         Add New Product Category
-      </Button>
+      </Button> */}
     </FlexBetween>;
 }

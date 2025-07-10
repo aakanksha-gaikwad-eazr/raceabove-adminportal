@@ -8,7 +8,7 @@ import {
   createChallenges,
   getChallenges,
   getChallengesById,
-  reviewChallenges,
+  updateChallenges,
 } from "../../../store/apps/challenges"; // Import the API call
 
 import Stack from "@mui/material/Stack";
@@ -52,7 +52,7 @@ const StyledAppModal = styled(Modal)(({ theme }) => ({
 })); // ==============================================================
 
 // ====================================================== ========
-export default function TicketTypeFormEdit({ open, handleClose, couponId }) {
+export default function TicketTemplateFormEdit({ open, handleClose, couponId }) {
   const [date, setDate] = useState(new Date());
   const [categoryAnchorEl, setCategoryAnchorEl] = useState(null);
 

@@ -10,7 +10,6 @@ import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import useCoupons from "../../page-sections/coupons/useCoupons";
 import DeleteEventModal from "@/components/delete-modal-event";
-import { deleteAddOnsCategory, getAddOnsCategory } from "../../store/apps/addonscategory";
 import { useNavigate } from "react-router-dom";
 const optionList = ["Edit", "Delete"];
 
@@ -52,25 +51,25 @@ export default function MoreAddoncategoryButtontwo({
     }
   };
 
-  const handleDelete = async () => {
-    if (!selectedAddonCategoriesId) return;
-    await dispatch(deleteAddOnsCategory(selectedAddonCategoriesId))
-      .then(async (response) => {
-        if (response?.payload?.status === 200) {
-          await dispatch(getAddOnsCategory());
-          handleCloseModal();
-          toast.success("Successfully deleted");
-        } else {
-          toast.error("Error while deleting");
-        }
-      })
-      .catch((error) => console.error("Error deleting challenge:", error))
-      .finally(() => {
-        setOpenDeleteModal(false);
-        setSelectedAddonCategoriesId(null);
-        handleClose();
-      });
-  };
+  // const handleDelete = async () => {
+  //   if (!selectedAddonCategoriesId) return;
+  //   // await dispatch(deleteAddOnsCategory(selectedAddonCategoriesId))
+  //     .then(async (response) => {
+  //       if (response?.payload?.status === 200) {
+  //         await dispatch(getAddOnsCategory());
+  //         handleCloseModal();
+  //         toast.success("Successfully deleted");
+  //       } else {
+  //         toast.error("Error while deleting");
+  //       }
+  //     })
+  //     .catch((error) => console.error("Error deleting challenge:", error))
+  //     .finally(() => {
+  //       setOpenDeleteModal(false);
+  //       setSelectedAddonCategoriesId(null);
+  //       handleClose();
+  //     });
+  // };
 
   return (
     <div>

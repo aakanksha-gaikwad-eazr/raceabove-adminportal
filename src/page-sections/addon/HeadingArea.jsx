@@ -23,25 +23,20 @@ const TabListWrapper = styled(TabList)(({
 })); // ===================================================================
 
 // ===================================================================
-export default function HeadingAreaCoupon({
+export default function HeadingArea({
   value,
   changeTab
 }) {
   const navigate = useNavigate();
-  return (
-    <FlexBetween flexWrap="wrap" gap={1} mb={"2rem"}>
+  return <FlexBetween flexWrap="wrap" gap={1} mb={"2rem"}>
       <FlexBox alignItems="center">
         <IconWrapper>
-          <GroupSenior
-            sx={{
-              color: "primary.main",
-            }}
-          />
+          <GroupSenior sx={{
+          color: 'primary.main'
+        }} />
         </IconWrapper>
 
-        <Paragraph fontSize={20} fontWeight="bold">
-          Ticket Type
-        </Paragraph>
+        <Paragraph fontSize={16} style={{fontWeight:"bold"}} >Products</Paragraph>
       </FlexBox>
 
       {/* <TabContext value={value}>
@@ -53,14 +48,9 @@ export default function HeadingAreaCoupon({
           <Tab disableRipple label="Subscriber" value="subscriber" />
         </TabListWrapper>
       </TabContext> */}
-
-      {/* <Button
-        variant="contained"
-        startIcon={<Add />}
-        onClick={() => navigate("/add-ticket-type")}
-      >
-        Add Ticket Type
+{/* 
+      <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/add-addoncategory')}>
+        Add New Product
       </Button> */}
-    </FlexBetween>
-  );
+    </FlexBetween>;
 }

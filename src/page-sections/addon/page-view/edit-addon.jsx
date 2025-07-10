@@ -54,7 +54,7 @@ const UploadButton = styled("div")(({ theme }) => ({
   border: `1px solid ${theme.palette.background.paper}`,
 }));
 
-export default function EditAddoncategoryPageView() {
+export default function EditAddonPageView() {
   //store
   const dispatch = useDispatch();
   const navigate = useNavigate();

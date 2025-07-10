@@ -4,7 +4,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axiosInstance from "@/utils/axiosInstance";
 import { ip } from '../../../config/config'
 
-//** fetch all Tickettype
+//** fetch all Ticket Templates
 
 export const getTicketTemplate = createAsyncThunk('appTicketTemplate/getTicketTemplate', async () => {
   try {
@@ -28,8 +28,8 @@ export const getTicketTemplate = createAsyncThunk('appTicketTemplate/getTicketTe
   }
 })
 
-//add addons
-export const createTicketTemplate = createAsyncThunk('appTicketTemplate/createTicketTemplate', async (data) => {
+//review the Ticket Templates
+export const reviewTicketTemplate = createAsyncThunk('appTicketTemplate/reviewTicketTemplate', async (req) => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
     const accessToken = adminData.accessToken
@@ -37,73 +37,23 @@ export const createTicketTemplate = createAsyncThunk('appTicketTemplate/createTi
     if (!accessToken) {
       throw new Error('Access token not found in localStorage')
     }
-
-    let url = `${ip}/v1/ticket-templates`
-
-    const response = await axiosInstance.post(url,data, {
-   
-      headers: {
-        Authorization: `Bearer ${accessToken}`, 
-      } 
-    })
-    console.log("created TicketTemplate data", response)
-
-    return response?.data
-
-  } catch (error) {
-    console.error("❌ API Request Failed:", error.response?.data || error.message);
-    throw new Error('Failed to Create addons')
-  }
-})
-
-//delete addons
-export const deleteTicketTemplate = createAsyncThunk('appTicketTemplate/deleteTicketTemplates', async id => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    const url = `${ip}/v1/ticket-templates/${id}`
-
-    const response = await axiosInstance.delete(url, {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    })
-
-    console.log('deleted the TicketTemplate', response.data)
-
-    return response.data
-  } catch (error) {
-    console.log("Couldn't delete TicketTemplate", error)
-    throw error;
-  }
-})
-
-//update the addons
-export const updateTicketTemplate = createAsyncThunk('appTicketTemplate/updateTicketTemplate', async (req) => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    if (!accessToken) {
-      throw new Error('Access token not found in localStorage')
-    }
-    console.log("req update", req)
+    console.log("req review", req)
   
-    let url = `${ip}/v1/ticket-templates/${req.id}`
+    let url = `${ip}/v1/ticket-templates/${req.id}/review`
     
     const response = await axiosInstance.patch(url, req.data, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'multipart/form-data'
       } 
     })
     
-    console.log("update TicketTemplate data", response.data)
+    console.log("review TicketTemplate data", response.data)
 
     return response?.data
 
   } catch (error) {
     console.error("❌ API Request Failed:", error.response?.data || error.message);
-    throw new Error('Failed to update TicketTemplate details')
+    throw new Error('Failed to review TicketTemplate details')
   }
 })
 
@@ -141,22 +91,16 @@ export const getSingleTicketTemplate = createAsyncThunk('appTicketTemplate/getSi
 export const appTicketTemplateSlice = createSlice({
   name: 'appTicketTemplate',
   initialState: {
-    ticketTemplate:[],
+    allTicketTemplate:[],
     singleTicketTemplate:{}
   },
   reducers: {},
   extraReducers: builder => {
     builder
     .addCase(getTicketTemplate.fulfilled, (state, action) => {
-      state.ticketTemplate = action.payload 
+      state.allTicketTemplate = action.payload 
     })
-    .addCase(createTicketTemplate.fulfilled, (state, action) => {
-      state.success = true
-    })
-    .addCase(deleteTicketTemplate.fulfilled, (state, action) => {
-      state.success = true
-    })
-    .addCase(updateTicketTemplate.fulfilled, (state, action) => {
+    .addCase(reviewTicketTemplate.fulfilled, (state, action) => {
       state.success = true
     })
     .addCase(getSingleTicketTemplate.fulfilled, (state, action) => {

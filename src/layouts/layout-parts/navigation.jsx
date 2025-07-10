@@ -62,29 +62,27 @@ export const navigations = [
     path: "/targets-grid",
   },
 
-  //   {
-  //   name: "Product",
-  //   icon: duotone.Calender,
-  //   path: "/add-ons/add-ons-list",
-  // },
+     {
+    name: "Product",
+    icon: duotone.Ecommerce,
+    path: "/addon-list-2",
+  },
   {
     name: "Product Categories",
-    icon: duotone.Calender,
+    icon: duotone.LayerGroup,
     path: "/addoncategory-list-2",
   },
 
-  // {
-  //   name: "Ticket Type",
-  //   icon: duotone.Accounts,
-  //   path: "/ticket-type-grid",
-  // },
-  // {
-  //   name: "Ticket Template",
-  //   icon: duotone.Accounts,
-  //   path: "/ticket-template-grid",
-  // },
- 
-  
+{
+    name: "Ticket Type",
+    icon: duotone.Accounts,
+    path: "/ticket-type-list-2",
+  },
+  {
+    name: "Ticket Template",
+    icon: duotone.Pages,
+    path: "/ticket-template-list-2",
+  },
   {
     name: "Sports",
     icon: duotone.Apps,

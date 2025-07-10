@@ -3,27 +3,33 @@ import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid2";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import styled from "@mui/material/styles/styled"; // MUI ICON COMPONENT
+import styled from "@mui/material/styles/styled";
 import { FlexBox } from "@/components/flexbox";
 import GroupSenior from "@/icons/GroupSenior";
 import IconWrapper from "@/components/icon-wrapper/IconWrapper";
 import * as Yup from "yup";
-import { useFormik } from "formik"; // CUSTOM COMPONENTS
-import { Paragraph, Small } from "@/components/typography"; // CUSTOM UTILS METHOD
-import { isDark } from "@/utils/constants"; // STYLED COMPONENTS
+import { useFormik } from "formik";
+import { Paragraph, Small } from "@/components/typography";
+import { isDark } from "@/utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   getTicketType,
-  updateTicketTypes,
   getSingleTicketType,
 } from "@/store/apps/tickettype";
-import { getSingleTicketTemplate } from "@/store/apps/tickettemplate";
-import { getTicketTemplate } from "@/store/apps/tickettemplate";
-import { MenuItem, Select } from "@mui/material";
-import { updateTicketTemplate } from "@/store/apps/tickettemplate";
+import { 
+  getTicketTemplate,
+  getSingleTicketTemplate  // Add this import
+} from "@/store/apps/tickettemplate";
+import { 
+  FormControl, 
+  InputLabel, 
+  Select, 
+  MenuItem,           // Add this import
+  FormHelperText     // Add this import
+} from "@mui/material";
 
 const SwitchWrapper = styled("div")({
   width: "100%",
@@ -32,6 +38,7 @@ const SwitchWrapper = styled("div")({
   alignItems: "center",
   justifyContent: "space-between",
 });
+
 const StyledCard = styled(Card)({
   padding: 24,
   minHeight: 400,
@@ -39,6 +46,7 @@ const StyledCard = styled(Card)({
   alignItems: "center",
   flexDirection: "column",
 });
+
 const ButtonWrapper = styled("div")(({ theme }) => ({
   width: 100,
   height: 100,
@@ -48,6 +56,7 @@ const ButtonWrapper = styled("div")(({ theme }) => ({
   justifyContent: "center",
   backgroundColor: theme.palette.grey[isDark(theme) ? 700 : 100],
 }));
+
 const UploadButton = styled("div")(({ theme }) => ({
   width: 50,
   height: 50,
@@ -61,37 +70,35 @@ const UploadButton = styled("div")(({ theme }) => ({
 
 export default function EditTicketTemplatePageView() {
   const { id } = useParams();
-  //store
+  console.log("is id", id);
+  
+  // Store
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { singleTicketTemplate } = useSelector((state) => state.tickettemplate);
-  // console.log("singleTicketTemplate", singleTicketTemplate);
   const { tickettypes } = useSelector((state) => state.tickettype);
-  // console.log("tickettypes", tickettypes);
 
   const initialValues = {
-    name: "",
     description: "",
-    minAge: "",
-    maxAge: "",
-    price: "",
-    quantity: "",
+    maxAge: 0,
+    minAge: 0,
+    price: 0,
+    quantity: 0,
     ticketTypeId: "",
   };
-  useEffect(() => {
-    dispatch(getTicketTemplate());
-    dispatch(getTicketType());
-  }, []);
+
+  // Create a state to track if data is loaded
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Name is required"),
+    maxAge: Yup.number().required("maxAge is required"),
+    minAge: Yup.number().required("minAge is required"),
+    price: Yup.number().required("price is required"),
+    quantity: Yup.number().required("quantity is required"),
     description: Yup.string().required("Description is required"),
-    minAge: Yup.number().required("Min age is required").min(0),
-    maxAge: Yup.number().required("Max age is required").min(Yup.ref("minAge")),
-    price: Yup.number().required("Price is required").min(0),
-    quantity: Yup.number().required("Quantity is required").min(1),
-    ticketTypeId: Yup.string().required("ticket Type Id is required"),
+    ticketTypeId: Yup.string().required("Ticket type is required"),
   });
+
   const {
     values,
     errors,
@@ -103,190 +110,239 @@ export default function EditTicketTemplatePageView() {
     setFieldValue,
   } = useFormik({
     initialValues,
-    // validationSchema,
+    validationSchema,
     enableReinitialize: true,
-    onSubmit: handleFormSubmit,})
+    onSubmit: async (values) => {
+      console.log("values", values);
+      try {
+        const payload = {
+          maxAge: values.maxAge,
+          minAge: values.minAge,
+          price: values.price,
+          quantity: values.quantity,
+          description: values.description,
+          ticketTypeId: values.ticketTypeId,
+        };
 
-    async function handleFormSubmit(values) {
-      console.log("values", values)
-      const formData = new FormData();
-      formData.append("name", values.name);
-      formData.append("description", values.description);
-      formData.append("minAge", values.minAge);
-      formData.append("maxAge", values.maxAge);
-      formData.append("price", values.price);
-      formData.append("quantity", values.quantity);
-      formData.append("ticketTypeId", values.ticketTypeId);
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-      }      try {
-        const response = await dispatch(
-          updateTicketTemplate({ id, data: formData })
-        ).unwrap();
-        console.log("resp::::", response)
-        if (response?.status === 201) {
-          toast.success("Ticket template updated successfully!");
-          navigate("/ticket-template-grid");
+        if (res?.payload?.status === 200) {
+          toast.success("ticket template updated successfully");
+          dispatch(getTicketTemplate());
+          navigate("/ticket-template-list-2");
         } else {
-          toast.error(response?.message || "Failed to update Ticket template");
+          toast.error("Update failed");
         }
-      } catch (error) {
-        console.error("❌ Error:", error);
-        toast.error(error?.message || "Something went wrong");
+      } catch (err) {
+        toast.error("Something went wrong");
+        console.error(err);
       }
-    }
+    },
+  });
 
+  // Debug logs after formik initialization
+  console.log("=== RENDER STATE ===");
+  console.log("Form values:", values);
+  console.log("Single ticket template:", singleTicketTemplate);
+  console.log("Ticket types:", tickettypes);
+
+  // Fetch ticket template data and ticket types on component mount
   useEffect(() => {
-    dispatch(getSingleTicketType());
-    if (id) dispatch(getSingleTicketTemplate(id));
+    if (id) {
+      // Load ticket types FIRST, then template data
+      dispatch(getTicketType()).then(() => {
+        dispatch(getSingleTicketTemplate(id));
+      });
+    }
   }, [dispatch, id]);
 
+  // Update form values when ticket template data is loaded
   useEffect(() => {
-    if (singleTicketTemplate?.id === id) {
-      setValues((prev) => ({
-        ...prev,
-        ...singleTicketTemplate,
-        ticketTypeId: singleTicketTemplate.ticketTypeId || "",
-      }));
+    console.log("=== DEBUGGING FORM VALUES ===");
+    console.log("singleTicketTemplate:", singleTicketTemplate);
+    console.log("tickettypes:", tickettypes);
+    console.log("Current form values:", values);
+    console.log("ID from params:", id);
+    
+    if (singleTicketTemplate?.id == id && tickettypes && tickettypes.length > 0) {
+      console.log("Template ticketTypeId:", singleTicketTemplate.ticketTypeId);
+      console.log("Available ticket type IDs:", tickettypes.map(t => ({ id: t.id, title: t.title })));
+      
+      // Find matching ticket type
+      const matchingType = tickettypes.find(type => 
+        type.id == singleTicketTemplate.ticketTypeId || 
+        type.id.toString() == singleTicketTemplate.ticketTypeId?.toString()
+      );
+      console.log("Matching ticket type found:", matchingType);
+      
+      const templateData = {
+        description: singleTicketTemplate.description || "",
+        maxAge: Number(singleTicketTemplate.maxAge) || 0,
+        minAge: Number(singleTicketTemplate.minAge) || 0,
+        price: Number(singleTicketTemplate.price) || 0,
+        quantity: Number(singleTicketTemplate.quantity) || 0,
+        ticketTypeId: matchingType ? matchingType.id.toString() : "",
+      };
+      
+      console.log("Setting form values to:", templateData);
+      setValues(templateData);
     }
-  }, [singleTicketTemplate, id, setValues]);
+  }, [singleTicketTemplate, tickettypes, id, setValues]);
 
-  const selectedType = tickettypes?.find(
-    (type) => type.id === values.ticketTypeId
-  );
-
-  // console.log("Form value ticketTypeId:", values.ticketTypeId, typeof values.ticketTypeId);
-  // console.log("Tickettypes:", tickettypes.map(t => [t.id, typeof t.id]));
-
-  if (!singleTicketTemplate || !tickettypes || tickettypes.length === 0) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    if (singleTicketTemplate?.id === id && tickettypes && tickettypes.length > 0) {
+      const ticketTypeId = singleTicketTemplate.ticketTypeId?.toString() || "";
+      const ticketTypeExists = tickettypes.some(type => type.id.toString() === ticketTypeId);
+      
+      console.log("Ticket type exists:", ticketTypeExists, "ID:", ticketTypeId);
+      
+      if (ticketTypeExists && values.ticketTypeId !== ticketTypeId) {
+        setFieldValue('ticketTypeId', ticketTypeId);
+      }
+    }
+  }, [singleTicketTemplate, tickettypes, id, setFieldValue, values.ticketTypeId]);
 
   return (
     <div className="pt-2 pb-4">
-      <Card sx={{ p: 3 }}>
-        <Grid container spacing={3}>
-          <Grid size={{ xs: 12 }}>
-            <FlexBox alignItems="center">
-              <IconWrapper>
-                <GroupSenior sx={{ color: "primary.main" }} />
-              </IconWrapper>
-              <Paragraph fontSize={18} fontWeight="bold">
-                Edit Ticket Template
-              </Paragraph>
-            </FlexBox>
-          </Grid>
+      <FlexBox mb={2} alignItems="center">
+        <IconWrapper>
+          <GroupSenior sx={{ color: "primary.main" }} />
+        </IconWrapper>
+        <Paragraph fontSize={18} fontWeight="bold">
+          Edit Ticket Template
+        </Paragraph>
+      </FlexBox>
 
-          <Grid
-            size={{
-              md: 8,
-              xs: 12,
-            }}
-            sx={{ margin: "auto" }}
-          >
-            <Card className="p-3">
-              <form onSubmit={handleSubmit}>
-                <Grid container spacing={3}>
-                  <Grid sm={6} xs={12}>
-                    <TextField
-                      fullWidth
-                      name="description"
-                      label="Ticket Type Description"
-                      value={values.description}
-                      onChange={handleChange}
-                      helperText={touched.description && errors.description}
-                      error={Boolean(touched.description && errors.description)}
-                    />
-                  </Grid>
-                  <Grid sm={6} xs={12}>
-                    <TextField
-                      fullWidth
-                      name="minAge"
-                      label="Minimum Age"
-                      type="number"
-                      value={values.minAge}
-                      onChange={handleChange}
-                      helperText={touched.minAge && errors.minAge}
-                      error={Boolean(touched.minAge && errors.minAge)}
-                    />
-                  </Grid>
-                  <Grid sm={6} xs={12}>
-                    <TextField
-                      fullWidth
-                      name="maxAge"
-                      label="Maximum Age"
-                      type="number"
-                      value={values.maxAge}
-                      onChange={handleChange}
-                      helperText={touched.maxAge && errors.maxAge}
-                      error={Boolean(touched.maxAge && errors.maxAge)}
-                    />
-                  </Grid>
-                  <Grid sm={6} xs={12}>
-                    <TextField
-                      fullWidth
-                      name="price"
-                      label="Price"
-                      type="number"
-                      value={values.price}
-                      onChange={handleChange}
-                      helperText={touched.price && errors.price}
-                      error={Boolean(touched.price && errors.price)}
-                    />
-                  </Grid>
-                  <Grid sm={6} xs={12}>
-                    <TextField
-                      fullWidth
-                      name="quantity"
-                      label="Quantity"
-                      type="number"
-                      value={values.quantity}
-                      onChange={handleChange}
-                      helperText={touched.quantity && errors.quantity}
-                      error={Boolean(touched.quantity && errors.quantity)}
-                    />
-                  </Grid>
-
-                  <Grid sm={6} xs={12}>
+      <Grid container spacing={3}>
+        <Grid
+          size={{
+            xs: 12,
+          }}
+          sx={{ margin: "auto" }}
+        >
+          <Card className="p-3">
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={3}>
+                <Grid
+                  size={{
+                    xs: 12,
+                  }}
+                >
+                  <TextField
+                    fullWidth
+                    name="description"
+                    label="Ticket Template Description"
+                    value={values.description}
+                    onChange={handleChange}
+                    helperText={touched.description && errors.description}
+                    error={Boolean(touched.description && errors.description)}
+                  />
+                </Grid>
+                <Grid
+                  size={{
+                    xs: 12,
+                  }}
+                >
+                  <TextField
+                    fullWidth
+                    name="maxAge"
+                    label="Max Age"
+                    value={values.maxAge}
+                    onChange={handleChange}
+                    helperText={touched.maxAge && errors.maxAge}
+                    error={Boolean(touched.maxAge && errors.maxAge)}
+                  />
+                </Grid>
+                <Grid
+                  size={{
+                    xs: 12,
+                  }}
+                >
+                  <TextField
+                    fullWidth
+                    name="minAge"
+                    label="Min Age"
+                    value={values.minAge}
+                    onChange={handleChange}
+                    helperText={touched.minAge && errors.minAge}
+                    error={Boolean(touched.minAge && errors.minAge)}
+                  />
+                </Grid>
+                <Grid
+                  size={{
+                    xs: 12,
+                  }}
+                >
+                  <TextField
+                    fullWidth
+                    name="price"
+                    label="Price"
+                    value={values.price}
+                    onChange={handleChange}
+                    helperText={touched.price && errors.price}
+                    error={Boolean(touched.price && errors.price)}
+                  />
+                </Grid>
+                <Grid
+                  size={{
+                    xs: 12,
+                  }}
+                >
+                  <TextField
+                    fullWidth
+                    name="quantity"
+                    label="Quantity"
+                    value={values.quantity}
+                    onChange={handleChange}
+                    helperText={touched.quantity && errors.quantity}
+                    error={Boolean(touched.quantity && errors.quantity)}
+                  />
+                </Grid>
+                {/* Ticket Type Select */}
+                <Grid
+                  size={{
+                    xs: 12,
+                  }}
+                >
+                  <FormControl
+                    fullWidth
+                    error={Boolean(touched.ticketTypeId && errors.ticketTypeId)}
+                  >
+                    <InputLabel id="ticket-type-select-label">
+                      Ticket Type
+                    </InputLabel>
                     <Select
-                      fullWidth
+                      labelId="ticket-type-select-label"
                       name="ticketTypeId"
-                      labelId="Select Ticket Type"
-                      value={String(values.ticketTypeId)}
+                      value={values.ticketTypeId || "n/a"}
+                      label="Ticket Type"
                       onChange={handleChange}
-                      helperText={touched.ticketTypeId && errors.ticketTypeId}
-                      error={Boolean(
-                        touched.ticketTypeId && errors.ticketTypeId
-                      )}
-                      sx={{ minWidth: 400 }}
                     >
-                      {tickettypes?.map((type) => (
-                        <MenuItem
-                          key={type?.id}
-                          value={String(type?.id)}
-                          style={{ width: "100px" }}
-                        >
-                          {type?.name}
+                      {tickettypes?.map((ticketType) => (
+                        <MenuItem key={ticketType.id} value={ticketType.id.toString()}>
+                          {ticketType.title} (ID: {ticketType.id})
                         </MenuItem>
                       ))}
                     </Select>
-                  </Grid>
-                  <Grid size={12} >
-                     <FlexBox alignItems="center" gap={2}>
-                    <Button type="submit" variant="contained">
-                      Edit Ticket Template
-                    </Button>
-                    <Button variant="outlined" color="secondary" onClick={()=>navigate("/ticket-template-grid")}>
-                      Cancel
-                    </Button>
-                    </FlexBox>
-                  </Grid>
+                    {touched.ticketTypeId && errors.ticketTypeId && (
+                      <FormHelperText>{errors.ticketTypeId}</FormHelperText>
+                    )}
+                  </FormControl>
+                  {/* Debug info */}
+                  {/* <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                    Current selected: {values.ticketTypeId || 'None'} | 
+                    Available: {tickettypes?.length || 0} types
+                  </div> */}
                 </Grid>
-              </form>
-            </Card>
-          </Grid>
+                {/* Remove the duplicate ticketTypeId TextField */}
+                <Grid size={12}>
+                  <Button type="submit" variant="contained">
+                    Edit Ticket Template
+                  </Button>
+                </Grid>
+              </Grid>
+            </form>
+          </Card>
         </Grid>
-      </Card>
+      </Grid>
     </div>
   );
 }

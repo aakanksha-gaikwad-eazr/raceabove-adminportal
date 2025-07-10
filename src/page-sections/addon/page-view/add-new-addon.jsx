@@ -60,7 +60,7 @@ const UploadButton = styled("div")(({ theme }) => ({
   border: `1px solid ${theme.palette.background.paper}`,
 }));
 
-export default function AddNewAddoncategoryPageView() {
+export default function AddNewAddonPageView() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null); // Store actual file
 
@@ -142,7 +142,8 @@ export default function AddNewAddoncategoryPageView() {
         <Grid
           size={{
             xs: 12,
-            }}        >
+          }}
+        >
           <Card className="p-3">
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>

@@ -28,8 +28,8 @@ export const getTicketType = createAsyncThunk('appTicketType/getTicketType', asy
   }
 })
 
-//add addons
-export const createTicketType = createAsyncThunk('appTicketType/createTicketType', async (data) => {
+//review the addons
+export const reviewTicketTypes = createAsyncThunk('appTicketType/reviewTicketTypes', async (req) => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
     const accessToken = adminData.accessToken
@@ -37,64 +37,15 @@ export const createTicketType = createAsyncThunk('appTicketType/createTicketType
     if (!accessToken) {
       throw new Error('Access token not found in localStorage')
     }
-
-    let url = `${ip}/v1/ticket-types`
-
-    const response = await axiosInstance.post(url,data, {
-   
-      headers: {
-        Authorization: `Bearer ${accessToken}`, 
-      } 
-    })
-    console.log("created ticket-types data", response)
-
-    return response?.data
-
-  } catch (error) {
-    console.error("❌ API Request Failed:", error.response?.data || error.message);
-    throw new Error('Failed to Create addons')
-  }
-})
-
-//delete addons
-export const deleteTicketType = createAsyncThunk('appTicketType/deleteTicketTypes', async id => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    const url = `${ip}/v1/ticket-types/${id}`
-
-    const response = await axiosInstance.delete(url, {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    })
-
-    console.log('deleted the ticket-types', response.data)
-
-    return response.data
-  } catch (error) {
-    console.log("Couldn't delete ticket-types", error)
-    throw error;
-  }
-})
-
-//update the addons
-export const updateTicketTypes = createAsyncThunk('appTicketType/updateTicketTypes', async (req) => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    if (!accessToken) {
-      throw new Error('Access token not found in localStorage')
-    }
-    let url = `${ip}/v1/ticket-types/${req.editId}`
+    let url = `${ip}/v1/ticket-types/${req.id}/review`
     
-    const response = await axiosInstance.patch(url, req.changedData, {
+    const response = await axiosInstance.patch(url, req.data, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       } 
     })
     
-    console.log("update ticket-types data", response.data)
+    console.log("review ticket-types data", response.data)
 
     return response?.data
 
@@ -146,13 +97,7 @@ export const appTicketTypeSlice = createSlice({
     .addCase(getTicketType.fulfilled, (state, action) => {
       state.tickettypes = action.payload 
     })
-    .addCase(createTicketType.fulfilled, (state, action) => {
-      state.success = true
-    })
-    .addCase(deleteTicketType.fulfilled, (state, action) => {
-      state.success = true
-    })
-    .addCase(updateTicketTypes.fulfilled, (state, action) => {
+    .addCase(reviewTicketTypes.fulfilled, (state, action) => {
       state.success = true
     })
     .addCase(getSingleTicketType.fulfilled, (state, action) => {

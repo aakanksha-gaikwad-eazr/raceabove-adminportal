@@ -12,74 +12,100 @@ import { Paragraph, Small } from "@/components/typography"; // CUSTOM PAGE SECTI
 import HeadingAreaCoupon from "../HeadingAreaCoupon"; // CUSTOM ICON COMPONENTS
 import { paginate } from "@/utils/paginate"; // CUSTOM DUMMY DATA
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import { useDispatch, useSelector } from "react-redux";
+import { getCoupons } from "../../../store/apps/coupons";
 import { Description } from "@mui/icons-material";
+import ExpiryIcon from "@/icons/Expiryicon";
+import MoreCouponButtontwo from "@/components/more-coupon-button-two";
 import SearchArea from "../SearchArea";
-import { getTicketTemplate } from "@/store/apps/tickettemplate";
+import { getTicketType } from "@/store/apps/tickettype";
+import { Chip, Switch, Divider } from "@mui/material";
+import toast from "react-hot-toast";
+import PeopleIcon from "@mui/icons-material/People";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import ChildCareIcon from "@mui/icons-material/ChildCare";
 import MoreTicketTemplateButtontwo from "@/components/more-tickettemplate-button-two";
 
 export default function TicketTemplateGrid1PageView() {
   const dispatch = useDispatch();
-  const { ticketTemplate } = useSelector((state) => state.tickettemplate);
-  console.log("ticketTemplate", ticketTemplate);
-
-  const [ticketTemplatePerPage] = useState(8);
+  const { tickettypes } = useSelector((state) => state.tickettype);
+  const {allTicketTemplate} = useSelector((state) => state.tickettemplate);
+  console.log("allTicketTemplate", allTicketTemplate);
+  console.log("tickettypes", tickettypes);
+  const [ticketemplatePerPage] = useState(8);
   const [page, setPage] = useState(1);
-  const [tickeTemplateFilter, setTicketTemplateFilter] = useState({
+  const [ticketemplateFilter, setTickettemplateFilter] = useState({
     search: "",
   });
 
   const handleChangeFilter = (key, value) => {
-    setTicketTemplateFilter((prev) => ({ ...prev, [key]: value }));
+    setTickettemplateFilter((prev) => ({ ...prev, [key]: value }));
   };
 
   useEffect(() => {
     dispatch(getTicketTemplate());
   }, []);
 
-  const filteredTicketTemplate = ticketTemplate.filter((item) => {
-    if (tickeTemplateFilter.search) {
-      return item.name
+  const filteredTicketTemplate = allTicketTemplate.filter((item) => {
+    if (ticketemplateFilter.search) {
+      return item.description
         ?.toLowerCase()
-        .includes(tickeTemplateFilter.search.toLowerCase());
+        .includes(ticketemplateFilter.search.toLowerCase());
     } else return true;
   });
 
   useEffect(() => {
-    const totalPages = Math.ceil(
-      filteredTicketTemplate.length / ticketTemplatePerPage
-    );
+    const totalPages = Math.ceil(filteredTicketTemplate.length / ticketemplatePerPage);
     if (page > totalPages && totalPages > 0) {
       setPage(totalPages);
     }
-  }, [filteredTicketTemplate.length, page, ticketTemplatePerPage]);
+  }, [filteredTicketTemplate.length, page, ticketemplatePerPage]);
 
   const iconStyle = {
     color: "grey.500",
     fontSize: 18,
   };
 
+    const handleToggleActive =async(event, tickeTemplateId, currentStatus) => {
+      console.log("clicked");
+          event.stopPropagation();
+          try {
+            const updateData = {
+              isActive: !currentStatus,
+            };
+            toast.success(
+              `Ticket Template ${!currentStatus ? "activated" : "deactivated"} successfully`
+            );
+            dispatch(getTicketTemplate());
+          } catch (error) {
+            toast.error("Failed to update Ticket Template status");
+            console.error("Error updating Ticket Template:", error);
+          }
+    };
+
   return (
     <div className="pt-2 pb-4">
+      <HeadingAreaCoupon value={ticketemplateFilter.role} />
       <Card
         sx={{
           px: 3,
           py: 2,
         }}
       >
-        <HeadingAreaCoupon value={tickeTemplateFilter.role} />
-
         <SearchArea
-          value={tickeTemplateFilter.search}
+          value={ticketemplateFilter.search}
           onChange={(e) => handleChangeFilter("search", e.target.value)}
+          gridRoute="/ticket-template-grid"
+          listRoute="/ticket-template-list-2"
         />
 
         <Grid container spacing={3}>
           {Array.isArray(filteredTicketTemplate) &&
           filteredTicketTemplate.length > 0 ? (
-            paginate(page, ticketTemplatePerPage, filteredTicketTemplate).map(
+            paginate(page, ticketemplatePerPage, filteredTicketTemplate).map(
               (item, index) => (
-                <Grid item lg={3} md={4} sm={6} xs={12} key={index}>
+                <Grid item lg={4} md={4} sm={6} xs={12} key={index}>
                   <Box
                     sx={{
                       p: 3,
@@ -87,56 +113,127 @@ export default function TicketTemplateGrid1PageView() {
                       border: "1px solid",
                       borderColor: "divider",
                       transition: "0.3s",
-                      boxShadow: 1,
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
                       backgroundColor: "background.paper",
-                      ":hover": {
-                        boxShadow: 4,
-                        borderColor: "primary.light",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      height: 320, // Increased height to accommodate new fields
+                      width: 310,
+                      opacity: item.isActive ? 1 : 0.7,
+                      "&:hover": {
+                        boxShadow: 6,
+                        borderColor: "primary.main",
                       },
-                      width: "300px",
-                      height: "300px",
                     }}
                   >
                     <FlexBetween
-                      sx={{ justifyContent: "flex-end" }}
-                      mx={-1}
-                      mt={-1}
+                      sx={{ justifyContent: "space-between" }}
+                      mb={2}
                     >
-                      <MoreTicketTemplateButtontwo
-                        ticketTemplateId={item?.id}
-                      />
+                      {/* Status Chips */}
+                      <Stack direction="row" spacing={1}>
+                        <Chip
+                          size="small"
+                          label={item.approvalStatus}
+                          color={
+                            item.approvalStatus === "approved"
+                              ? "success"
+                              : item.approvalStatus === "pending"
+                                ? "warning"
+                                : "error"
+                          }
+                          variant="outlined"
+                        />
+                      </Stack>
+                      <MoreTicketTemplateButtontwo ticketTemplateId={item?.id} />
                     </FlexBetween>
-                    <Stack spacing={1} mt={1}>
 
-                      <Small color="text.secondary">
-                        <strong>Description:</strong>{" "}
-                        {item?.description || "No description"}
-                      </Small>
-
-                      <Small color="text.secondary">
-                        <strong>Quantity:</strong> {item?.quantity}
-                      </Small>
-
-                      <Small color="text.secondary">
-                        <strong>Age Range:</strong> {item?.minAge} -{" "}
-                        {item?.maxAge} yrs
-                      </Small>
-
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                        <Box>
-                          <Small color="text.secondary"> <strong>Price:</strong>- ₹{item?.price}</Small>
+                    <Stack spacing={1} mt={1} sx={{ flexGrow: 1 }}>
+                      <Stack
+                        direction="row"
+                        alignItems="flex-start"
+                        spacing={2}
+                      >
+                        <Avatar sx={{ flexShrink: 0 }}>
+                          <LocalOfferIcon color="secondary" />
+                        </Avatar>
+                        <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                          <Small
+                            color="grey.600"
+                            sx={{
+                              display: "-webkit-box",
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              lineHeight: 1.3,
+                            }}
+                          >
+                            {item?.description}
+                          </Small>
                         </Box>
                       </Stack>
 
-                      <Small color="text.secondary">
-                        <strong>Ticket Type:</strong>{" "}
-                        {item?.ticketType?.name || "-"}
-                      </Small>
+                      {/* Additional Fields Section */}
+                      <Divider sx={{ my: 1 }} />
+                      
+                      <Stack spacing={1}>
+                        {/* Price and Quantity Row */}
+                        <FlexBetween>
+                          <Stack direction="row" alignItems="center" spacing={1}>
+                            <AttachMoneyIcon sx={{ fontSize: 16, color: "success.main" }} />
+                            <Small color="text.secondary">Price:</Small>
+                          </Stack>
+                          <Small fontWeight={600} color="success.main">
+                            ${parseFloat(item.price || 0).toFixed(2)}
+                          </Small>
+                        </FlexBetween>
 
-                      <Small color="text.secondary">
-                        <strong>Type Desc:</strong>{" "}
-                        {item?.ticketType?.description || "-"}
-                      </Small>
+                        <FlexBetween>
+                          <Stack direction="row" alignItems="center" spacing={1}>
+                            <PeopleIcon sx={{ fontSize: 16, color: "info.main" }} />
+                            <Small color="text.secondary">Quantity:</Small>
+                          </Stack>
+                          <Small fontWeight={600} color="info.main">
+                            {item.quantity || 0}
+                          </Small>
+                        </FlexBetween>
+
+                        {/* Age Range Row */}
+                        <FlexBetween>
+                          <Stack direction="row" alignItems="center" spacing={1}>
+                            <ChildCareIcon sx={{ fontSize: 16, color: "warning.main" }} />
+                            <Small color="text.secondary">Age Range:</Small>
+                          </Stack>
+                          <Small fontWeight={600} color="warning.main">
+                            {item.minAge || 0} - {item.maxAge || 0} years
+                          </Small>
+                        </FlexBetween>
+
+                        {/* Created By Info */}
+                        <FlexBetween>
+                          <Small color="text.secondary">Created by:</Small>
+                          <Small fontWeight={500} color="text.primary">
+                            {item.createdBy || "Unknown"}
+                          </Small>
+                        </FlexBetween>
+                      </Stack>
+
+                      <Stack spacing={1} mt={2} pt={2}>
+                        <FlexBetween>
+                          <Small color="text.secondary">Status</Small>
+                          <Switch
+                            size="small"
+                            checked={item.isActive}
+                            onChange={(e) =>
+                              handleToggleActive(e, item.id, item.isActive)
+                            }
+                            onClick={(e) => e.stopPropagation()}
+                            color="primary"
+                          />
+                        </FlexBetween>
+                      </Stack>
                     </Stack>
                   </Box>
                 </Grid>
@@ -156,15 +253,6 @@ export default function TicketTemplateGrid1PageView() {
             </Grid>
           )}
 
-          {/* <Grid item xs={12}>
-            <Stack alignItems="right" py={2}>
-              <Pagination
-                shape="rounded"
-                count={Math.ceil(filteredTicketType.length / tickettypePerPage)}
-                onChange={(_, newPage) => setPage(newPage)}
-              />
-            </Stack>
-          </Grid> */}
         </Grid>
       </Card>
     </div>

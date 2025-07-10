@@ -21,43 +21,45 @@ import ExpiryIcon from "@/icons/Expiryicon";
 import { getAddOnsCategory } from "@/store/apps/addonscategory";
 import MoreAddoncategoryButtontwo from "@/components/more-addoncategory-button-two";
 import SearchArea from "../SearchArea";
-import HeadingArea from "@/page-sections/addoncategory/HeadingArea";
 import { Chip } from "@mui/material";
 import toast from "react-hot-toast";
+import HeadingArea from "../HeadingArea";
 
 
-export default function AddoncategoryGrid1PageView() {
+export default function AddonGrid1PageView() {
   const dispatch = useDispatch();
-  const { addOnsCategory } = useSelector((state) => state.addonscategory);
-  console.log("addOnsCategory", addOnsCategory);
+  const {addOns}  = useSelector((state) => state.addons);
+  console.log("addOns", addOns);
 
-  const [addoncategories, setAddoncategories] = useState([]);
-  const [userPerPage] = useState(8);
+  const [addon, setAddon] = useState([]);
+  const [addonPerPage] = useState(8);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [addonCategoryFilter, setAddonCategoryFilter] = useState({
+  const [addonFilter, setAddonFilter] = useState({
     search: "",
   });
 
+    const addOnsArray = Array.isArray(addOns) ? addOns : [];
+
   useEffect(() => {
-    dispatch(getAddOnsCategory());
+    dispatch(getAddOns());
   }, []);
   useEffect(() => {
-    setAddoncategories(addOnsCategory);
-  }, [addOnsCategory]);
+    setAddon(addOnsArray);
+  }, [addOnsArray]);
 
-  const filteredAddonCategories = addoncategories.filter((item) =>
+  const filteredAddon = addOnsArray.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase())
   );
 
   useEffect(() => {
-    const totalPages = Math.ceil(filteredAddonCategories.length / userPerPage);
+    const totalPages = Math.ceil(filteredAddon.length / addonPerPage);
     if (page > totalPages && totalPages > 0) {
       setPage(totalPages);
     }
-  }, [filteredAddonCategories.length, page, userPerPage]);
+  }, [filteredAddon.length, page, addonPerPage]);
 
-    const handleIsActiveToggle =async(event, addonCategoryId, currentStatus) => {
+    const handleIsActiveToggle =async(event, addonId, currentStatus) => {
       console.log("clicked");
           event.stopPropagation();
           try {
@@ -65,12 +67,12 @@ export default function AddoncategoryGrid1PageView() {
               isActive: !currentStatus,
             };
             toast.success(
-              `Product Category Status ${!currentStatus ? "activated" : "deactivated"} successfully`
+              `Product Status ${!currentStatus ? "activated" : "deactivated"} successfully`
             );
-            dispatch(getAddOnsCategory());
+            dispatch(getAddOns());
           } catch (error) {
-            toast.error("Failed to update Product Category status");
-            console.error("Error updating Product Category:", error);
+            toast.error("Failed to update Product status");
+            console.error("Error updating Product:", error);
           }
     };
 
@@ -80,7 +82,7 @@ export default function AddoncategoryGrid1PageView() {
   };
   return (
     <Box className="pt-2 pb-4">
-      <HeadingArea value={addonCategoryFilter.role} />
+      <HeadingArea value={addonFilter.role} />
       <Card
         sx={{
           px: 3,
@@ -95,9 +97,9 @@ export default function AddoncategoryGrid1PageView() {
         />
 
         <Grid container spacing={3}>
-          {Array.isArray(filteredAddonCategories) &&
-          filteredAddonCategories.length > 0 ? (
-            paginate(page, userPerPage, filteredAddonCategories).map(
+          {Array.isArray(filteredAddon) &&
+          filteredAddon.length > 0 ? (
+            paginate(page, addonPerPage, filteredAddon).map(
               (item, index) => (
                 <Grid
                   size={{
@@ -147,9 +149,9 @@ export default function AddoncategoryGrid1PageView() {
                           variant="outlined"
                         />
                       </Stack>
-                      {/* <MoreAddoncategoryButtontwo
+                      <MoreAddoncategoryButtontwo
                         addoncategoriesId={item?.id}
-                      /> */}
+                      />
                     </FlexBetween>
 
                     <Stack spacing={2} flex={1}>
@@ -217,7 +219,7 @@ export default function AddoncategoryGrid1PageView() {
                 color="text.secondary"
                 sx={{ width: "100%", my: 3 }}
               >
-                No Product Categories have been added yet!
+                No Product have been added yet!
               </Paragraph>
             </Grid>
           )}
@@ -226,7 +228,7 @@ export default function AddoncategoryGrid1PageView() {
             <Stack alignItems="center" py={2}>
               <Pagination
                 shape="rounded"
-                count={Math.ceil(filteredAddonCategories.length / userPerPage)}
+                count={Math.ceil(filteredAddon.length / addonPerPage)}
                 onChange={(_, newPage) => setPage(newPage)}
               />
             </Stack>

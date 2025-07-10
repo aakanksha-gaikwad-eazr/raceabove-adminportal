@@ -23,8 +23,6 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
-import { createCoupon } from "../../../store/apps/coupons";
-import { createTicketType } from "@/store/apps/tickettype";
 
 const SwitchWrapper = styled("div")({
   width: "100%",
@@ -84,12 +82,12 @@ export default function AddNewCouponsPageView() {
   };
 
   const initialValues = {
-    name: "",
+    title: "",
     description: "",
   };
 
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required("Name is required"),
+    title: Yup.string().required("Title is required"),
     description: Yup.string().required("Description is required"),
   });
 
@@ -109,12 +107,12 @@ export default function AddNewCouponsPageView() {
   const navigate = useNavigate();
 
   async function handleFormSubmit(values) {
+    console.log("values", values)
     try {
-      const response = await dispatch(createTicketType(values)).unwrap();
       console.log("res Ticket type", response);
       if (response?.status === 201) {
         toast.success("Ticket type created successfully!");
-        navigate("/ticket-type-grid");
+        navigate("/ticket-type-list-2");
       } else {
         toast.error(response?.message || "Failed to create Ticket type");
       }
@@ -132,11 +130,7 @@ export default function AddNewCouponsPageView() {
 
   return (
     <div className="pt-2 pb-4">
-      <Card sx={{ p: 3 }}>
-        <Grid container spacing={3}>
-         
-          <Grid size={{ xs: 12 }}>
-            <FlexBox alignItems="center">
+            <FlexBox mb={2} alignItems="center">
               <IconWrapper>
                 <GroupSenior sx={{ color: "primary.main" }} />
               </IconWrapper>
@@ -144,11 +138,11 @@ export default function AddNewCouponsPageView() {
                 Add Ticket Type
               </Paragraph>
             </FlexBox>
-          </Grid>
 
+    
+   <Grid container spacing={3}>
           <Grid
             size={{
-              md: 8,
               xs: 12,
             }}
             sx={{ margin: "auto" }}
@@ -158,28 +152,27 @@ export default function AddNewCouponsPageView() {
                 <Grid container spacing={3}>
                   <Grid
                     size={{
-                      sm: 6,
                       xs: 12,
                     }}
                   >
                     <TextField
                       fullWidth
-                      name="name"
+                      name="title"
                       label="Ticket Type Name"
-                      value={values.name}
+                      value={values.title}
                       onChange={handleChange}
-                      helperText={touched.name && errors.name}
-                      error={Boolean(touched.name && errors.name)}
+                      helperText={touched.title && errors.title}
+                      error={Boolean(touched.title && errors.title)}
                     />
                   </Grid>
                   <Grid
                     size={{
-                      sm: 6,
                       xs: 12,
                     }}
                   >
                     <TextField
                       fullWidth
+                      multiline
                       name="description"
                       label="Ticket Type Description"
                       value={values.description}
@@ -202,7 +195,6 @@ export default function AddNewCouponsPageView() {
             </Card>
           </Grid>
         </Grid>
-      </Card>
     </div>
   );
 }
