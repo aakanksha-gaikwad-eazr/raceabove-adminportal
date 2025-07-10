@@ -110,6 +110,30 @@ const CouponsGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/coupons/coupons-grid-2"))
 );
 
+
+// Tnc
+const AddNewTnc = Loadable(
+  lazy(() => import("@/pages/dashboard/tnc/add-new-tnc"))
+);
+const EditTnc = Loadable(
+  lazy(() => import("@/pages/dashboard/tnc/edit-tnc"))
+);
+const TncListView = Loadable(
+  lazy(() => import("@/pages/dashboard/tnc/tnc-list-1"))
+);
+const TncGridView = Loadable(
+  lazy(() => import("@/pages/dashboard/tnc/tnc-grid-1"))
+);
+const TncListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/tnc/tnc-list-2"))
+);
+const TncGridView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/tnc/tnc-grid-2"))
+);
+
+
+
+
 // ticket type
 const AddNewTicketType = Loadable(
   lazy(() => import("@/pages/dashboard/tickettype/add-new-tickettype"))
@@ -294,39 +318,28 @@ const Support = Loadable(
 const CreateTicket = Loadable(
   lazy(() => import("@/pages/dashboard/support/create-ticket"))
 );
-// FAQ section PAGE
 
-const FAQSection = Loadable(
-  lazy(() => import("@/pages/dashboard/faqsection/faq"))
-);
-const CreateFaq = Loadable(
-  lazy(() => import("@/pages/dashboard/faqsection/create-faq"))
-); 
-const EditFaq = Loadable(
-  lazy(() => import("@/pages/dashboard/faqsection/edit-faq"))
-); 
 
-//tnc
-const Tnc = Loadable(
-  lazy(() => import("@/pages/dashboard/tnc/tnc"))
-);
-const CreateTnc = Loadable(
-  lazy(() => import("@/pages/dashboard/tnc/create-tnc"))
-); 
-const EditTnc = Loadable(
-  lazy(() => import("@/pages/dashboard/tnc/edit-tnc"))
-); 
 
-//tnc
-const PrivacyPolicy = Loadable(
-  lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy"))
+// privacy policy
+const AddNewPrivacyPolicy = Loadable(
+  lazy(() => import("@/pages/dashboard/privacypolicy/add-new-privacypolicy"))
 );
-const CreatePrivacyPolicy = Loadable(
-  lazy(() => import("@/pages/dashboard/privacypolicy/create-privacypolicy"))
-); 
 const EditPrivacyPolicy = Loadable(
   lazy(() => import("@/pages/dashboard/privacypolicy/edit-privacypolicy"))
-); 
+);
+const PrivacyPolicyListView = Loadable(
+  lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy-list-1"))
+);
+const PrivacyPolicyGridView = Loadable(
+  lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy-grid-1"))
+);
+const PrivacyPolicyListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy-list-2"))
+);
+const PrivacyPolicyGridView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy-grid-2"))
+);
 // CHAT PAGE
 
 const Chat = Loadable(lazy(() => import("@/pages/dashboard/chat"))); // USER TODO LIST PAGE
@@ -399,6 +412,27 @@ const AddOnsDetails = Loadable(
 const AddOnsEdit = Loadable(
   lazy(() => import("@/pages/dashboard/addons/editaddon"))
 );
+
+// Faq
+const AddNewFaq = Loadable(
+  lazy(() => import("@/pages/dashboard/faqsection/add-new-faq"))
+);
+const EditFaq = Loadable(
+  lazy(() => import("@/pages/dashboard/faqsection/edit-faq"))
+);
+const FaqListView = Loadable(
+  lazy(() => import("@/pages/dashboard/faqsection/faq-list-1"))
+);
+const FaqGridView = Loadable(
+  lazy(() => import("@/pages/dashboard/faqsection/faq-grid-1"))
+);
+const FaqListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/faqsection/faq-list-2"))
+);
+const FaqGridView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/faqsection/faq-grid-2"))
+);
+
 
 const BookingsV1 = Loadable(
   lazy(() => import("@/pages/dashboard/bookings/version-1"))
@@ -598,6 +632,64 @@ export const DashboardRoutes = [
         element: <CouponsGridView2 />,
       },
 
+
+      
+// privacypolicy
+      {
+        path: "add-privacy-policy",
+        element: <AddNewPrivacyPolicy />,
+      },
+      {
+        path: "edit-privacy-policy/:id",
+        element: <EditPrivacyPolicy />,
+      },
+
+      {
+        path: "privacy-policy-list",
+        element: <PrivacyPolicyListView />,
+      },
+      {
+        path: "privacy-policy-grid",
+        element: <PrivacyPolicyGridView />,
+      },
+      {
+        path: "privacy-policy-list-2",
+        element: <PrivacyPolicyListView2 />,
+      },
+      {
+        path: "privacy-policy-grid-2",
+        element: <PrivacyPolicyGridView2 />,
+      },
+
+
+
+      // tnc
+      {
+        path: "add-tnc",
+        element: <AddNewTnc />,
+      },
+      {
+        path: "edit-tnc/:id",
+        element: <EditTnc />,
+      },
+
+      {
+        path: "tnc-list",
+        element: <TncListView />,
+      },
+      {
+        path: "tnc-grid",
+        element: <TncGridView />,
+      },
+      {
+        path: "tnc-list-2",
+        element: <TncListView2 />,
+      },
+      {
+        path: "tnc-grid-2",
+        element: <TncGridView2 />,
+      },
+
       // ticket type
       {
         path: "add-ticket-type",
@@ -655,7 +747,7 @@ export const DashboardRoutes = [
         element: <AddNewAddonCategory />,
       },
       {
-        path: "edit-addoncategory'",
+        path: "edit-addoncategory/:id",
         element: <EditAddonCategory />,
       },
       {
@@ -668,7 +760,7 @@ export const DashboardRoutes = [
       },
 
       {
-        path: "coupons-list-2",
+        path: "addoncategory-list-2",
         element: <AddonCategoryListView2 />,
       },
       {
@@ -732,6 +824,35 @@ export const DashboardRoutes = [
         path: "gears-grid-2",
         element: <GearsGridView2 />,
       },
+
+      
+// faq
+      {
+        path: "add-faq",
+        element: <AddNewFaq />,
+      },
+      {
+        path: "edit-faq/:id",
+        element: <EditFaq />,
+      },
+
+      {
+        path: "faq-list",
+        element: <FaqListView />,
+      },
+      {
+        path: "faq-grid",
+        element: <FaqGridView />,
+      },
+      {
+        path: "faq-list-2",
+        element: <FaqListView2 />,
+      },
+      {
+        path: "faq-grid-2",
+        element: <FaqGridView2 />,
+      },
+
 
       {
         path: "account",
@@ -972,57 +1093,7 @@ export const DashboardRoutes = [
           },
         ],
       },
-      {
-        path: "faq",
-        children: [
-          {
-            path: "section", 
-            element: <FAQSection /> 
-          },
-          { 
-            path: "create-faq", 
-            element: <CreateFaq /> 
-          },
-          { 
-            path: "edit-faq/:id", 
-            element: <EditFaq /> 
-          },
-        ],
-      },
-      {
-        path: "tnc",
-        children: [
-          {
-            path: "tncpage", 
-            element: <Tnc /> 
-          },
-          { 
-            path: "create-tnc", 
-            element: <CreateTnc /> 
-          },
-          { 
-            path: "edit-tnc/:id", 
-            element: <EditTnc /> 
-          },
-        ],
-      },
-      {
-        path: "privacypolicy",
-        children: [
-          {
-            path: "ppage", 
-            element: <PrivacyPolicy /> 
-          },
-          { 
-            path: "create-privacypolicy", 
-            element: <CreatePrivacyPolicy /> 
-          },
-          { 
-            path: "edit-privacypolicy/:id", 
-            element: <EditPrivacyPolicy /> 
-          },
-        ],
-      },
+
     ],
   },
 ];

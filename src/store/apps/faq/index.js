@@ -4,7 +4,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axiosInstance from "@/utils/axiosInstance";
 import { ip } from '../../../config/config'
 
-//** fetch all Tickettype
+//** fetch all Faq
 
 export const getFaq = createAsyncThunk('appFaqSlice/getFaq', async () => {
   try {
@@ -28,8 +28,9 @@ export const getFaq = createAsyncThunk('appFaqSlice/getFaq', async () => {
   }
 })
 
-//add addons
-export const createFaq = createAsyncThunk('appFaqSlice/createFaq', async (data) => {
+
+//Review the FAQ
+export const reviewFaq = createAsyncThunk('appFaqSlice/reviewFaq', async (req) => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
     const accessToken = adminData.accessToken
@@ -37,56 +38,9 @@ export const createFaq = createAsyncThunk('appFaqSlice/createFaq', async (data) 
     if (!accessToken) {
       throw new Error('Access token not found in localStorage')
     }
-
-    let url = `${ip}/v1/frequently-asked-questions`
-
-    const response = await axiosInstance.post(url,data, {
-   
-      headers: {
-        Authorization: `Bearer ${accessToken}`, 
-      } 
-    })
-    // console.log("created frequently-asked-questions data", response)
-    return response?.data
-
-  } catch (error) {
-    console.error("❌ API Request Failed:", error.response?.data || error.message);
-    throw new Error('Failed to Create frequently-asked-questions')
-  }
-})
-
-//delete addons
-export const deleteFaq = createAsyncThunk('appFaqSlice/deleteFaqs', async id => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    const url = `${ip}/v1/frequently-asked-questions/${id}`
-
-    const response = await axiosInstance.delete(url, {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    })
-
-    console.log('deleted the frequently-asked-questions', response.data)
-
-    return response.data
-  } catch (error) {
-    console.log("Couldn't delete frequently-asked-questions", error)
-    throw error;
-  }
-})
-
-//update the addons
-export const updateFaq = createAsyncThunk('appFaqSlice/updateFaq', async (req) => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    if (!accessToken) {
-      throw new Error('Access token not found in localStorage')
-    }
+    console.log("req", req)
   
-    let url = `${ip}/v1/frequently-asked-questions/${req.id}`
+    let url = `${ip}/v1/frequently-asked-questions/${req.id}/review`
     
     const response = await axiosInstance.patch(url, req.data, {
       headers: {
@@ -98,7 +52,7 @@ export const updateFaq = createAsyncThunk('appFaqSlice/updateFaq', async (req) =
 
   } catch (error) {
     console.error("❌ API Request Failed:", error.response?.data || error.message);
-    throw new Error('Failed to update frequently-asked-questions details')
+    throw new Error('Failed to review frequently-asked-questions details')
   }
 })
 
@@ -136,22 +90,17 @@ export const getSingleFaq = createAsyncThunk('appFaqSlice/getSingleFaq', async (
 export const appFaqSlice = createSlice({
   name: 'appFaq',
   initialState: {
-    faq:[],
+    allFaq:[],
     singleFaq:{}
   },
   reducers: {},
   extraReducers: builder => {
     builder
     .addCase(getFaq.fulfilled, (state, action) => {
-      state.faq = action.payload 
+      state.allFaq = action.payload 
     })
-    .addCase(createFaq.fulfilled, (state, action) => {
-      state.success = true
-    })
-    .addCase(deleteFaq.fulfilled, (state, action) => {
-      state.success = true
-    })
-    .addCase(updateFaq.fulfilled, (state, action) => {
+
+    .addCase(reviewFaq.fulfilled, (state, action) => {
       state.success = true
     })
     .addCase(getSingleFaq.fulfilled, (state, action) => {

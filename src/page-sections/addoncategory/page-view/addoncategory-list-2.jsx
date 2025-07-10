@@ -33,6 +33,16 @@ import { getUsers } from "../../../store/apps/user";
 import SearchFilter from "../../challenge/SearchFilter";
 // import SearchFilter from "page-sections/challenge/SearchFilter";
 import StatusFilter from "../../challenge/StatusFilter";
+import { getAddOnsCategory } from "@/store/apps/addonscategory";
+import HeadingAreaCoupon from "../HeadingArea";
+import { Button, Chip, Switch } from "@mui/material";
+import DeleteIcon from "@/icons/Delete";
+import EditIcon from "@/icons/Edit";
+import DeleteModal from "@/components/delete-modal/DeleteModal";
+import { deleteAddOnsCategory } from "@/store/apps/addonscategory";
+import toast from "react-hot-toast";
+import { updateAddOnsCategory } from "@/store/apps/addonscategory";
+import { useNavigate } from "react-router-dom";
 
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
   fontSize: 14,
@@ -69,37 +79,36 @@ const headCells = [
     label: "Name",
   },
   {
-    id: "position",
+    id: "description",
     numeric: true,
     disablePadding: false,
-    label: "Gender",
+    label: "Description",
   },
+
   {
-    id: "company",
+    id: "updatedBy",
     numeric: true,
     disablePadding: false,
-    label: "Level",
+    label: "Updated By",
   },
-  {
-    id: "email",
+    {
+    id: "approvalStatus",
     numeric: true,
     disablePadding: false,
-    label: "Email",
+    label: "Approval Status",
   },
-  {
-    id: "phone",
+    {
+    id: "actions",
     numeric: true,
     disablePadding: false,
-    label: "Phone",
+    label: "Actions",
   },
+  
 ];
-
-
 
 export default function Addoncategory2PageView() {
   // const [users] = useState([...USER_LIST]);
   const [searchFilter, setSearchFilter] = useState("");
-  const [selectedUser, setSelectedUser] = useState();
 
   const {
     page,
@@ -116,39 +125,88 @@ export default function Addoncategory2PageView() {
 
   const dispatch = useDispatch();
 
-  const { users } = useSelector((state) => state.user);
-  // console.log("users", users)
+  const { addOnsCategory } = useSelector((state) => state.addonscategory);
+  console.log("addOnsCategory", addOnsCategory);
+  const [addoncategories, setAddoncategories] = useState([]);
+  const [selectedAddonCategory, setSelectedAddonCategory] = useState();
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [addonCategoryToDelete, setAddonCategoryToDelete] = useState(null);
+  const navigate = useNavigate()
 
-  const filteredUsers = stableSort(users, getComparator(order, orderBy)).filter(
-    (item) => {
-      if (searchFilter)
-        return item?.name?.toLowerCase().includes(searchFilter?.toLowerCase());
-      else return true;
-    }
-  );
+  const filteredAddonCategories = stableSort(
+    addOnsCategory,
+    getComparator(order, orderBy)
+  ).filter((item) => {
+    if (searchFilter)
+      return item?.name?.toLowerCase().includes(searchFilter?.toLowerCase());
+    else return true;
+  });
+
+  // useEffect(() => {
+  //   dispatch(getSingleAddOnCategory(id));
+  // }, []);
 
   useEffect(() => {
-    dispatch(getUsers());
-  }, [dispatch]);
+    if (selectedAddonCategory) {
+      const updatedAddonCatgory = addOnsCategory.find(
+        (addOnsCategory) => addOnsCategory.id === selectedAddonCategory.id
+      );
+      if (updatedAddonCatgory) setSelectedAddonCategory(updatedAddonCatgory);
+    } else {
+      setSelectedAddonCategory(addOnsCategory[0]);
+    }
+  }, [addOnsCategory]);
 
-  useEffect(() => {
-    if (selectedUser) {
-      const updatedUser = users.find((user) => user.id === selectedUser.id);
-      if (updatedUser) setSelectedUser(updatedUser);
+  const handleDeleteClick = (addoncatgory) => {
+    setAddonCategoryToDelete(addoncatgory);
+    setDeleteModalOpen(true);
+  };
+  const handleDeleteCancel = () => {
+    setDeleteModalOpen(false);
+    setAddonCategoryToDelete(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (addonCategoryToDelete) {
+      await dispatch(deleteAddOnsCategory(addonCategoryToDelete.id));
+      setDeleteModalOpen(false);
+      setAddonCategoryToDelete(null);
+      dispatch(getAddOnsCategory()); // Refresh list
+      toast.success("succesfully deleted Product Category");
     }
-    else {
-      setSelectedUser(users[0])
+  };
+
+  const handleToggleActive = async (event, addonCategoryId, currentStatus) => {
+    console.log("clicked");
+    event.stopPropagation();
+    try {
+      const updateData = {
+        isActive: !currentStatus,
+      };
+      await dispatch(
+        updateAddOnsCategory({ id: addonCategoryId, data: updateData })
+      );
+      toast.success(
+        `Coupon ${!currentStatus ? "activated" : "deactivated"} successfully`
+      );
+      dispatch(getAddOnsCategory());
+    } catch (error) {
+      toast.error("Failed to update AddOnsCategory status");
+      console.error("Error updating AddOnsCategory:", error);
     }
-  }, [users]);
+  };
+    const handleEditClick = (addonCategoryId) => {
+    // console.log("Edit clicked for:", addonCategoryId);
+    navigate(`/edit-addoncategory/${addonCategoryId}`);
+  };
 
   return (
     <div className="pt-2 pb-4">
- 
+      <HeadingAreaCoupon />
+
       <Grid container>
         <Grid
           size={{
-            lg: 9,
-            md: 8,
             xs: 12,
           }}
         >
@@ -165,8 +223,8 @@ export default function Addoncategory2PageView() {
               <SearchArea
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
-                gridRoute="/user-grid-2"
-                listRoute="/user-list-2"
+                gridRoute="/addoncategory-grid"
+                listRoute="/addoncategory-list-2"
               />
             </Box>
 
@@ -199,48 +257,86 @@ export default function Addoncategory2PageView() {
 
                   {/* TABLE BODY AND DATA */}
                   <TableBody>
-                    {filteredUsers
+                    {filteredAddonCategories
                       .slice(
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
                       )
-                      .map((user) => (
+                      .map((addoncatgory) => (
                         <BodyTableRow
-                          key={user.id}
-                          active={selectedUser?.id === user.id ? 1 : 0}
-                          onClick={() => setSelectedUser(user)}
+                          key={addoncatgory.id}
+                          active={
+                            selectedAddonCategory?.id === addoncatgory.id
+                              ? 1
+                              : 0
+                          }
+                          onClick={() => setSelectedAddonCategory(addoncatgory)}
                         >
-                          <BodyTableCell>
+                          <BodyTableCell alignItems="center">
                             <Stack
                               direction="row"
                               alignItems="center"
                               spacing={1}
                             >
-                              <Avatar
-                                src={user.profilePhoto}
+                              {/* <Avatar
+                                src={addoncatgory.profilePhoto}
                                 sx={{
                                   borderRadius: "20%",
                                   backgroundColor: "grey.100",
                                 }}
-                              />
+                              /> */}
 
                               <H6 fontSize={12} color="text.primary">
-                                {user.name ?? "N/A"}
+                                {addoncatgory.name ?? "N/A"}
                               </H6>
                             </Stack>
                           </BodyTableCell>
-                          <BodyTableCell>{user.gender ?? "N/A"}</BodyTableCell>
                           <BodyTableCell>
-                            {user.exerciseLevel ?? "N/A"}
+                            {addoncatgory.description
+                              ? addoncatgory.description.length > 25
+                                ? `${addoncatgory.description.substring(0, 25)}...`
+                                : addoncatgory.description
+                              : "N/A"}
                           </BodyTableCell>
-                          <BodyTableCell>{user.email ?? "N/A"}</BodyTableCell>
+                      
                           <BodyTableCell>
-                            {user.phoneNumber ?? "N/A"}
+                            {addoncatgory.updatedBy ?? "N/A"}
+                            {addoncatgory.updatedByRole && (
+                              <span className="text-gray-500 text-sm ml-2">
+                                ({addoncatgory.updatedByRole})
+                              </span>
+                            )}
+                          </BodyTableCell>
+        
+                              <BodyTableCell alignItems="center">
+                            <Chip
+                              label={
+                                addoncatgory.approvalStatus
+                                  ? addoncatgory.approvalStatus
+                                      .charAt(0)
+                                      .toUpperCase() +
+                                    addoncatgory.approvalStatus.slice(1)
+                                  : "N/A"
+                              }
+                              color={
+                                addoncatgory.approvalStatus === "pending"
+                                  ? "primary"
+                                  : "warning.main"
+                              }
+                              variant="outlined"
+                              size="small"
+                            />
+                          </BodyTableCell>
+                              <BodyTableCell alignItems="center">
+                            <Button>Review</Button>
+                             
                           </BodyTableCell>
                         </BodyTableRow>
                       ))}
 
-                    {filteredUsers.length === 0 && <TableDataNotFound />}
+                    {filteredAddonCategories.length === 0 && (
+                      <TableDataNotFound />
+                    )}
                   </TableBody>
                 </Table>
               </Scrollbar>
@@ -251,25 +347,36 @@ export default function Addoncategory2PageView() {
               page={page}
               component="div"
               rowsPerPage={rowsPerPage}
-              count={filteredUsers.length}
+              count={filteredAddonCategories.length}
               onPageChange={handleChangePage}
               rowsPerPageOptions={[5, 10, 25]}
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
           </Card>
         </Grid>
-
-        {/* USER DETAILS INFO */}
-        <Grid
-          size={{
-            lg: 3,
-            md: 4,
-            xs: 12,
-          }}
-        >
-          {selectedUser && <UserDetails data={selectedUser} />}
-        </Grid>
       </Grid>
+      {/* Delete Confirmation Modal */}
+      <DeleteModal
+        open={deleteModalOpen}
+        handleClose={handleDeleteCancel}
+        title="Delete Coupon"
+        message={`Are you sure you want to delete coupon '${addonCategoryToDelete?.name ?? ""}'?`}
+        handleConfirm={handleDeleteConfirm}
+        actions={[
+          {
+            label: "Cancel",
+            props: { onClick: handleDeleteCancel, color: "inherit" },
+          },
+          {
+            label: "Delete",
+            props: {
+              onClick: handleDeleteConfirm,
+              color: "error",
+              variant: "contained",
+            },
+          },
+        ]}
+      />
     </div>
   );
 }

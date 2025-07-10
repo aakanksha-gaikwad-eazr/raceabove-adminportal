@@ -10,7 +10,6 @@ import IconButton from "@mui/material/IconButton";
 import Pagination from "@mui/material/Pagination"; // CUSTOM COMPONENTS
 import { FlexBetween } from "@/components/flexbox";
 import { Paragraph, Small } from "@/components/typography"; // CUSTOM PAGE SECTION COMPONENTS
-import HeadingAreaCoupon from "../HeadingAreaCoupon"; // CUSTOM ICON COMPONENTS
 import { paginate } from "@/utils/paginate"; // CUSTOM DUMMY DATA
 import { useDispatch, useSelector } from "react-redux";
 import { getCoupons } from "../../../store/apps/coupons";
@@ -18,16 +17,20 @@ import { Description } from "@mui/icons-material";
 import ExpiryIcon from "@/icons/Expiryicon";
 import { getAddOnsCategory } from "@/store/apps/addonscategory";
 import MoreAddoncategoryButtontwo from "@/components/more-addoncategory-button-two";
+import SearchArea from "../SearchArea";
+import { Chip } from "@mui/material";
+import HeadingArea from "../HeadingArea";
 
 export default function AddoncategoryGrid1PageView() {
   const dispatch = useDispatch();
-  const {addOnsCategory} = useSelector((state) => state.addonscategory);
-  console.log("addOnsCategory", addOnsCategory)
+  const { addOnsCategory } = useSelector((state) => state.addonscategory);
+  console.log("addOnsCategory", addOnsCategory);
 
   const [addoncategories, setAddoncategories] = useState([]);
   const [userPerPage] = useState(8);
   const [page, setPage] = useState(1);
-  const [userFilter, setUserFilter] = useState({
+  const [search, setSearch] = useState("");
+  const [addonCategoryFilter, setAddonCategoryFilter] = useState({
     search: "",
   });
 
@@ -35,89 +38,124 @@ export default function AddoncategoryGrid1PageView() {
     dispatch(getAddOnsCategory());
   }, []);
   useEffect(() => {
-    setAddoncategories(addOnsCategory)
+    setAddoncategories(addOnsCategory);
   }, [addOnsCategory]);
 
-  const filteredUsers = addoncategories.filter((item) => {
-    if (userFilter.search)
-      return item.code.toLowerCase().includes(userFilter.search.toLowerCase());
-    else return true;
-  });
+  const filteredAddonCategories = addoncategories.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   useEffect(() => {
-    const totalPages = Math.ceil(filteredUsers.length / userPerPage);
+    const totalPages = Math.ceil(filteredAddonCategories.length / userPerPage);
     if (page > totalPages && totalPages > 0) {
       setPage(totalPages);
     }
-  }, [filteredUsers.length, page, userPerPage]);
+  }, [filteredAddonCategories.length, page, userPerPage]);
 
   const iconStyle = {
     color: "grey.500",
     fontSize: 18,
   };
   return (
-    <div className="pt-2 pb-4">
+    <Box className="pt-2 pb-4">
+      <HeadingArea value={addonCategoryFilter.role} />
       <Card
         sx={{
           px: 3,
           py: 2,
         }}
       >
-        <HeadingAreaCoupon value={userFilter.role} />
-
-        {/* <SearchArea
-          value={userFilter.search}
-          onChange={(e) => handleChangeFilter("search", e.target.value)}
-          gridRoute="/dashboard/sports-grid"
-          listRoute="/dashboard/user-list"
-        /> */}
+        <SearchArea
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          gridRoute="/addoncategory-grid"
+          listRoute="/addoncategory-list-2"
+        />
 
         <Grid container spacing={3}>
-          {Array.isArray(filteredUsers) && filteredUsers.length > 0 ? (
-            paginate(page, userPerPage, filteredUsers).map((item, index) => (
-              <Grid
-                size={{
-                  lg: 3,
-                  md: 4,
-                  sm: 6,
-                  xs: 12,
-                }}
-                key={index}
-              >
-                <Box
-                  sx={{
-                    p: 3,
-                    borderRadius: 2,
-                    border: "1px solid",
-                    borderColor: "divider",
+          {Array.isArray(filteredAddonCategories) &&
+          filteredAddonCategories.length > 0 ? (
+            paginate(page, userPerPage, filteredAddonCategories).map(
+              (item, index) => (
+                <Grid
+                  size={{
+                    lg: 3,
+                    md: 4,
+                    sm: 6,
+                    xs: 12,
                   }}
+                  key={index}
                 >
-                  <FlexBetween
-                    sx={{ justifyContent: "flex-end" }}
-                    mx={-1}
-                    mt={-1}
+                  <Box
+                    sx={{
+                      p: 3,
+                      borderRadius: 3,
+                      border: "1px solid",
+                      borderColor: "divider",
+                      transition: "0.3s",
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
+                      backgroundColor: "background.paper",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      height: "100%",
+                      opacity: item.isActive ? 1 : 0.7,
+                      "&:hover": {
+                        boxShadow: 6,
+                        borderColor: "primary.main",
+                      },
+                    }}
                   >
-                    <MoreAddoncategoryButtontwo addoncategoriesId={item?.id} />
-                  </FlexBetween>
+                    <FlexBetween
+                      sx={{ justifyContent: "space-between" }}
+                      mb={2}
+                    >
+                      {/* Status Chips */}
+                      <Stack direction="row" spacing={1}>
+                        <Chip
+                          size="small"
+                          label={item.approvalStatus}
+                          color={
+                            item.approvalStatus === "approved"
+                              ? "success"
+                              : item.approvalStatus === "pending"
+                                ? "warning"
+                                : "error"
+                          }
+                          variant="outlined"
+                        />
+                      </Stack>
+                      <MoreAddoncategoryButtontwo
+                        addoncategoriesId={item?.id}
+                      />
+                    </FlexBetween>
 
-                  <Stack direction="row" alignItems="center" py={2} spacing={2}>
-
-
-                    <div>
-                      <Paragraph fontWeight={500}>{item.name ?? "N/A"}</Paragraph>
-                    </div>
-                  </Stack>
-
-                  <Stack direction="row" alignItems="center" spacing={1} sx={{ minHeight: '90px' }}> 
-                    <Small color="grey.500"
-                    //  sx={{ overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}
-                     >
-                      {item.description ?? "N/A"}</Small>
-                  </Stack>
-
-                </Box>
-              </Grid>
-            ))
+                    <Stack spacing={2} flex={1}>
+                      <Stack direction="row" alignItems="center" spacing={2}>
+                        <Box>
+                          <Paragraph fontWeight={700} fontSize={16} noWrap>
+                            {item.name ?? "N/A"}
+                          </Paragraph>
+                        </Box>
+                      </Stack>
+                    </Stack>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      spacing={1}
+                      sx={{ minHeight: "90px" }}
+                    >
+                      <Small
+                        color="grey.500"
+                        //  sx={{ overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}
+                      >
+                        {item.description ?? "N/A"}
+                      </Small>
+                    </Stack>
+                  </Box>
+                </Grid>
+              )
+            )
           ) : (
             <Grid size={12}>
               <Paragraph
@@ -136,13 +174,13 @@ export default function AddoncategoryGrid1PageView() {
             <Stack alignItems="center" py={2}>
               <Pagination
                 shape="rounded"
-                count={Math.ceil(filteredUsers.length / userPerPage)}
+                count={Math.ceil(filteredAddonCategories.length / userPerPage)}
                 onChange={(_, newPage) => setPage(newPage)}
               />
             </Stack>
           </Grid>
         </Grid>
       </Card>
-    </div>
+    </Box>
   );
 }

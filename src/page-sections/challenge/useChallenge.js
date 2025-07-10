@@ -12,7 +12,6 @@ export default function useChallenge() {
 
   const dispatch = useDispatch();
   const { challenges } = useSelector((state) => state.challenges);
-  // console.log("challenge", challenges);
 
   useEffect(() => {
     dispatch(getChallenges());
@@ -26,41 +25,31 @@ export default function useChallenge() {
     setFilters((state) => ({ ...state, [key]: value }));
   };
 
-  // Utility function to filter events
-  const datewisefilter = (challenges = []) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const pastChallenges = [];
-    const upcomingChallenges = [];
+  const statusFilter = (challenges = []) => {
+    const approved = [];
+    const pending = [];
+    const rejected = [];
 
     challenges.forEach((challenge) => {
-      const challengeDate = new Date(challenge.startDate);
-      challengeDate.setHours(0, 0, 0, 0);
-
-      if (challengeDate < today) {
-        pastChallenges.push(challenge);
-      } else {
-        upcomingChallenges.push(challenge);
+      const status = challenge.approvalStatus?.toLowerCase();
+      
+      if (status === "approved") {
+        approved.push(challenge);
+      } else if (status === "pending") {
+        pending.push(challenge);
+      } else if (status === "rejected") {
+        rejected.push(challenge);
       }
     });
 
-    const all = [...pastChallenges, ...upcomingChallenges];
+    const all = [...approved, ...pending, ...rejected];
 
-    return { pastChallenges, upcomingChallenges, all };
+    return { approved, pending, rejected, all };
   };
-
-  // const FILTERED_PROJECTS = challenges.filter(
-  //   (item) => filters.status === "all" || item.status === filters.status
-  // ).filter((pro) =>
-  //   pro?.name.toLowerCase().includes(filters?.searchValue.toLowerCase())
-  // );
-
   
   return {
-    datewisefilter,
+    statusFilter,
     challenges,
-    // FILTERED_PROJECTS,
     filters,
     openModal,
     handleOpenModal,

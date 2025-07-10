@@ -1,4 +1,4 @@
-import { EditFaqPageView } from '@/page-sections/faqsection/page-view';
+import { EditFaq } from '@/page-sections/faqsection/page-view';
 export default function EditFaqPage() {
-  return <EditFaqPageView />;
+  return <EditFaq />;
 }

@@ -8,7 +8,7 @@ import {
   createChallenges,
   getChallenges,
   getChallengesById,
-  updateChallenges,
+  reviewChallenges,
 
 } from "../../../store/apps/challenges"; // Import the API call
 
@@ -183,7 +183,7 @@ export default function ProjectFormEdit({ open, handleClose, challengeId }) {
 
       try {
         console.log("apicalled")
-        const response = await dispatch(updateChallenges({id: challengeId,
+        const response = await dispatch(reviewChallenges({id: challengeId,
           changedData:formData , })).unwrap();
           console.log("res>>>;", response)
         if(response?.status === 200){

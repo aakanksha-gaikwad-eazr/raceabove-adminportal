@@ -44,21 +44,21 @@ export default function SearchArea(props) {
       width: '100%'
     }} />
 
-      {
+       {
       /* NAVIGATION BUTTONS */
     }
-      <Box flexShrink={0} className="actions">
-        {/* <IconButton onClick={() => navigate(listRoute)}>
+     <Box flexShrink={0} className="actions">
+        <IconButton onClick={() => navigate(listRoute)}>
           <FormatBullets sx={{
           color: activeColor(listRoute)
         }} />
-        </IconButton> */}
+        </IconButton>
 
-        {/* <IconButton onClick={() => navigate(gridRoute)}>
+        <IconButton onClick={() => navigate(gridRoute)}>
           <Apps sx={{
           color: activeColor(gridRoute)
         }} />
-        </IconButton> */}
+        </IconButton>
       </Box>
     </FlexBetween>;
 }

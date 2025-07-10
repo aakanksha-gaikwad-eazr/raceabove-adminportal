@@ -21,18 +21,20 @@ export default function StatusFilter({
   value,
   handleChange,
   challenges,
-  datewisefilter,
+  statusFilter,
 }) {
-  const { pastChallenges, upcomingChallenges, all } = challenges
-    ? datewisefilter(challenges)
-    : { pastChallenges: [], upcomingChallenges: [], all: [] };
-  const tabOptions = [
-    { title: "All", value: "all", amount: all.length },
-    { title: "Upcoming", value: "upcoming", amount: upcomingChallenges.length },
-    { title: "Expired", value: "expired", amount: pastChallenges.length },
-  ];
-  const validValues = ["all", "upcoming", "expired"];
-  const safeValue = validValues.includes(value) ? value : "all";
+  const { approved, pending, rejected, all } = challenges
+    ? statusFilter(challenges)
+    : { approved: [], pending: [], rejected: [], all: [] };
+
+    const tabOptions = [
+      { title: "All", value: "all", amount: all.length },
+      { title: "Approved", value: "approved", amount: approved.length },
+      { title: "Pending", value: "pending", amount: pending.length },
+      { title: "Rejected", value: "rejected", amount: rejected.length },
+    ];
+    const validValues = ["all", "approved", "pending", "rejected"];
+    const safeValue = validValues.includes(value) ? value : "all";
   return (
     <StyledRoot>
       <H6 fontSize={20} mb={2}>

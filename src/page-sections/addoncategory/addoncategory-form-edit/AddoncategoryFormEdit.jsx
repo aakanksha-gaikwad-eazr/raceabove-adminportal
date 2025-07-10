@@ -8,7 +8,7 @@ import {
   createChallenges,
   getChallenges,
   getChallengesById,
-  updateChallenges,
+  reviewChallenges,
 } from "../../../store/apps/challenges"; // Import the API call
 
 import Stack from "@mui/material/Stack";

@@ -153,6 +153,39 @@ export const updateChallenges = createAsyncThunk(
 );
 
 
+//update challenge
+export const reviewChallenges = createAsyncThunk(
+  'appChallenges/reviewChallenges',
+  async ({ challengeId, reviewData }, { rejectWithValue }) => {
+    try {
+      const adminData = JSON.parse(localStorage.getItem('raceabove'));
+      const accessToken = adminData.accessToken; 
+
+      if (!accessToken) {
+        throw new Error('Access token not found in localStorage');
+      }
+
+      let url = `${ip}/v1/challenges/${challengeId}/review`; 
+
+      const response = await axiosInstance.patch(url, reviewData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.log('Failed to update challenges status', error);
+      return rejectWithValue(error.response?.data || 'Update failed');
+    }
+  }
+);
+
+
+
+
+
 export const appChallengesSlice = createSlice({
   name: 'appChallenges',
   initialState: {
@@ -175,6 +208,9 @@ export const appChallengesSlice = createSlice({
       state.success = true
     })
     .addCase(updateChallenges.fulfilled, (state, action) => {
+      state.success = true
+    })
+    .addCase(reviewChallenges.fulfilled, (state, action) => {
       state.success = true
     })
   }

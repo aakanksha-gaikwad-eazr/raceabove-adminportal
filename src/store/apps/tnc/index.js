@@ -4,8 +4,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axiosInstance from "@/utils/axiosInstance";
 import { ip } from '../../../config/config'
 
-//** fetch all Tickettype
-
+//** fetch all Terms and condtions
 export const getTnc = createAsyncThunk('appTncSlice/getTnc', async () => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
@@ -28,57 +27,9 @@ export const getTnc = createAsyncThunk('appTncSlice/getTnc', async () => {
   }
 })
 
-//add addons
-export const createTnc = createAsyncThunk('appTncSlice/createTnc', async (data) => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
 
-    if (!accessToken) {
-      throw new Error('Access token not found in localStorage')
-    }
-
-    let url = `${ip}/v1/terms-and-conditions`
-
-    const response = await axiosInstance.post(url,data, {
-   
-      headers: {
-        Authorization: `Bearer ${accessToken}`, 
-      } 
-    })
-    console.log("created tnc data", response)
-
-    return response?.data
-
-  } catch (error) {
-    console.error("❌ API Request Failed:", error.response?.data || error.message);
-    throw new Error('Failed to Create tnc')
-  }
-})
-
-//delete addons
-export const deleteTnc = createAsyncThunk('appTncSlice/deleteTnc', async id => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    const url = `${ip}/v1/terms-and-conditions/${id}`
-
-    const response = await axiosInstance.delete(url, {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    })
-
-    console.log('deleted the Tnc', response.data)
-
-    return response.data
-  } catch (error) {
-    console.log("Couldn't delete Tnc", error)
-    throw error;
-  }
-})
-
-//update the addons
-export const updateTnc = createAsyncThunk('appTncSlice/updateTnc', async (req) => {
+//review the Terms and condtions
+export const reviewTnc = createAsyncThunk('appTncSlice/reviewTnc', async (req) => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
     const accessToken = adminData.accessToken
@@ -87,7 +38,7 @@ export const updateTnc = createAsyncThunk('appTncSlice/updateTnc', async (req) =
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/terms-and-conditions/${req.id}`
+    let url = `${ip}/v1/terms-and-conditions/${req.id}/review`
     
     const response = await axiosInstance.patch(url, req.data, {
       headers: {
@@ -95,17 +46,17 @@ export const updateTnc = createAsyncThunk('appTncSlice/updateTnc', async (req) =
       } 
     })
     
-    console.log("update Tnc data", response.data)
+    console.log("reviewed Terms and conditions data", response.data)
 
     return response?.data
 
   } catch (error) {
     console.error("❌ API Request Failed:", error.response?.data || error.message);
-    throw new Error('Failed to update Tnc details')
+    throw new Error('Failed to Review Tnc details')
   }
 })
 
-//get single add-on
+//get single Terms and condtions
 export const getSingleTnc = createAsyncThunk('appTncSlice/getSingleTnc', async (id) => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
@@ -148,13 +99,7 @@ export const appTncSlice = createSlice({
     .addCase(getTnc.fulfilled, (state, action) => {
       state.allTnc = action.payload 
     })
-    .addCase(createTnc.fulfilled, (state, action) => {
-      state.success = true
-    })
-    .addCase(deleteTnc.fulfilled, (state, action) => {
-      state.success = true
-    })
-    .addCase(updateTnc.fulfilled, (state, action) => {
+    .addCase(reviewTnc.fulfilled, (state, action) => {
       state.success = true
     })
     .addCase(getSingleTnc.fulfilled, (state, action) => {

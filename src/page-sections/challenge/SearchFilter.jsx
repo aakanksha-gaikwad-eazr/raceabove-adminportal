@@ -21,7 +21,15 @@ const SearchAction = styled('div')(({
       maxWidth: '100%'
     }
   }
-})); // ==============================================================
+})); 
+const FullWidthSearchInput = styled(SearchInput)(({ theme }) => ({
+  flex: 1,
+  width: '100%',
+  maxWidth: '100%'
+}));
+
+
+// ==============================================================
 
 // ==============================================================
 export default function SearchFilter({
@@ -31,10 +39,14 @@ export default function SearchFilter({
     const navigate = useNavigate();
   
   return <SearchAction>
-      <SearchInput placeholder="Find Projects" onChange={e => handleChange(e.target.value)} />
+     <FullWidthSearchInput 
+        placeholder="Find Projects" 
+        onChange={e => handleChange(e.target.value)} 
+      />
+      {/* <SearchInput placeholder="Find Projects" onChange={e => handleChange(e.target.value)} /> */}
 
-      <Button variant="contained" startIcon={<Add />} onClick={() => navigate("/add-challenge")}>
+      {/* <Button variant="contained" startIcon={<Add />} onClick={() => navigate("/add-challenge")}>
         Create a Challenge
-      </Button>
+      </Button> */}
     </SearchAction>;
 }

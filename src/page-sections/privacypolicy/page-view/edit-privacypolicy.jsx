@@ -1,145 +1,190 @@
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import Grid from "@mui/material/Grid2";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField"; // MUI ICON COMPONENT
-import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
-import { useFormik } from "formik";
-import * as Yup from "yup"; // CUSTOM COMPONENTS
-import FlexBox from "@/components/flexbox/FlexBox";
-import { H6, Paragraph } from "@/components/typography";
+import {
+  Box,
+  Button,
+  Card,
+  TextField,
+  Typography,
+} from "@mui/material";
+import React from "react";
+import Grid from "@mui/material/Grid";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
-import { getSinglePrivacyPolicies } from "@/store/apps/privacypolicy";
-import { getPrivacyPolicies, updatePrivacyPolicies } from "@/store/apps/privacypolicy";
-export default function EditPrivacyPolicyPageView() {
-  const DATA = [
-    "Review the existing terms carefully before making any changes.",
-    "Ensure the updated content remains legally accurate and easy to understand.",
-    "Avoid removing important clauses unless they are outdated or no longer applicable.",
-    "Use clear and straightforward language to ensure users can understand the terms.",
-    "Update the T&C to reflect current platform policies, features, or legal requirements.",
-  ];
-  const validationSchema = Yup.object({
-    content: Yup.string().required("Content is Required!"),
-  });
-  const initialValues = {
-    content: "",
-  };
+import { FlexBox } from "@/components/flexbox";
+import "react-datepicker/dist/react-datepicker.css";
+import styled from "@mui/material/styles/styled";
+// import { getSingleTnc, getTnc, updateTnc } from "@/store/apps/tnc";
+// import { getSinglePrivacyPolicies, updatePrivacyPolicies } from "@/store/apps/privacypolicy";
+
+
+const categoryOptions = [
+  { value: "events", label: "Events" },
+  { value: "challenges", label: "Challenges" },
+];
+// Add this styled component at the top of your file with other styled components
+const StyledDatePickerWrapper = styled("div")(({ theme, error }) => ({
+  "& .react-datepicker-wrapper": {
+    width: "100%",
+  },
+  "& .react-datepicker__input-container": {
+    width: "100%",
+  },
+  "& .date-picker-input": {
+    width: "100%",
+    padding: "10px 14px",
+    fontSize: "1rem",
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 400,
+    lineHeight: "1.4375em",
+    color: theme.palette.text.primary,
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${error ? theme.palette.error.main : theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.23)" : "rgba(0, 0, 0, 0.23)"}`,
+    borderRadius: theme.shape.borderRadius,
+    borderRadius: "7px",
+    transition: theme.transitions.create(["border-color", "box-shadow"]),
+    "&:hover": {
+      borderColor: theme.palette.text.primary,
+    },
+    "&:focus": {
+      outline: "none",
+      borderColor: theme.palette.primary.main,
+      borderWidth: "2px",
+      // padding: "15.5px 13px",
+    },
+    "&::placeholder": {
+      color: theme.palette.text.secondary,
+      opacity: 1,
+    },
+  },
+  "& .date-picker-label": {
+    position: "absolute",
+    left: 14,
+    top: -9,
+    padding: "0 4px",
+    backgroundColor: theme.palette.background.paper,
+    color: error ? theme.palette.error.main : theme.palette.text.secondary,
+    fontSize: "0.75rem",
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 400,
+    lineHeight: 1,
+    zIndex: 1,
+  },
+  "& .date-picker-label.focused": {
+    color: error ? theme.palette.error.main : theme.palette.primary.main,
+  },
+  "& .date-picker-helper-text": {
+    color: theme.palette.error.main,
+    margin: "3px 14px 0",
+    fontSize: "0.75rem",
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 400,
+    lineHeight: 1.66,
+  },
+}));
+
+export default function EditPrivacyPolicyPage() {
   const { id } = useParams();
-  console.log("Edit ID:", id);
-
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { singlePrivacypolicies } = useSelector((state) => state.privacypolicy);
-  console.log("Loaded singlePrivacypolicies:", singlePrivacypolicies);
+  const { singlePrivacypolicy } = useSelector((state) => state.privacypolicy);
+  console.log("singlePrivacypolicy",singlePrivacypolicy)
 
+  const initialValues = {
+    content: "",
+  };
 
-  useEffect(() => {
-    if (id) {
-      dispatch(getSinglePrivacyPolicies(id));
-    }
-  }, [dispatch, id]);
+  const validationSchema = Yup.object().shape({
+    content: Yup.string().required("Content is required"),
+  });
 
   const {
     values,
     errors,
     touched,
-    handleBlur,
     handleChange,
+    handleBlur,
     handleSubmit,
-    resetForm,
     setValues,
+    setFieldValue,
   } = useFormik({
     initialValues,
-    enableReinitialize: true,
     validationSchema,
-    onSubmit: async (values, { setSubmitting }) => {
+    enableReinitialize: true,
+    onSubmit: async (values) => {
       try {
-        const payload = { content: values.content };
-        const response = await dispatch(
-          updatePrivacyPolicies({
-            data: payload,
-            id,
-          })
+        const payload = {content: values.content}
+
+        const res = await dispatch(
+          // updatePrivacyPolicies({ id: id, data: payload })
         );
-        console.log("res", response);
-        if (response?.payload?.status === 200) {
-          toast.success("privacy policy updated:");
-          dispatch(getPrivacyPolicies());
-          navigate("/privacypolicy/ppage");
+
+        if (res?.payload?.status === 200) {
+          toast.success("Privacy Policy updated successfully");
+          dispatch(getTnc());
+          navigate("/privacy-policy-list-2");
+        } else {
+          toast.error("Privacy Policy Update failed");
         }
-        resetForm();
-      } catch (error) {
-        console.error("Failed to update Privacy policy:", error);
-      } finally {
-        setSubmitting(false);
+      } catch (err) {
+        toast.error("Something went wrong");
+        console.error(err);
       }
     },
   });
 
   useEffect(() => {
-    if (singlePrivacypolicies && singlePrivacypolicies.content) {
+    if (id) {
+      dispatch(getSinglePrivacyPolicies(id));
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (singlePrivacypolicy?.id === id) {
       setValues({
-        content: singlePrivacypolicies.content,
+        ...initialValues,
+        ...singlePrivacypolicy,
       });
     }
-  }, [singlePrivacypolicies, setValues]);
-  console.log("Loaded singlePrivacypolicies:", singlePrivacypolicies);
-
+  }, [singlePrivacypolicy]);
 
   return (
-    <Box py={3}>
-      <Card
-        sx={{
-          p: 3,
-          maxWidth: 900,
-          margin: "auto",
-        }}
-      >
-        <H6 fontSize={18}>Edit Privacy Policy</H6>
-
-        <Paragraph color="text.secondary" mb={3}>
-          Ensure the updated Privacy policy clearly outline all key details to help users
-          understand their rights, responsibilities.{" "}
-        </Paragraph>
-
-        <Box component="ul" pl={2} mb={4}>
-          {DATA.map((item) => (
-            <Box key={item} component="li" fontSize={14} pb={0.5}>
-              {item}
-            </Box>
-          ))}
-        </Box>
+    <Box className="pt-2 pb-4">
+      <Card sx={{ p: 3 }}>
+        <Typography variant="h6" fontWeight={600} mb={2}>
+          Edit Privacy Policy
+        </Typography>
 
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
-            <Grid
-              size={{
-                xs: 12,
-              }}
-            >
+            {/* Text Fields */}
+            <Grid item xs={12}>
               <TextField
-                multiline
-                fullWidth
+              multiline
+                label="Privacy Policy Content"
                 name="content"
-                onBlur={handleBlur}
-                onChange={handleChange}
+                fullWidth
                 value={values.content}
-                placeholder="Content*"
+                onChange={handleChange}
+                error={touched.content && Boolean(errors.content)}
                 helperText={touched.content && errors.content}
-                error={Boolean(touched.content && errors.content)}
               />
             </Grid>
 
-            <Grid size={12}>
+            {/* Submit */}
+            <Grid item xs={12}>
               <FlexBox alignItems="center" gap={2}>
-                <Button type="submit">Submit</Button>
-                <Button variant="outlined" color="secondary">
+                <Button type="submit" variant="contained">
+                  Save Changes
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => navigate("/privacy-policy-list-2")}
+                >
                   Cancel
                 </Button>
               </FlexBox>

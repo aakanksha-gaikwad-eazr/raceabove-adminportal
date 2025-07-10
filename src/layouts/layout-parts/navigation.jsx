@@ -36,11 +36,11 @@ export const navigations = [
   //   icon: duotone.Calender,
   //   path: "/events/version-3",
   // },
-  //   {
-  //   name: "Challenges",
-  //   icon: duotone.StartHalf,
-  //   path: "/challenges/version-3",
-  // },
+    {
+    name: "Challenges",
+    icon: duotone.StartHalf,
+    path: "/challenges/version-3",
+  },
 
   {
     type: "label",
@@ -67,11 +67,11 @@ export const navigations = [
   //   icon: duotone.Calender,
   //   path: "/add-ons/add-ons-list",
   // },
-  // {
-  //   name: "Product Categories",
-  //   icon: duotone.Calender,
-  //   path: "/addoncategory-grid",
-  // },
+  {
+    name: "Product Categories",
+    icon: duotone.Calender,
+    path: "/addoncategory-list-2",
+  },
 
   // {
   //   name: "Ticket Type",
@@ -83,16 +83,7 @@ export const navigations = [
   //   icon: duotone.Accounts,
   //   path: "/ticket-template-grid",
   // },
-  //  {
-  //   name: "TNC",
-  //   icon: duotone.Calender,
-  //   path: "/tnc/tncpage",
-  // },
-  // {
-  //   name: "Privacy Policy",
-  //   icon: duotone.Calender,
-  //   path: "/privacypolicy/ppage",
-  // },
+ 
   
   {
     name: "Sports",
@@ -104,11 +95,21 @@ export const navigations = [
   //   icon: duotone.ElementHub,
   //   path: "/admin-list-2",
   // },
+  {
+    name: "TNC",
+    icon: duotone.Calender,
+    path: "/tnc-list-2",
+  },
+  {
+    name: "Privacy Policy",
+    icon: duotone.Calender,
+    path: "/privacy-policy-list-2",
+  },
 
-  // {
-  //   name: "FAQ",
-  //   icon: duotone.Calender,
-  //   path: "/faq/section",
-  // },
+  {
+    name: "FAQ",
+    icon: duotone.Calender,
+    path: "/faq-list-2",
+  },
  
 ];

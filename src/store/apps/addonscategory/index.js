@@ -107,6 +107,35 @@ export const updateAddOnsCategory = createAsyncThunk('appAddOns/updateAddOnsCate
   }
 })
 
+//update the addons
+export const reviewAddOnsCategory = createAsyncThunk('appAddOns/reviewAddOnsCategory', async (req) => {
+  try {
+    const adminData = JSON.parse(localStorage.getItem('raceabove'))
+    const accessToken = adminData.accessToken
+
+    if (!accessToken) {
+      throw new Error('Access token not found in localStorage')
+    }
+  
+    let url = `${ip}/v1/product-categories/${req.id}/review`
+    console.log(req?.data,"req?.data")
+
+    const response = await axiosInstance.patch(url,req?.data, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`, 
+      } 
+    })
+    
+    console.log("Review Product Category", response.data)
+
+    return response?.data
+
+  } catch (error) {
+    console.error("❌ Product Category Review Failed:", error.response?.data || error.message);
+    throw new Error('Failed to Review Product Category')
+  }
+})
+
 //get single add-on
 export const singleAddOnCategory = createAsyncThunk('appAddOns/singleAddOnCategory', async (id) => {
   try {
@@ -160,6 +189,9 @@ export const appAddOnsSlice = createSlice({
     })
     .addCase(singleAddOnCategory.fulfilled, (state, action) => {
       state.singleAddOnsCategory= action.payload
+    })
+    .addCase(reviewAddOnsCategory.fulfilled, (state, action) => {
+      state.singleAddOnsCategory= true
     })
   }
 })

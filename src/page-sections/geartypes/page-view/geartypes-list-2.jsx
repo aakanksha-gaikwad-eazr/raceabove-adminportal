@@ -51,7 +51,7 @@ const HeadTableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.grey[isDark(theme) ? 700 : 100]}`,
   "&:first-of-type": {
     paddingLeft: 24,
-    width: "15%",
+    width: "4%",
     minWidth: 180,
   },
   "&:last-of-type": {
@@ -102,18 +102,18 @@ const headCells = [
     disablePadding: false,
     label: "Name",
   },
-  {
-    id: "position",
-    numeric: true,
-    disablePadding: false,
-    label: "Created By",
-  },
-  {
-    id: "company",
-    numeric: true,
-    disablePadding: false,
-    label: "Created By Role",
-  },
+  // {
+  //   id: "position",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Created By",
+  // },
+  // {
+  //   id: "company",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Created By Role",
+  // },
   {
     id: "email",
     numeric: true,
@@ -126,18 +126,18 @@ const headCells = [
     disablePadding: false,
     label: "Updated By Role",
   },
-  {
-    id: "phone",
-    numeric: true,
-    disablePadding: false,
-    label: "Deleted By",
-  },
-  {
-    id: "phone",
-    numeric: true,
-    disablePadding: false,
-    label: "Deleted By Role",
-  },
+  // {
+  //   id: "phone",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Deleted By",
+  // },
+  // {
+  //   id: "phone",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Deleted By Role",
+  // },
   {
     id: "status",
     numeric: false,
@@ -462,24 +462,24 @@ export default function GearTypesList2PageView() {
                                   </Stack>
                                 </Stack>
                               </BodyTableCell>
-                              <BodyTableCell align="left" isDeleted={isDeleted}>
+                              {/* <BodyTableCell align="left" isDeleted={isDeleted}>
                                 {geartype.createdBy ?? "N/A"}
                               </BodyTableCell>
                               <BodyTableCell align="left" isDeleted={isDeleted}>
                                 {geartype.createdByRole ?? "N/A"}
-                              </BodyTableCell>
-                              <BodyTableCell align="left" isDeleted={isDeleted}>
+                              </BodyTableCell> */}
+                              <BodyTableCell align="center" isDeleted={isDeleted}>
                                 {geartype.updatedBy ?? "N/A"}
                               </BodyTableCell>
-                              <BodyTableCell align="left" isDeleted={isDeleted}>
+                              <BodyTableCell align="center" isDeleted={isDeleted}>
                                 {geartype.updatedByRole ?? "N/A"}
                               </BodyTableCell>
-                              <BodyTableCell align="left" isDeleted={isDeleted}>
+                              {/* <BodyTableCell align="left" isDeleted={isDeleted}>
                                 {geartype.deletedBy ?? "N/A"}
                               </BodyTableCell>
                               <BodyTableCell align="left" isDeleted={isDeleted}>
                                 {geartype.deletedByRole ?? "N/A"}
-                              </BodyTableCell>
+                              </BodyTableCell> */}
 
                               {/* STATUS COLUMN */}
                               <BodyTableCell

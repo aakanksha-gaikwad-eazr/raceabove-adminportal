@@ -4,8 +4,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axiosInstance from "@/utils/axiosInstance";
 import { ip } from '../../../config/config'
 
-//** fetch all Tickettype
-
+//** fetch all PrivacyPolicies
 export const getPrivacyPolicies = createAsyncThunk('appPrivacyPoliciesSlice/getPrivacyPolicies', async () => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
@@ -28,57 +27,8 @@ export const getPrivacyPolicies = createAsyncThunk('appPrivacyPoliciesSlice/getP
   }
 })
 
-//add addons
-export const createPrivacyPolicies = createAsyncThunk('appPrivacyPoliciesSlice/createPrivacyPolicies', async (data) => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    if (!accessToken) {
-      throw new Error('Access token not found in localStorage')
-    }
-
-    let url = `${ip}/v1/privacy-policies`
-
-    const response = await axiosInstance.post(url,data, {
-   
-      headers: {
-        Authorization: `Bearer ${accessToken}`, 
-      } 
-    })
-    console.log("created PrivacyPolicies data", response)
-
-    return response?.data
-
-  } catch (error) {
-    console.error("❌ API Request Failed:", error.response?.data || error.message);
-    throw new Error('Failed to Create PrivacyPolicies')
-  }
-})
-
-//delete addons
-export const deletePrivacyPolicies= createAsyncThunk('appPrivacyPolicieslice/deletePrivacyPolicies', async id => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    const url = `${ip}/v1/privacy-policies/${id}`
-
-    const response = await axiosInstance.delete(url, {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    })
-
-    console.log('deleted the PrivacyPolicies', response.data)
-
-    return response.data
-  } catch (error) {
-    console.log("Couldn't delete PrivacyPolicies", error)
-    throw error;
-  }
-})
-
-//update the addons
-export const updatePrivacyPolicies = createAsyncThunk('appPrivacyPoliciesSlice/updatePrivacyPolicies', async (req) => {
+//review the PrivacyPolicies
+export const reviewPrivacyPolicies = createAsyncThunk('appPrivacyPoliciesSlice/reviewPrivacyPolicies', async (req) => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
     const accessToken = adminData.accessToken
@@ -87,7 +37,7 @@ export const updatePrivacyPolicies = createAsyncThunk('appPrivacyPoliciesSlice/u
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/privacy-policies/${req.id}`
+    let url = `${ip}/v1/privacy-policies/${req.id}/review`
     
     const response = await axiosInstance.patch(url, req.data, {
       headers: {
@@ -95,17 +45,17 @@ export const updatePrivacyPolicies = createAsyncThunk('appPrivacyPoliciesSlice/u
       } 
     })
     
-    console.log("update PrivacyPolicies data", response.data)
+    console.log("review PrivacyPolicies data", response.data)
 
     return response?.data
 
   } catch (error) {
     console.error("❌ API Request Failed:", error.response?.data || error.message);
-    throw new Error('Failed to update PrivacyPolicies details')
+    throw new Error('Failed to review PrivacyPolicies details')
   }
 })
 
-//get single add-on
+//get single PrivacyPolicies
 export const getSinglePrivacyPolicies = createAsyncThunk('appPrivacyPoliciesSlice/getSinglePrivacyPolicies', async (id) => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
@@ -148,13 +98,7 @@ export const appPrivacyPolicySlice = createSlice({
     .addCase(getPrivacyPolicies.fulfilled, (state, action) => {
       state.privacypolicies = action.payload 
     })
-    .addCase(createPrivacyPolicies.fulfilled, (state, action) => {
-      state.success = true
-    })
-    .addCase(deletePrivacyPolicies.fulfilled, (state, action) => {
-      state.success = true
-    })
-    .addCase(updatePrivacyPolicies.fulfilled, (state, action) => {
+    .addCase(reviewPrivacyPolicies.fulfilled, (state, action) => {
       state.success = true
     })
     .addCase(getSinglePrivacyPolicies.fulfilled, (state, action) => {

@@ -10,30 +10,27 @@ import { Typography } from "@mui/material";
 
 export default function ChallengeVersionThreePageView() {
   const {
-    datewisefilter,
+    statusFilter,
     challenges,
     filters,
-    // FILTERED_PROJECTS,
     openModal,
     handleChangeFilter,
     handleCloseModal,
     handleOpenModal,
   } = useChallenge();
 
-  console.log("challenges here",challenges)
-
-  const { pastChallenges, upcomingChallenges, all } = challenges
-    ? datewisefilter(challenges)
-    : { pastChallenges: [], upcomingChallenges: [], all: [] };
+  const { approved, pending, rejected, all } = challenges
+    ? statusFilter(challenges)
+    : { approved: [], pending: [], rejected: [], all: [] };
 
   return (
     <div className="pt-2 pb-4">
       {/* Challenge FILTER BY STATUS */}
       <StatusFilter
         challenges={challenges}
-        datewisefilter={datewisefilter}
-        value={filters.date}
-        handleChange={(value) => handleChangeFilter("startDate", value)}
+        statusFilter={statusFilter}
+        value={filters.approvalStatus}
+        handleChange={(value) => handleChangeFilter("approvalStatus", value)}
       />
 
       {/* SEARCH INPUT AND CREATE BUTTON */}
@@ -47,27 +44,14 @@ export default function ChallengeVersionThreePageView() {
 
       {/* PROJECT CARDS */}
 
-      {/* <Grid container spacing={3}>
-        {challenges.map((challenge) => (
-          <Grid
-            size={{
-              lg: 4,
-              sm: 6,
-              xs: 12,
-            }}
-            key={challenge.id}
-          >
-            <ChallengeCard3 key={challenge.id} challenges={challenge} />
-          </Grid>
-        ))}
-      </Grid> */}
-
       <Grid container spacing={3}>
-        {(filters.startDate === "all"
+        {(filters.approvalStatus === "all"
           ? all
-          : filters.startDate === "upcoming"
-            ? upcomingChallenges
-            : pastChallenges
+          : filters.approvalStatus === "approved"
+          ? approved
+          : filters.approvalStatus === "pending"
+          ? pending
+          : rejected
         )
         .filter(challenge => 
           challenge.title.toLowerCase().includes(filters.searchValue.toLowerCase()) ||

@@ -51,7 +51,7 @@ const HeadTableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.grey[isDark(theme) ? 700 : 100]}`,
   "&:first-of-type": {
     paddingLeft: 24,
-    width: "15%",
+    width: "4%",
     minWidth: 180,
   },
   "&:last-of-type": {
