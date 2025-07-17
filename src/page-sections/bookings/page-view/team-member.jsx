@@ -22,7 +22,6 @@ import toast from "react-hot-toast";
 import ReactQuill from "react-quill";
 import Dropzone from "@/components/dropzone";
 import { useDispatch, useSelector } from "react-redux";
-import { createEvents, getEvents } from "../../../store/apps/events";
 import { getCoupons } from "../../../store/apps/coupons";
 import MapPickerModal from "@/components/mapPickerModal/MapPickerModal.jsx";
 import { useNavigate } from "react-router-dom";
@@ -192,7 +191,7 @@ export default function TeamMemberPageView({ open, handleClose }) {
       });
 
       try {
-        const res = await dispatch(createEvents(formData));
+        // const res = await dispatch(createEvents(formData));
         console.log("formData", formData);
         if (res?.payload?.status === 201) {
           console.log("res", res);

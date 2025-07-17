@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react"; // MUI
-
+import { useEffect, useState } from "react";
+// MUI
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid2";
 import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
 import Avatar from "@mui/material/Avatar";
-import Chip from "@mui/material/Chip";
 import TableRow from "@mui/material/TableRow";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -14,35 +13,36 @@ import TableHead from "@mui/material/TableHead";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
-import styled from "@mui/material/styles/styled"; // CUSTOM COMPONENTS
-
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Switch from "@mui/material/Switch";
+import CircularProgress from "@mui/material/CircularProgress";
+import Chip from "@mui/material/Chip";
+import Tab from "@mui/material/Tab";
+import styled from "@mui/material/styles/styled";
+import { TabContext, TabList } from "@mui/lab";
+// CUSTOM COMPONENTS
 import { H6 } from "@/components/typography";
 import Scrollbar from "@/components/scrollbar";
-import { TableDataNotFound } from "@/components/table"; // CUSTOM PAGE SECTION COMPONENTS
-
+import { TableDataNotFound } from "@/components/table";
+// CUSTOM PAGE SECTION COMPONENTS
 import SearchArea from "../SearchArea";
-import UserDetails from "../UserDetails"; // CUSTOM DEFINED HOOK
-
-import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable"; // CUSTOM UTILS METHOD
-
-import { isDark } from "@/utils/constants"; // CUSTOM DUMMY DATA
-
-import { USER_LIST } from "@/__fakeData__/users"; // STYLED COMPONENTS
+import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable";
+// CUSTOM UTILS METHOD
+import { isDark } from "@/utils/constants";
+// REDUX
 import { useDispatch, useSelector } from "react-redux";
-import { getUsers, deleteUser } from "../../../store/apps/user";
-import SearchFilter from "../../../page-sections/challenge/SearchFilter";
-import StatusFilter from "../../../page-sections/challenge/StatusFilter";
-import { useNavigate } from "react-router-dom";
-import Eye from "@/icons/Eye";
-import Edit from "@/icons/Edit";
-import Delete from "@/icons/Delete";
-import Modal from "@/components/modal";
-import DeleteModal from "@/components/delete-modal";
-import AddContactForm from "../AddContactForm";
 import toast from "react-hot-toast";
-import { CircularProgress } from "@mui/material";
+// COMPONENTS
+import DeleteEventModal from "@/components/delete-modal-event";
 import HeadingArea from "../HeadingArea";
+import { getUsers } from "@/store/apps/user";
+import { deleteUser, updateUser } from "@/store/apps/user";
+import { useNavigate } from "react-router-dom";
 
+// STYLED COMPONENTS
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
   fontSize: 14,
   fontWeight: 600,
@@ -52,16 +52,29 @@ const HeadTableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.grey[isDark(theme) ? 700 : 100]}`,
   "&:first-of-type": {
     paddingLeft: 24,
+    width: "4%",
+    minWidth: 180,
   },
   "&:last-of-type": {
     paddingRight: 24,
+    width: "10%",
+  },
+  "&:nth-of-type(8)": {
+    // Status column
+    width: "10%",
+  },
+  "&:not(:first-of-type):not(:last-of-type):not(:nth-of-type(8))": {
+    width: "10.7%",
   },
 }));
-const BodyTableCell = styled(HeadTableCell)({
+
+const BodyTableCell = styled(HeadTableCell)(({ theme }) => ({
   fontSize: 12,
   fontWeight: 400,
   backgroundColor: "transparent",
-});
+  paddingBlock: 12,
+  verticalAlign: "middle",
+}));
 
 const BodyTableRow = styled(TableRow, {
   shouldForwardProp: (prop) => prop !== "active",
@@ -80,43 +93,40 @@ const headCells = [
     label: "Name",
   },
   {
-    id: "position",
-    numeric: true,
-    disablePadding: false,
-    label: "Gender",
-  },
-  {
-    id: "company",
-    numeric: true,
-    disablePadding: false,
-    label: "Level",
-  },
-  {
     id: "email",
     numeric: true,
     disablePadding: false,
     label: "Email",
   },
   {
-    id: "phone",
+    id: "gender",
     numeric: true,
     disablePadding: false,
-    label: "Phone",
+    label: "Gender",
   },
   {
-    id: "action",
-    numeric: true,
+    id: "status",
+    numeric: false,
     disablePadding: false,
-    label: "Action",
+    label: "Status",
+  },
+  {
+    id: "actions",
+    numeric: false,
+    disablePadding: false,
+    label: "Actions",
   },
 ];
 
 export default function UserList2PageView() {
   const [searchFilter, setSearchFilter] = useState("");
-  const [selectedUser, setSelectedUser] = useState();
-  const [openEditModal, setOpenEditModal] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState();
+  const [loadingStates, setLoadingStates] = useState({});
+  const [selectTab, setSelectTab] = useState("all");
+
+  // Modal states
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [userToEdit, setUserToEdit] = useState(null);
+  const [userId, setUserId] = useState(null);
 
   const {
     page,
@@ -133,263 +143,331 @@ export default function UserList2PageView() {
 
   const dispatch = useDispatch();
   const { users } = useSelector((state) => state.user);
-
-  const filteredUsers = stableSort(
-    users,
-    getComparator(order, orderBy)
-  ).filter((item) => {
-    if (searchFilter)
-      return item?.name
-        ?.toLowerCase()
-        .includes(searchFilter?.toLowerCase());
-    else return true;
-  });
-
   const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(getUsers());
   }, [dispatch]);
 
+  // Handle tab change
+  const handleChangeTab = (_, newTab) => {
+    setSelectTab(newTab);
+  };
+
+  // Filter users based on tab selection and search
+  const filteredUsers = stableSort(
+    users,
+    getComparator(order, orderBy)
+  ).filter((item) => {
+    // First, filter out deleted items (deletedAt !== null) from all tabs
+    if (item?.deletedAt !== null) {
+      return false;
+    }
+
+    // Then filter by tab selection based on isActive status
+    if (selectTab === "active" && !item?.isActive) {
+      return false;
+    }
+    if (selectTab === "inactive" && item?.isActive) {
+      return false;
+    }
+
+    // Filter by search term
+    if (searchFilter) {
+      return item?.name?.toLowerCase().includes(searchFilter?.toLowerCase());
+    }
+
+    return true;
+  });
+
   useEffect(() => {
-    if (selectedUser) {
+    if (selectedUsers) {
       const updatedUser = users.find(
-        (user) => user.id === selectedUser.id
+        (user) => user.id === selectedUsers.id
       );
-      if (updatedUser) setSelectedUser(updatedUser);
+      if (updatedUser) setSelectedUsers(updatedUser);
     } else {
-      setSelectedUser(users[0]);
+      const firstNonDeleted = users.find((user) => user.deletedAt === null);
+      setSelectedUsers(firstNonDeleted || users[0]);
     }
-  }, [users]);
+  }, [users, selectedUsers]);
 
-  const handleClickhere = (user) => {
-    if (user) {
-      localStorage.setItem("selectedUserId", user.id);
-      setSelectedUser(user);
-      navigate(`/user-details`);
+  // Handle status toggle
+  const handleStatusToggle = async (userId, currentStatus) => {
+    console.log("Toggle clicked:", userId, currentStatus);
+    setLoadingStates((prev) => ({ ...prev, [userId]: true }));
+
+    try {
+      const updateData = {
+        id: userId,
+        data: {
+          isActive: !currentStatus,
+        },
+      };
+
+      const result = await dispatch(updateUser(updateData));
+      // console.log("result", result);
+
+      if (
+        result.payload?.data?.status === 200 ||
+        result.meta?.requestStatus === "fulfilled"
+      ) {
+        toast.success("Status updated successfully");
+
+        // Force refresh the users list
+        await dispatch(getUsers()).unwrap();
+
+        // Update selected user if it's the one being toggled
+        if (selectedUsers?.id === userId) {
+          setSelectedUsers((prevSelected) => ({
+            ...prevSelected,
+            isActive: !currentStatus,
+          }));
+        }
+      } else {
+        toast.error("Status update failed");
+      }
+    } catch (error) {
+      console.error("Error updating user status:", error);
+      toast.error("Failed to update status");
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, [userId]: false }));
     }
   };
 
-  const handleEditClick = (e, user) => {
-    e.stopPropagation();
-    setUserToEdit(user);
-  navigate('/edit-user', { state: { user } });
-  };
-
-  const handleDeleteClick = (e, user) => {
-    e.stopPropagation();
-    setUserToEdit(user);
+  // Modal handlers
+  const handleOpenDeleteModal = (user) => {
+    if (user.deletedAt !== null) {
+      toast.error("Item is already deleted");
+      return;
+    }
+    setUserId(user.id);
     setOpenDeleteModal(true);
   };
 
-  const handleDeleteConfirm = async () => {
+  const handleCloseDeleteModal = () => {
+    setOpenDeleteModal(false);
+    setUserId(null);
+  };
+
+  const handleDelete = async () => {
     try {
-      const response = await dispatch(
-        deleteUser(userToEdit.id)
-      ).unwrap();
-      if (response?.status === 200) {
-        dispatch(getUsers());
-        setOpenDeleteModal(false);
-        toast.success("User deleted successfully!");
+      console.log("Deleting user with id:", userId);
+      const result = await dispatch(deleteUser(userId));
+      
+      if (result.meta?.requestStatus === "fulfilled") {
+        toast.success("User deleted successfully");
+        await dispatch(getUsers());
+      } else {
+        toast.error("Failed to delete user");
       }
     } catch (error) {
       console.error("Error deleting user:", error);
-      toast.error(
-        error.message || "Something went wrong while deleting!"
-      );
+      toast.error("Failed to delete user");
+    } finally {
+      handleCloseDeleteModal();
     }
   };
 
-  const handleEditClose = () => {
-    setOpenEditModal(false);
-    setUserToEdit(null);
+  // Handle edit action
+  const handleEditUser = (e, user) => {
+    e.stopPropagation();
+    
+    if (user.deletedAt !== null) {
+      toast.error("Cannot edit deleted items");
+      return;
+    }
+
+    // Navigate to edit page with user data
+    navigate(`/edit-user/${user.id}`, { 
+      state: { user } 
+    });
   };
 
-  const handleDeleteClose = () => {
-    setOpenDeleteModal(false);
-    setUserToEdit(null);
+  // Handle delete action
+  const handleDeleteUser = (e, user) => {
+    e.stopPropagation();
+    handleOpenDeleteModal(user);
   };
-
-  console.log(filteredUsers, "filteredUsers");
-
-  const chipObj = {
-    beginner: {
-      text: "Beginner",
-      color: "#1E88E5", // Blue
-      background: "#E3F2FD", // Light blue background
-    },
-    intermediate: {
-      text: "Intermediate",
-      color: "#F9A825", // Amber
-      background: "#FFF8E1", // Light amber background
-    },
-    advanced: {
-      text: "Advanced",
-      color: "#D32F2F", // Red
-      background: "#FFEBEE", // Light red background
-    },
+  const handleNavigationDetailspge = (user) => {
+  navigate(`/user-details/${user?.id}`)
   };
 
   return (
     <div className="pt-2 pb-4">
-      <Grid container>
-        <Grid
-          size={{
-            xs: 12,
-          }}
-        >
-          <Card
-            sx={{
-              height: "100%",
-              borderTopRightRadius: 0,
-              borderBottomRightRadius: 0,
-              boxShadow: "2px 4px 20px rgba(0, 0, 0, 0.05)",
-            }}
-          >
-            <Box p={2}>
-              <HeadingArea />
-              <SearchArea
-                value={searchFilter}
-                onChange={(e) => setSearchFilter(e.target.value)}
-                gridRoute="/user-grid-2"
-                listRoute="/user-l5ist-2"
-              />
-            </Box>
+      <HeadingArea />
+      <TabContext value={selectTab}>
+        <TabList variant="scrollable" onChange={handleChangeTab} sx={{ mb: 2, px: 3 }}>
+          <Tab label="All" value="all" />
+          <Tab label="Active" value="active" />
+          <Tab label="Inactive" value="inactive" />
+        </TabList>
 
-            {/* TABLE HEAD & BODY ROWS */}
-            <TableContainer>
-              <Scrollbar autoHide={false}>
-                <Table>
-                  {/* TABLE HEADER */}
-                  <TableHead>
-                    <TableRow>
-                      {headCells.map((headCell) => (
-                        <HeadTableCell
-                          key={headCell.id}
-                          padding={
-                            headCell.disablePadding
-                              ? "none"
-                              : "normal"
-                          }
-                          sortDirection={
-                            orderBy === headCell.id ? order : false
-                          }
-                        >
-                          <TableSortLabel
-                            active={orderBy === headCell.id}
-                            onClick={(e) =>
-                              handleRequestSort(e, headCell.id)
-                            }
-                            direction={
-                              orderBy === headCell.id ? order : "asc"
-                            }
+        <Grid container>
+          <Grid size={{ xs: 12 }}>
+            <Card
+              sx={{
+                height: "100%",
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+                boxShadow: "2px 4px 20px rgba(0, 0, 0, 0.05)",
+              }}
+            >
+              {/* SEARCH BOX AREA */}
+              <Box px={3}>
+                <SearchArea
+                  value={searchFilter}
+                  onChange={(e) => setSearchFilter(e.target.value)}
+                  gridRoute="/user-grid-2"
+                  listRoute="/user-list-2"
+                />
+              </Box>
+
+              {/* TABLE HEAD & BODY ROWS */}
+              <TableContainer>
+                <Scrollbar autoHide={false}>
+                  <Table>
+                    {/* TABLE HEADER */}
+                    <TableHead>
+                      <TableRow>
+                        {headCells.map((headCell) => (
+                          <HeadTableCell
+                            key={headCell.id}
+                            align="center"
+                            padding={headCell.disablePadding ? "none" : "normal"}
+                            sortDirection={orderBy === headCell.id ? order : false}
                           >
-                            {headCell.label}
-                          </TableSortLabel>
-                        </HeadTableCell>
-                      ))}
-                    </TableRow>
-                  </TableHead>
+                            {headCell.id === "actions" || headCell.id === "status" ? (
+                              headCell.label
+                            ) : (
+                              <TableSortLabel
+                                active={orderBy === headCell.id}
+                                onClick={(e) => handleRequestSort(e, headCell.id)}
+                                direction={orderBy === headCell.id ? order : "asc"}
+                              >
+                                {headCell.label}
+                              </TableSortLabel>
+                            )}
+                          </HeadTableCell>
+                        ))}
+                      </TableRow>
+                    </TableHead>
 
-                  {/* TABLE BODY AND DATA */}
-                  <TableBody>
-                    {filteredUsers
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      )
-                      .map((user) => (
-                        <BodyTableRow
-                          key={user.id}
-                          active={
-                            selectedUser?.id === user.id ? 1 : 0
-                          }
-                          onClick={() => handleClickhere(user)}
-                        >
-                          <BodyTableCell>
-                            <Stack
-                              direction="row"
-                              alignItems="center"
-                              spacing={1}
+                    {/* TABLE BODY AND DATA */}
+                    <TableBody>
+                      {filteredUsers
+                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                        .map((user) => {
+                          const isDeleted = user.deletedAt !== null;
+
+                          return (
+                            <BodyTableRow
+                              key={user.id}
+                              // active={selectedUsers?.id === user.id ? 1 : 0}
+                              onClick={() => handleNavigationDetailspge(user)}
                             >
-                              <Avatar
-                                src={user.profilePhoto}
-                                sx={{
-                                  borderRadius: "20%",
-                                  backgroundColor: "grey.100",
-                                }}
-                              />
+                              <BodyTableCell align="left">
+                                <Stack direction="row" alignItems="center" spacing={2}>
+                                  <Avatar
+                                    src={user?.profilePhoto}
+                                    sx={{
+                                      borderRadius: "20%",
+                                      backgroundColor: "grey.100",
+                                      width: 32,
+                                      height: 32,
+                                      ...(isDeleted && { opacity: 0.5 }),
+                                    }}
+                                  />
+                                  <Stack>
+                                    <H6
+                                      fontSize={13}
+                                      color={isDeleted ? "text.disabled" : "text.primary"}
+                                      fontWeight={500}
+                                    >
+                                      {user.name ?? "N/A"}
+                                    </H6>
+                                    {isDeleted && (
+                                      <Chip
+                                        label="Deleted"
+                                        size="small"
+                                        color="error"
+                                        variant="outlined"
+                                        sx={{ height: 20, fontSize: 11 }}
+                                      />
+                                    )}
+                                  </Stack>
+                                </Stack>
+                              </BodyTableCell>
 
-                              <H6 fontSize={12} color="text.primary">
-                                {user.name ?? "N/A"}
-                              </H6>
-                            </Stack>
-                          </BodyTableCell>
-                          <BodyTableCell
-                            sx={{ textTransform: "capitalize" }}
-                          >
-                            {user.gender ?? "N/A"}
-                          </BodyTableCell>
-                          <BodyTableCell>
-                            <Chip
-                              label={user.exerciseLevel ?? "N/A"}
-                              size="small"
-                              sx={{
-                                textTransform: "uppercase",
-                                color:
-                                  chipObj[user.exerciseLevel]
-                                    ?.color || "#000",
-                                backgroundColor:
-                                  chipObj[user.exerciseLevel]
-                                    ?.background || "#eee",
-                                fontWeight: 500,
-                              }}
-                            />
-                          </BodyTableCell>
-                          <BodyTableCell>
-                            {user.email ?? "N/A"}
-                          </BodyTableCell>
-                          <BodyTableCell>
-                            {user.phoneNumber ?? "N/A"}
-                          </BodyTableCell>
-                          <BodyTableCell
-                            sx={{
-                              display: "flex",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <Edit
-                              sx={{
-                                marginRight: "15px",
-                                cursor: "pointer",
-                              }}
-                              onClick={(e) =>
-                                handleEditClick(e, user)
-                              }
-                            />
-                            <Delete
-                              sx={{ cursor: "pointer" }}
-                              onClick={(e) =>
-                                handleDeleteClick(e, user)
-                              }
-                            />
-                          </BodyTableCell>
-                        </BodyTableRow>
-                      ))}
+                              <BodyTableCell align="center">
+                                <span style={{ color: isDeleted ? 'rgba(0,0,0,0.4)' : 'inherit' }}>
+                                  {user.email ?? "No Email"}
+                                </span>
+                              </BodyTableCell>
 
-                    {filteredUsers.length === 0 && (
-                      <TableDataNotFound />
-                    )}
-                  </TableBody>
-                </Table>
-              </Scrollbar>
-            </TableContainer>
+                              <BodyTableCell align="center">
+                                <span style={{ color: isDeleted ? 'rgba(0,0,0,0.4)' : 'inherit' }}>
+                                  {user.gender 
+                                    ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1)
+                                    : "N/A"}
+                                </span>
+                              </BodyTableCell>
 
-            {/* TABLE PAGINATION SECTION */}
+                              {/* STATUS COLUMN */}
+                              <BodyTableCell align="center">
+                                <Stack
+                                  direction="row"
+                                  alignItems="center"
+                                  justifyContent="center"
+                                  spacing={1}
+                                >
+                                  {loadingStates[user.id] ? (
+                                    <CircularProgress size={20} />
+                                  ) : (
+                                    <Switch
+                                      checked={user?.isActive || false}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        handleStatusToggle(user.id, user?.isActive);
+                                      }}
+                                      size="small"
+                                      color="success"
+                                      disabled={isDeleted}
+                                    />
+                                  )}
+                                </Stack>
+                              </BodyTableCell>
 
-            {filteredUsers.length < 0 ? (
-              <CircularProgress color="black" />
-            ) : (
+                              {/* ACTIONS COLUMN */}
+                              <BodyTableCell align="center">
+                                <Stack direction="row" spacing={1} justifyContent="center">
+                                  <Tooltip
+                                    title={isDeleted ? "Cannot edit deleted items" : "Edit"}
+                                  >
+                                    <span>
+                                      <IconButton
+                                        size="small"
+                                        color="primary"
+                                        onClick={(e) => handleEditUser(e, user)}
+                                        disabled={isDeleted}
+                                      >
+                                        <EditIcon fontSize="small" />
+                                      </IconButton>
+                                    </span>
+                                  </Tooltip>
+                                </Stack>
+                              </BodyTableCell>
+                            </BodyTableRow>
+                          );
+                        })}
+
+                      {filteredUsers.length === 0 && <TableDataNotFound />}
+                    </TableBody>
+                  </Table>
+                </Scrollbar>
+              </TableContainer>
+
+              {/* TABLE PAGINATION SECTION */}
               <TablePagination
                 page={page}
                 component="div"
@@ -399,43 +477,27 @@ export default function UserList2PageView() {
                 rowsPerPageOptions={[5, 10, 25]}
                 onRowsPerPageChange={handleChangeRowsPerPage}
               />
-            )}
-          </Card>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
+      </TabContext>
 
-      {/* Edit Modal */}
-      <Modal open={openEditModal} handleClose={handleEditClose}>
-        <AddContactForm
-          handleCancel={handleEditClose}
-          data={userToEdit}
-        />
-      </Modal>
-
-      {/* Delete Modal */}
-      <DeleteModal
+      {/* <DeleteEventModal
         open={openDeleteModal}
-        handleClose={handleDeleteClose}
-        title="Confirm Delete"
-        message={`Are you sure you want to delete ${userToEdit?.name}?`}
+        handleClose={handleCloseDeleteModal}
+        title="Delete Confirmation"
+        message="Are you sure you want to delete this user?"
         actions={[
           {
             label: "Cancel",
-            props: {
-              onClick: handleDeleteClose,
-              variant: "outlined",
-            },
+            props: { onClick: handleCloseDeleteModal, variant: "outlined" },
           },
-          {
-            label: "Delete",
-            props: {
-              onClick: handleDeleteConfirm,
-              variant: "contained",
-              color: "error",
-            },
+          { 
+            label: "Delete", 
+            props: { onClick: handleDelete, color: "error" } 
           },
         ]}
-      />
+      /> */}
     </div>
   );
 }

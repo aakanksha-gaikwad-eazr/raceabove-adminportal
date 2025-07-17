@@ -26,16 +26,16 @@ export const navigations = [
     icon: duotone.UserList,
     path: "/user-list-2",
   },
-  // {
-  //   name: "Organizers",
-  //   icon: duotone.Accounts,
-  //   path: "/organiser-list-2",
-  // },
-  // {
-  //   name: "Events",
-  //   icon: duotone.Calender,
-  //   path: "/events/version-3",
-  // },
+  {
+    name: "Organizers",
+    icon: duotone.Accounts,
+    path: "/organiser-list-2",
+  },
+  {
+    name: "Events",
+    icon: duotone.Calender,
+    path: "/events/version-3",
+  },
     {
     name: "Challenges",
     icon: duotone.StartHalf,
@@ -46,11 +46,11 @@ export const navigations = [
     type: "label",
     label: "Master Setting",
   },
-  // {
-  //   name: "Coupons",
-  //   icon: duotone.Invoice,
-  //   path: "/coupons-grid",
-  // },
+  {
+    name: "Coupons",
+    icon: duotone.Invoice,
+    path: "/coupons-list-2",
+  },
     {
     name: "GearTypes",
     icon: duotone.DiagramProject,
@@ -88,11 +88,6 @@ export const navigations = [
     icon: duotone.Apps,
     path: "/sports-list-2",
   },
-  //   {
-  //   name: "Employee",
-  //   icon: duotone.ElementHub,
-  //   path: "/admin-list-2",
-  // },
   {
     name: "TNC",
     icon: duotone.Calender,

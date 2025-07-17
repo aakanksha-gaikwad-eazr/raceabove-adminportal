@@ -10,7 +10,7 @@ import { StyledIconButton } from "./styles";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import DeleteEventModal from "@/components/delete-modal-event";
-import { deleteEvents, getEvents } from "../../store/apps/events";
+import {  getEvents } from "../../store/apps/events";
 import EventsFormEdit from "../../page-sections/events/events-form-edit";
 import { deleteSports, getSports, getSportsById } from "../../store/apps/sports";
 import AddSportsForm from "../../page-sections/sports/AddSportsForm";

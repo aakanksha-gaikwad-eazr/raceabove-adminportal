@@ -7,12 +7,16 @@ import {
   Avatar,
   IconButton,
   Pagination,
+  Switch,
+  FormControlLabel,
+  Chip,
 } from "@mui/material";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import Description from "@mui/icons-material/Description";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { useDispatch, useSelector } from "react-redux";
-
 import { FlexBetween } from "@/components/flexbox";
 import { Paragraph, Small } from "@/components/typography";
 import SearchArea from "../SearchArea";
@@ -46,17 +50,28 @@ export default function CouponsGrid1PageView() {
     }
   }, [filteredCoupons.length, page, userPerPage]);
 
+
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
   return (
     <Box className="pt-2 pb-4">
+      <HeadingAreaCoupon />
       <Card sx={{ px: 3, py: 2 }}>
-        <HeadingAreaCoupon />
-
         <SearchArea
           value={search}
           sx={{ width: "100%", maxWidth: "100%" }}
           onChange={(e) => setSearch(e.target.value)}
-          gridRoute="/dashboard/sports-grid"
-          listRoute="/dashboard/user-list"
+          gridRoute="/coupons-grid"
+          listRoute="/coupons-list-2"
         />
 
         <Grid container spacing={3}>
@@ -77,6 +92,7 @@ export default function CouponsGrid1PageView() {
                       flexDirection: "column",
                       justifyContent: "space-between",
                       height: "100%",
+                      opacity: item.isActive ? 1 : 0.7,
                       "&:hover": {
                         boxShadow: 6,
                         borderColor: "primary.main",
@@ -84,9 +100,24 @@ export default function CouponsGrid1PageView() {
                     }}
                   >
                     <FlexBetween
-                      sx={{ justifyContent: "flex-end" }}
+                      sx={{ justifyContent: "space-between" }}
                       mb={2}
                     >
+                      {/* Status Chips */}
+                      <Stack direction="row" spacing={1}>
+                        <Chip
+                          size="small"
+                          label={item.approvalStatus}
+                          color={
+                            item.approvalStatus === "approved" 
+                              ? "success" 
+                              : item.approvalStatus === "pending"
+                              ? "warning"
+                              : "error"
+                          }
+                          variant="outlined"
+                        />
+                      </Stack>
                       <MoreCouponButtontwo couponId={item?.id} />
                     </FlexBetween>
 
@@ -108,7 +139,11 @@ export default function CouponsGrid1PageView() {
                           >
                             {item.code}
                           </Paragraph>
-                          <Small color="text.secondary">Code</Small>
+                          <Small color="text.secondary">
+                            {item.discountType === "percentage" 
+                              ? `${item.discountValue}% off` 
+                              : `₹${item.discountValue} off`}
+                          </Small>
                         </Box>
                       </Stack>
 
@@ -142,8 +177,20 @@ export default function CouponsGrid1PageView() {
                           }}
                         />
                         <Small color="text.secondary">
-                          Expires: {item.endDate || "N/A"}
+                          Expires: {formatDate(item.endTimeStamp)}
                         </Small>
+                      </Stack>
+
+                      {/* Usage Info */}
+                      <Stack spacing={0.5}>
+                        <Small color="text.secondary">
+                          Usage: {item.usageCount} / {item.usageLimit || "Unlimited"}
+                        </Small>
+                        {item.minimumPurchase > 0 && (
+                          <Small color="text.secondary">
+                            Min. purchase: ₹{item.minimumPurchase}
+                          </Small>
+                        )}
                       </Stack>
                     </Stack>
                   </Box>
@@ -171,6 +218,7 @@ export default function CouponsGrid1PageView() {
                 count={Math.ceil(
                   filteredCoupons.length / userPerPage
                 )}
+                page={page}
                 onChange={(_, newPage) => setPage(newPage)}
               />
             </Stack>

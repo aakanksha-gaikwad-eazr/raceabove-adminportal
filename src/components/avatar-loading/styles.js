@@ -5,6 +5,7 @@ import { isDark } from '@/utils/constants'; // =================================
 
 // ==============================================================
 export const StyledAvatar = styled(Avatar, {
+  
   shouldForwardProp: prop => prop !== 'deg' && prop !== 'borderSize'
 })(({
   theme,

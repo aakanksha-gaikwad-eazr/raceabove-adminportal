@@ -52,6 +52,37 @@ export const getEventsById = createAsyncThunk('appEventsSlice/getEventsById', as
   }
 })
 
+//add events
+export const createEvents = createAsyncThunk('appEventsSlice/createEvents', async (data) => {
+  console.log("data:::", data)
+  try {
+    const adminData = JSON.parse(localStorage.getItem('raceabove'))
+    const accessToken = adminData.accessToken
+
+    if (!accessToken) {
+      throw new Error('Access token not found in localStorage')
+    }
+  
+    let url = `${ip}/v1/events`
+
+    const response = await axiosInstance.post(url,data, {
+   
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${accessToken}`, 
+      } 
+    })
+    console.log("created events data", response)
+
+    return response?.data
+
+  } catch (error) {
+    console.error("❌ API Request Failed:", error.response?.data || error.message);
+    throw new Error('Failed to Create events details')
+  }
+})
+
+
 // //update challenge
 export const updateEvents = createAsyncThunk('appEventsSlice/updateEvents', async (req, { rejectWithValue }) => {
   try {
@@ -80,63 +111,34 @@ export const updateEvents = createAsyncThunk('appEventsSlice/updateEvents', asyn
   }
 })
 
-//delete challenge
-export const deleteEvents = createAsyncThunk('appEventsSlice/deleteEvents', async (id) => {
+// //review challenge
+export const reviewEvents = createAsyncThunk('appEventsSlice/reviewEvents', async (req, { rejectWithValue }) => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
     const accessToken = adminData.accessToken
 
-    console.log("accessToken",accessToken)
     if (!accessToken) {
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/events/${id}`
-    const response = await axiosInstance.delete(url, {
+
+    console.log("req",req)
+
+    const url = `${ip}/v1/events/${req?.id}/review`
+
+    const response = await axiosInstance.patch(url, req?.data, {
       headers: {
-        Authorization: `Bearer ${accessToken}`, 
-      } 
+        Authorization: `Bearer ${accessToken}`
+      }
     })
-    // console.log("deleted events data", response)
 
     return response.data
-
   } catch (error) {
-    console.log("Failed to delete events")
-    throw new Error('Failed to delete events')
+    console.error('reivew event error:', error.response?.data || error.message)
+    return rejectWithValue(error.response?.data || { message: 'Failed to reivew event' })
   }
 })
 
-//create challenge
-export const createEvents = createAsyncThunk('appEventsSlice/createEvents', async (data) => {
-  // console.log("data", data)
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
 
-    // console.log("accessToken",accessToken)
-
-    if (!accessToken) {
-      throw new Error('Access token not found in localStorage')
-    }
-    let url = `${ip}/v1/events`
-
-    console.log("data", data)
-
-    const response = await axiosInstance.post(url,data, {
-
-      headers: {
-        Authorization: `Bearer ${accessToken}`, 
-      } 
-    })
-    console.log("created events data", response)
-
-    return response.data
-
-  } catch (error) {
-    console.log("Failed to create events")
-    throw new Error('Failed to create events')
-  }
-})
 
 
 export const appEventsSlice = createSlice({
@@ -163,13 +165,13 @@ export const appEventsSlice = createSlice({
     .addCase(getEventsById.fulfilled, (state, action) => {
         state.singleEvents = action.payload
     })
-    .addCase(createEvents.fulfilled, (state, action) => {
-      state.success = true
-    })
-    .addCase(deleteEvents.fulfilled, (state, action) => {
-      state.success = true
-    })
     .addCase(updateEvents.fulfilled, (state, action) => {
+      state.success = true
+    })
+    .addCase(reviewEvents.fulfilled, (state, action) => {
+      state.success = true
+    })
+    .addCase(createEvents.fulfilled, (state, action) => {
       state.success = true
     })
   }

@@ -89,6 +89,10 @@ const OrganiserListView2 = Loadable(
 const OrganiserGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/organizers/organizers-grid-2"))
 );
+const OrganiserDetails = Loadable(
+  lazy(() => import("@/pages/dashboard/organizers/details"))
+);
+
 
 // coupons
 const AddNewCoupons = Loadable(
@@ -530,7 +534,7 @@ export const DashboardRoutes = [
         element: <AddNewUser />,
       },
       {
-        path: "edit-user",
+        path: "edit-user/:id",
         element: <EditUser />,
       },
       {
@@ -550,7 +554,7 @@ export const DashboardRoutes = [
         element: <UserGridView2 />,
       },
       {
-        path: "user-details",
+        path: "user-details/:id",
         element: <UserDetails />,
       },
 
@@ -606,6 +610,10 @@ export const DashboardRoutes = [
       {
         path: "organiser-grid-2",
         element: <OrganiserGridView2 />,
+      }, 
+      {
+        path: "organiser-details",
+        element: <OrganiserDetails />,
       },
 
       {

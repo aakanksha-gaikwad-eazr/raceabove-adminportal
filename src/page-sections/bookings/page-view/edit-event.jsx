@@ -23,7 +23,6 @@ import ReactQuill from "react-quill";
 import Dropzone from "@/components/dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  createEvents,
   getEvents,
   getEventsById,
   updateEvents,

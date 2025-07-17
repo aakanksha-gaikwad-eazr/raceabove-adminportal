@@ -98,11 +98,12 @@ export const updateUser = createAsyncThunk('appUsers/updateUser', async (req) =>
     }
   
     let url = `${ip}/v1/users/${req.id}/admin`
-    console.log(req?.data,"req?.data")
+    console.log(req,"req")
 
     const response = await axiosInstance.patch(url,req?.data, {
       headers: {
         Authorization: `Bearer ${accessToken}`, 
+        'Content-Type': 'multipart/form-data',
       } 
     })
     
@@ -122,14 +123,14 @@ export const getAllDataOfUser = createAsyncThunk('appUsers/allDataOfUser', async
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
     const accessToken = adminData.accessToken
 
-    // console.log("accessToken",accessToken)
+    console.log("accessToken",accessToken)
 
     if (!accessToken) {
       console.log("'Access token not found in localStorage'")
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/admins/users/${id}`
+    let url = `${ip}/v1/users/${id}`
 
     const response = await axiosInstance.get(url,id, {
       headers: {
@@ -137,7 +138,7 @@ export const getAllDataOfUser = createAsyncThunk('appUsers/allDataOfUser', async
       } 
     })
     
-    // console.log("update user data", response.data)
+    console.log("user details data", response.data)
 
     return response?.data?.data
 

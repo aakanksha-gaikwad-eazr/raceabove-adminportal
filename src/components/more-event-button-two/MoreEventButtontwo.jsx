@@ -11,7 +11,7 @@ import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import useEvents from "../../page-sections/events/useEvents";
 import DeleteEventModal from "@/components/delete-modal-event";
-import { deleteEvents, getEvents, getEventsById } from "../../store/apps/events";
+import {  getEvents, getEventsById } from "../../store/apps/events";
 import EventsFormEdit from "../../page-sections/events/events-form-edit";
 import { useNavigate } from "react-router-dom";
 const optionList = ["Edit", "Delete"];
@@ -100,7 +100,7 @@ export default function MoreEventButtontwo({
         eventsId={eventsId}
       /> */}
 
-      <DeleteEventModal
+      {/* <DeleteEventModal
         open={openDeleteModal}
         handleClose={() => setOpenDeleteModal(false)}
         title="Delete Confirmation"
@@ -112,7 +112,7 @@ export default function MoreEventButtontwo({
           },
           { label: "Delete", props: { onClick: handleDelete, color: "error" } },
         ]}
-      ></DeleteEventModal>
+      ></DeleteEventModal> */}
     </div>
   );
 }

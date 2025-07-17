@@ -84,14 +84,14 @@ export default function StatusFilter({
             Event
           </Paragraph>
         </FlexBox>
-
+{/* 
         <Button
           variant="contained"
           startIcon={<Add />}
           onClick={() => navigate("/events/team-member")}
         >
           Create Event
-        </Button>
+        </Button> */}
       </FlexBetween>
       <SearchAction>
         <SearchInput

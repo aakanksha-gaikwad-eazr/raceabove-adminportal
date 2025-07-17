@@ -3,17 +3,20 @@ import Box from '@mui/material/Box';
 import MoreButton from '@/components/more-button';
 import { H6, Paragraph } from '@/components/typography';
 import FlexBetween from '@/components/flexbox/FlexBetween';
-import { Avatar } from '@mui/material';
+import { Avatar, Typography } from '@mui/material';
 
 export default function Summery({allDataOfSingleUser}) {
+const hasTargets=allDataOfSingleUser?.targets && Array.isArray(allDataOfSingleUser.targets) &&allDataOfSingleUser.targets.length >0;
+
+
   return <Card className="p-3">
       <FlexBetween>
         <H6 fontSize={16}>Target</H6>
-        {/* <MoreButton size="small" /> */}
       </FlexBetween>
 
       <Box mt={2}>
-        {allDataOfSingleUser?.targets?.map((item) => (
+        {hasTargets? (
+        allDataOfSingleUser?.targets?.map((item) => (
           <Box key={item.id} mb={2}>
             <Avatar 
               src={item.banner} 
@@ -29,7 +32,24 @@ export default function Summery({allDataOfSingleUser}) {
               {item.name}
             </Paragraph>
           </Box>
-        ))}
+        ))
+
+        ):(
+          <Box 
+            display="flex" 
+            justifyContent="center" 
+            alignItems="center" 
+            minHeight="150px"
+            flexDirection="column"
+          >
+            <Typography variant="h6" color="text.secondary" mb={1}>
+              No Targets
+            </Typography>
+            <Typography variant="body2" color="text.disabled">
+              No targets available at the moment
+            </Typography>
+          </Box>
+        )}
       </Box>
     </Card>;
 }

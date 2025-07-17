@@ -1,3 +1,4 @@
+import React from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid2";
@@ -20,6 +21,116 @@ import toast from "react-hot-toast";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Checkbox, ListItemText, Menu, MenuItem } from "@mui/material";
 import { createCoupon } from "../../../store/apps/coupons";
+import DatePicker from "react-datepicker";
+import { setHours, setMinutes } from "date-fns";
+import "react-datepicker/dist/react-datepicker.css";
+
+// Add this styled component at the top of your file with other styled components
+const StyledDatePickerWrapper = styled("div")(({ theme, error }) => ({
+  "& .react-datepicker-wrapper": {
+    width: "100%",
+  },
+  "& .react-datepicker__input-container": {
+    width: "100%",
+  },
+  "& .date-picker-input": {
+    width: "100%",
+    padding: "10px 14px",
+    fontSize: "1rem",
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 400,
+    lineHeight: "1.4375em",
+    color: theme.palette.text.primary,
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${error ? theme.palette.error.main : theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.23)" : "rgba(0, 0, 0, 0.23)"}`,
+    // borderRadius: theme.shape.borderRadius,
+    borderRadius: "7px",
+    transition: theme.transitions.create(["border-color", "box-shadow"]),
+    "&:hover": {
+      borderColor: theme.palette.text.primary,
+    },
+    "&:focus": {
+      outline: "none",
+      borderColor: theme.palette.primary.main,
+      borderWidth: "2px",
+      // padding: "15.5px 13px",
+    },
+    "&::placeholder": {
+      color: theme.palette.text.secondary,
+      opacity: 1,
+    },
+  },
+  "& .date-picker-label": {
+    position: "absolute",
+    left: 14,
+    top: -9,
+    padding: "0 4px",
+    backgroundColor: theme.palette.background.paper,
+    color: error ? theme.palette.error.main : theme.palette.text.secondary,
+    fontSize: "0.75rem",
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 400,
+    lineHeight: 1,
+    zIndex: 1,
+  },
+  "& .date-picker-label.focused": {
+    color: error ? theme.palette.error.main : theme.palette.primary.main,
+  },
+  "& .date-picker-helper-text": {
+    color: theme.palette.error.main,
+    margin: "3px 14px 0",
+    fontSize: "0.75rem",
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 400,
+    lineHeight: 1.66,
+  },
+}));
+
+// Custom Input Component
+const CustomDateInput = React.forwardRef(
+  (
+    { value, onClick, placeholder, label, error, helperText, onFocus, onBlur },
+    ref
+  ) => {
+    const [focused, setFocused] = React.useState(false);
+    const hasValue = Boolean(value);
+
+    const handleFocus = (e) => {
+      setFocused(true);
+      onFocus && onFocus(e);
+    };
+
+    const handleBlur = (e) => {
+      setFocused(false);
+      onBlur && onBlur(e);
+    };
+
+       const displayValue = value || '';
+    const showPlaceholder = !value;
+    return (
+      <div style={{ position: "relative" }}>
+        {label && (
+          <label className={`date-picker-label ${focused || value ? 'focused' : ''}`}>
+            {label}
+          </label>
+        )}
+        <input
+          ref={ref}
+          value={value}
+          onClick={onClick}
+          placeholder={showPlaceholder ? placeholder : ''}
+          readOnly
+          className="date-picker-input"
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        />
+        {error && helperText && (
+          <div className="date-picker-helper-text">{helperText}</div>
+        )}
+      </div>
+    );
+  }
+);
 
 const SwitchWrapper = styled("div")({
   width: "100%",
@@ -79,21 +190,23 @@ export default function AddNewCouponsPageView() {
   };
 
   const initialValues = {
+    title: "",
     code: "",
     description: "",
     discountType: "",
     discountValue: "",
     maxDiscountValue: "",
     minimumPurchase: "",
-    applicableCategories: [],
-    startDate: "",
-    endDate: "",
+    // applicableCategories: [],
+    startTimeStamp: "",
+    endTimeStamp: "",
     usageLimit: "",
     usageLimitPerUser: "",
     isActive: true,
   };
 
   const validationSchema = Yup.object().shape({
+    title: Yup.string().required("Title is required"),
     code: Yup.string().required("Code is required"),
     discountType: Yup.string()
       .required("Discount type is required")
@@ -103,13 +216,13 @@ export default function AddNewCouponsPageView() {
         "Discount type must be either 'percentage' or 'flat'"
       ),
     discountValue: Yup.number().required("Discount value is required"),
-    startDate: Yup.string().required("Start date is required"),
-    endDate: Yup.string().required("End date is required"),
+    startTimeStamp: Yup.string().required("Start Time stamp is required"),
+    endTimeStamp: Yup.string().required("End time stamp is required"),
     usageLimit: Yup.number().required("Usage limit is required"),
     usageLimitPerUser: Yup.number().required("Usage/user is required"),
-    applicableCategories: Yup.array()
-      .of(Yup.string())
-      .required("Applicable categories are required"),
+    // applicableCategories: Yup.array()
+    //   .of(Yup.string())
+    //   .required("Applicable categories are required"),
     minimumPurchase: Yup.string().required("Minimum Purchase is required"),
     maxDiscountValue: Yup.string().required("maxDiscountValue is required"),
     description: Yup.string().required("Description is required"),
@@ -118,7 +231,7 @@ export default function AddNewCouponsPageView() {
   const { values, errors, handleChange, handleSubmit, touched, setFieldValue } =
     useFormik({
       initialValues,
-      validationSchema,
+      // validationSchema,
       onSubmit: handleFormSubmit,
     });
 
@@ -130,8 +243,9 @@ export default function AddNewCouponsPageView() {
       console.log("res coupone", response);
       if (response?.status === 201) {
         toast.success("Coupon created successfully!");
-        navigate("/coupons-grid");
+        navigate("/coupons-list-2");
       } else {
+        console.log("response", response);
         toast.error(response?.message || "Failed to create coupon");
       }
     } catch (error) {
@@ -171,6 +285,22 @@ export default function AddNewCouponsPageView() {
             <Card className="p-3">
               <form onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
+                  <Grid
+                    size={{
+                      sm: 6,
+                      xs: 12,
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      name="title"
+                      label="Coupon Title"
+                      value={values.title}
+                      onChange={handleChange}
+                      helperText={touched.title && errors.title}
+                      error={Boolean(touched.title && errors.title)}
+                    />
+                  </Grid>
                   <Grid
                     size={{
                       sm: 6,
@@ -287,7 +417,7 @@ export default function AddNewCouponsPageView() {
                     />
                   </Grid>
 
-                  <Grid
+                  {/* <Grid
                     size={{
                       sm: 6,
                       xs: 12,
@@ -341,7 +471,7 @@ export default function AddNewCouponsPageView() {
                           {errors.applicableCategories}
                         </Small>
                       )}
-                  </Grid>
+                  </Grid> */}
 
                   <Grid
                     size={{
@@ -371,16 +501,61 @@ export default function AddNewCouponsPageView() {
                       xs: 12,
                     }}
                   >
-                    <TextField
+                    {/* <TextField
                       fullWidth
-                      name="startDate"
-                      // label="startDate"
-                      value={values.startDate}
-                      onChange={handleChange}
-                      helperText={touched.startDate && errors.startDate}
-                      error={Boolean(touched.startDate && errors.startDate)}
+                      name="startTimeStamp"
+                      label="Start Time Stamp"
+                      value={values.startTimeStamp ? values.startTimeStamp.slice(0, 10) : ""}
+                      onChange={e => {
+                        const isoString = e.target.value ? new Date(e.target.value).toISOString() : "";
+                        setFieldValue("startTimeStamp", isoString);
+                      }}
+                      helperText={touched.startTimeStamp && errors.startTimeStamp}
+                      error={Boolean(touched.startTimeStamp && errors.startTimeStamp)}
                       type="date"
-                    />
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    /> */}
+
+                    <StyledDatePickerWrapper
+                      error={Boolean(
+                        touched.startTimeStamp && errors.startTimeStamp
+                      )}
+                    >
+                      <DatePicker
+                        selected={
+                          values.startTimeStamp
+                            ? new Date(values.startTimeStamp)
+                            : null
+                        }
+                        onChange={(date) => {
+                          const isoString = date ? date.toISOString() : "";
+                          setFieldValue("startTimeStamp", isoString);
+                        }}
+                        showTimeSelect
+                        excludeTimes={[
+                          setHours(setMinutes(new Date(), 0), 17),
+                          setHours(setMinutes(new Date(), 30), 18),
+                          setHours(setMinutes(new Date(), 30), 19),
+                          setHours(setMinutes(new Date(), 30), 17),
+                        ]}
+                        dateFormat="MMMM d, yyyy h:mm aa"
+                        customInput={
+                          <CustomDateInput
+                            label="Start Time Stamp"
+                            error={Boolean(
+                              touched.startTimeStamp && errors.startTimeStamp
+                            )}
+                            helperText={
+                              touched.startTimeStamp && errors.startTimeStamp
+                            }
+                            placeholder="Select start time"
+                          />
+
+                        }
+                      />
+                    </StyledDatePickerWrapper>
                   </Grid>
 
                   <Grid
@@ -389,16 +564,67 @@ export default function AddNewCouponsPageView() {
                       xs: 12,
                     }}
                   >
-                    <TextField
+                    {/* <TextField
                       fullWidth
-                      name="endDate"
-                      // label="endDate"
-                      value={values.endDate}
-                      onChange={handleChange}
-                      helperText={touched.endDate && errors.endDate}
-                      error={Boolean(touched.endDate && errors.endDate)}
+                      name="endTimeStamp"
+                      label="End Time Stamp"
+                      value={
+                        values.endTimeStamp
+                          ? values.endTimeStamp.slice(0, 10)
+                          : ""
+                      }
+                      onChange={(e) => {
+                        const isoString = e.target.value
+                          ? new Date(e.target.value).toISOString()
+                          : "";
+                        setFieldValue("endTimeStamp", isoString);
+                      }}
+                      helperText={touched.endTimeStamp && errors.endTimeStamp}
+                      error={Boolean(
+                        touched.endTimeStamp && errors.endTimeStamp
+                      )}
                       type="date"
-                    />
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    /> */}
+                    <StyledDatePickerWrapper
+                      error={Boolean(
+                        touched.endTimeStamp && errors.endTimeStamp
+                      )}
+                    >
+                      <DatePicker
+                        selected={
+                          values.endTimeStamp
+                            ? new Date(values.endTimeStamp)
+                            : null
+                        }
+                        onChange={(date) => {
+                          const isoString = date ? date.toISOString() : "";
+                          setFieldValue("endTimeStamp", isoString);
+                        }}
+                        showTimeSelect
+                        excludeTimes={[
+                          setHours(setMinutes(new Date(), 0), 17),
+                          setHours(setMinutes(new Date(), 30), 18),
+                          setHours(setMinutes(new Date(), 30), 19),
+                          setHours(setMinutes(new Date(), 30), 17),
+                        ]}
+                        dateFormat="MMMM d, yyyy h:mm aa"
+                        customInput={
+                          <CustomDateInput
+                            label="End Time Stamp"
+                            error={Boolean(
+                              touched.endTimeStamp && errors.endTimeStamp
+                            )}
+                            helperText={
+                              touched.endTimeStamp && errors.endTimeStamp
+                            }
+                            placeholder="Select end time"
+                          />
+                        }
+                      />
+                    </StyledDatePickerWrapper>
                   </Grid>
                   <Grid
                     size={{
@@ -429,7 +655,7 @@ export default function AddNewCouponsPageView() {
                       <Button
                         variant="outlined"
                         color="secondary"
-                        onClick={() => navigate("/coupons-grid")}
+                        onClick={() => navigate("/coupons-list-2")}
                       >
                         Cancel
                       </Button>

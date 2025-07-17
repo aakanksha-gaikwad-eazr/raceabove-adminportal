@@ -34,7 +34,12 @@ export default function Overview({ allDataOfSingleUser }) {
           }}
         >
           <Stack spacing={3}>
-            <Summery allDataOfSingleUser={allDataOfSingleUser} />
+            {allDataOfSingleUser?.targets?(
+              <Summery allDataOfSingleUser={allDataOfSingleUser} />):(<Box mt={3} display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <Typography variant="h6" color="text.secondary">
+          No data available
+        </Typography>
+      </Box>)}
             {/* <Skills /> */}
             {/* <Teams allDataOfSingleUser={allDataOfSingleUser}/> */}
             {/* <Hobbies /> */}

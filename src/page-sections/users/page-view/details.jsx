@@ -15,17 +15,17 @@ import Documents from '../documents';
 import Connections from '../connections';
 import { getAllDataOfUser } from "../../../store/apps/user";
 
-export default function UserDetails() {
+export default function UserDetailsPageView() {
   const dispatch = useDispatch();
+  const {id}= useParams()
   const {allDataOfSingleUser} = useSelector((state) => state.user);
 
-  const storedUserId = localStorage.getItem("selectedUserId");
+  console.log(allDataOfSingleUser,"allDataOfSingleUser")
 
   useEffect(()=>{
-    console.log("storedUserId", storedUserId)
-    dispatch(getAllDataOfUser(storedUserId))//dev
-    // dispatch(getAllDataOfUser("760f9320-b988-427a-b7d6-7c4a150e4d19"))
-  },[storedUserId])
+    console.log("id of user", id)
+    dispatch(getAllDataOfUser(id))
+  },[id])
 
   const navigate = useNavigate();
   

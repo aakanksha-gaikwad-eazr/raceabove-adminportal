@@ -22,7 +22,7 @@ import toast from "react-hot-toast";
 import ReactQuill from "react-quill";
 import Dropzone from "@/components/dropzone";
 import { useDispatch, useSelector } from "react-redux";
-import { createEvents, getEvents } from "../../../store/apps/events";
+import {  createEvents, getEvents } from "../../../store/apps/events";
 import { getCoupons } from "../../../store/apps/coupons";
 import { getFaq } from "../../../store/apps/faq";
 import MapPickerModal from "@/components/mapPickerModal/MapPickerModal.jsx";

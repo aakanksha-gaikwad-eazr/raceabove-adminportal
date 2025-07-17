@@ -31,7 +31,6 @@ import toast from "react-hot-toast";
 import {
   getCoupons,
   getCouponsById,
-  updateCoupons,
 } from "../../../store/apps/coupons";
 
 const StyledAppModal = styled(Modal)(({ theme }) => ({

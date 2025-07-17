@@ -31,7 +31,7 @@ import toast from "react-hot-toast";
 import {
   getCoupons,
   getCouponsById,
-  updateCoupons,
+  
 } from "../../../store/apps/coupons";
 
 const StyledAppModal = styled(Modal)(({ theme }) => ({
@@ -142,10 +142,10 @@ export default function TicketTypeFormEdit({ open, handleClose, couponId }) {
           applicableCategories: values.applicableCategories
         };
 
-        const response = await dispatch(updateCoupons({ 
-          editId: couponId, 
-          changedData: payload 
-        }));
+        // const response = await dispatch(updateCoupons({ 
+        //   editId: couponId, 
+        //   changedData: payload 
+        // }));
 
         if (response?.payload?.data) {
           toast.success("Coupon updated successfully");

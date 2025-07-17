@@ -11,12 +11,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import React from "react";
 import Grid from "@mui/material/Grid";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCouponsById,
-  updateCoupons,
+  
   getCoupons,
 } from "@/store/apps/coupons";
 import { useFormik } from "formik";
@@ -24,11 +25,123 @@ import * as Yup from "yup";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { FlexBox } from "@/components/flexbox";
+import DatePicker from "react-datepicker";
+import { setHours, setMinutes } from "date-fns";
+import "react-datepicker/dist/react-datepicker.css";
+import styled from "@mui/material/styles/styled"; // MUI ICON COMPONENT
+
 
 const categoryOptions = [
   { value: "events", label: "Events" },
   { value: "challenges", label: "Challenges" },
 ];
+// Add this styled component at the top of your file with other styled components
+const StyledDatePickerWrapper = styled("div")(({ theme, error }) => ({
+  "& .react-datepicker-wrapper": {
+    width: "100%",
+  },
+  "& .react-datepicker__input-container": {
+    width: "100%",
+  },
+  "& .date-picker-input": {
+    width: "100%",
+    padding: "10px 14px",
+    fontSize: "1rem",
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 400,
+    lineHeight: "1.4375em",
+    color: theme.palette.text.primary,
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${error ? theme.palette.error.main : theme.palette.mode === "dark" ? "rgba(255, 255, 255, 0.23)" : "rgba(0, 0, 0, 0.23)"}`,
+    // borderRadius: theme.shape.borderRadius,
+    borderRadius: "7px",
+    transition: theme.transitions.create(["border-color", "box-shadow"]),
+    "&:hover": {
+      borderColor: theme.palette.text.primary,
+    },
+    "&:focus": {
+      outline: "none",
+      borderColor: theme.palette.primary.main,
+      borderWidth: "2px",
+      // padding: "15.5px 13px",
+    },
+    "&::placeholder": {
+      color: theme.palette.text.secondary,
+      opacity: 1,
+    },
+  },
+  "& .date-picker-label": {
+    position: "absolute",
+    left: 14,
+    top: -9,
+    padding: "0 4px",
+    backgroundColor: theme.palette.background.paper,
+    color: error ? theme.palette.error.main : theme.palette.text.secondary,
+    fontSize: "0.75rem",
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 400,
+    lineHeight: 1,
+    zIndex: 1,
+  },
+  "& .date-picker-label.focused": {
+    color: error ? theme.palette.error.main : theme.palette.primary.main,
+  },
+  "& .date-picker-helper-text": {
+    color: theme.palette.error.main,
+    margin: "3px 14px 0",
+    fontSize: "0.75rem",
+    fontFamily: theme.typography.fontFamily,
+    fontWeight: 400,
+    lineHeight: 1.66,
+  },
+}));
+// Custom Input Component
+const CustomDateInput = React.forwardRef(
+  (
+    { value, onClick, placeholder, label, error, helperText, onFocus, onBlur },
+    ref
+  ) => {
+    const [focused, setFocused] = React.useState(false);
+    const hasValue = Boolean(value);
+
+    const handleFocus = (e) => {
+      setFocused(true);
+      onFocus && onFocus(e);
+    };
+
+    const handleBlur = (e) => {
+      setFocused(false);
+      onBlur && onBlur(e);
+    };
+
+    const displayValue = value || "";
+    const showPlaceholder = !value;
+    return (
+      <div style={{ position: "relative" }}>
+        {label && (
+          <label
+            className={`date-picker-label ${focused || value ? "focused" : ""}`}
+          >
+            {label}
+          </label>
+        )}
+        <input
+          ref={ref}
+          value={value}
+          onClick={onClick}
+          placeholder={showPlaceholder ? placeholder : ""}
+          readOnly
+          className="date-picker-input"
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        />
+        {error && helperText && (
+          <div className="date-picker-helper-text">{helperText}</div>
+        )}
+      </div>
+    );
+  }
+);
 
 export default function EditCouponsPage() {
   const { id } = useParams();
@@ -39,33 +152,35 @@ export default function EditCouponsPage() {
   const [categoryAnchorEl, setCategoryAnchorEl] = useState(null);
 
   const initialValues = {
+    title: "",
     code: "",
     description: "",
     discountType: "",
     discountValue: "",
     maxDiscountValue: "",
     minimumPurchase: "",
-    applicableCategories: [],
-    startDate: "",
-    endDate: "",
+    // applicableCategories: [],
+    startTimeStamp: "",
+    endTimeStamp: "",
     usageLimit: "",
     usageLimitPerUser: "",
     usageCount: "",
   };
 
   const validationSchema = Yup.object().shape({
+    title: Yup.string().required("Title is required"),
     code: Yup.string().required("Code is required"),
     description: Yup.string().required("Description is required"),
     discountType: Yup.string().required("Discount type is required"),
     discountValue: Yup.number().required("Discount value is required"),
     maxDiscountValue: Yup.number().required("Max discount value is required"),
     minimumPurchase: Yup.number().required("Minimum purchase is required"),
-    startDate: Yup.string().required("Start date is required"),
-    endDate: Yup.string().required("End date is required"),
+    startTimeStamp: Yup.string().required("Start Time Stamp is required"),
+    endTimeStamp: Yup.string().required("End Time Stamp is required"),
     usageLimit: Yup.number().required("Usage limit is required"),
     usageLimitPerUser: Yup.number().required("Usage/user is required"),
     usageCount: Yup.number().required("Usage count is required"),
-    applicableCategories: Yup.array().of(Yup.string()),
+    // applicableCategories: Yup.array().of(Yup.string()),
   });
 
   const {
@@ -94,13 +209,12 @@ export default function EditCouponsPage() {
         };
 
         const res = await dispatch(
-          updateCoupons({ editId: id, changedData: payload })
         );
 
         if (res?.payload?.status === 200) {
           toast.success("Coupon updated successfully");
           dispatch(getCoupons());
-          navigate("/coupons-grid");
+          navigate("/coupons-list-2");
         } else {
           toast.error("Update failed");
         }
@@ -143,6 +257,17 @@ export default function EditCouponsPage() {
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             {/* Text Fields */}
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Title"
+                name="title"
+                fullWidth
+                value={values.title}
+                onChange={handleChange}
+                error={touched.title && Boolean(errors.title)}
+                helperText={touched.title && errors.title}
+              />
+            </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
                 label="Coupon Code"
@@ -212,34 +337,100 @@ export default function EditCouponsPage() {
             ))}
 
             <Grid item xs={12} sm={6}>
-              <TextField
+              {/* <TextField
                 type="date"
-                label="Start Date"
-                name="startDate"
+                label="Start Time Stamp"
+                name="startTimeStamp"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
-                value={values.startDate}
+                value={values.startTimeStamp}
                 onChange={handleChange}
-                error={touched.startDate && Boolean(errors.startDate)}
-                helperText={touched.startDate && errors.startDate}
-              />
+                error={touched.startTimeStamp && Boolean(errors.startTimeStamp)}
+                helperText={touched.startTimeStamp && errors.startTimeStamp}
+              /> */}
+              <StyledDatePickerWrapper
+                error={Boolean(touched.startTimeStamp && errors.startTimeStamp)}
+              >
+                <DatePicker
+                  selected={
+                    values.startTimeStamp
+                      ? new Date(values.startTimeStamp)
+                      : null
+                  }
+                  onChange={(date) => {
+                    const isoString = date ? date.toISOString() : "";
+                    setFieldValue("startTimeStamp", isoString);
+                  }}
+                  showTimeSelect
+                  excludeTimes={[
+                    setHours(setMinutes(new Date(), 0), 17),
+                    setHours(setMinutes(new Date(), 30), 18),
+                    setHours(setMinutes(new Date(), 30), 19),
+                    setHours(setMinutes(new Date(), 30), 17),
+                  ]}
+                  dateFormat="MMMM d, yyyy h:mm aa"
+                  customInput={
+                    <CustomDateInput
+                      label="Start Time Stamp"
+                      error={Boolean(
+                        touched.startTimeStamp && errors.startTimeStamp
+                      )}
+                      helperText={
+                        touched.startTimeStamp && errors.startTimeStamp
+                      }
+                      placeholder="Select start time"
+                    />
+                  }
+                />
+              </StyledDatePickerWrapper>
             </Grid>
 
             <Grid item xs={12} sm={6}>
-              <TextField
+              {/* <TextField
                 type="date"
-                label="End Date"
-                name="endDate"
+                label="End Time Stamp"
+                name="endTimeStamp"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
-                value={values.endDate}
+                value={values.endTimeStamp}
                 onChange={handleChange}
-                error={touched.endDate && Boolean(errors.endDate)}
-                helperText={touched.endDate && errors.endDate}
-              />
+                error={touched.endTimeStamp && Boolean(errors.endTimeStamp)}
+                helperText={touched.endTimeStamp && errors.endTimeStamp}
+              /> */}
+              <StyledDatePickerWrapper
+                error={Boolean(touched.endTimeStamp && errors.endTimeStamp)}
+              >
+                <DatePicker
+                  selected={
+                    values.endTimeStamp ? new Date(values.endTimeStamp) : null
+                  }
+                  onChange={(date) => {
+                    const isoString = date ? date.toISOString() : "";
+                    setFieldValue("endTimeStamp", isoString);
+                  }}
+                  showTimeSelect
+                  excludeTimes={[
+                    setHours(setMinutes(new Date(), 0), 17),
+                    setHours(setMinutes(new Date(), 30), 18),
+                    setHours(setMinutes(new Date(), 30), 19),
+                    setHours(setMinutes(new Date(), 30), 17),
+                  ]}
+                  dateFormat="MMMM d, yyyy h:mm aa"
+                  customInput={
+                    <CustomDateInput
+                      label="End Time Stamp"
+                      error={Boolean(
+                        touched.endTimeStamp && errors.endTimeStamp
+                      )}
+                      helperText={touched.endTimeStamp && errors.endTimeStamp}
+                      placeholder="Select end time"
+                    />
+                  }
+                />
+              </StyledDatePickerWrapper>
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            {/* <Grid item xs={12} sm={6}>
               <Button
                 fullWidth
                 variant="outlined"
@@ -290,7 +481,7 @@ export default function EditCouponsPage() {
                   {errors.applicableCategories}
                 </Typography>
               )}
-            </Grid>
+            </Grid> */}
 
             {/* Submit */}
             <Grid item xs={12}>
@@ -301,7 +492,7 @@ export default function EditCouponsPage() {
                 <Button
                   variant="outlined"
                   color="secondary"
-                  onClick={() => navigate("/coupons-grid")}
+                  onClick={() => navigate("/coupons-list-2")}
                 >
                   Cancel
                 </Button>

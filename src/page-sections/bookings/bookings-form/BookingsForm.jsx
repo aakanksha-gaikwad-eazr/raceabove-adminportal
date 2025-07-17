@@ -23,7 +23,6 @@ import Dropzone from "@/components/dropzone";
 import { getSports } from "../../../store/apps/sports";
 import { Box, Chip, ListItemText } from "@mui/material";
 import toast from "react-hot-toast";
-import { createEvents, getEvents } from "../../../store/apps/events";
 import { getCoupons } from "../../../store/apps/coupons";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -175,7 +174,7 @@ export default function BookingsForm({ open, handleClose }) {
       });
 
       try {
-        const res = await dispatch(createEvents(formData));
+        // const res = await dispatch(createEvents(formData));
         console.log("res>>>", res);
         if (res?.payload?.status === 201) {
           toast.success("Event created successfully");

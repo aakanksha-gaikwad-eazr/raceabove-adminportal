@@ -20,7 +20,8 @@ export default function SearchArea({
     pathname === path ? "primary.main" : "grey.400";
 
   return (
-    <FlexBetween gap={1} my={3}>
+    <FlexBetween gap={1} my={3}
+>
       {/* SEARCH FIELD */}
       <TextField
         onChange={onChange}
@@ -31,8 +32,22 @@ export default function SearchArea({
           ),
         }}
         placeholder="Search..."
-        sx={{ maxWidth: 400, width: "100%" }}
+        sx={{width: "40%" }}
       />
+{/* 
+<Box flexShrink={0} className="actions">
+        <IconButton onClick={() => navigate(listRoute)}>
+          <FormatBullets sx={{
+          color: activeColor(listRoute)
+        }} />
+        </IconButton>
+
+        <IconButton onClick={() => navigate(gridRoute)}>
+          <Apps sx={{
+          color: activeColor(gridRoute)
+        }} />
+        </IconButton>
+      </Box> */}
     </FlexBetween>
   );
 }

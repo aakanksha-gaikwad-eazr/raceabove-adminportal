@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EventsForm from "../bookings-form";
-import { deleteEvents, getEvents } from "../../../store/apps/events";
+import {  getEvents } from "../../../store/apps/events";
 import EventsCard3 from "../bookings-card-3";
 import BookingsCard3 from "../bookings-card-3";
 

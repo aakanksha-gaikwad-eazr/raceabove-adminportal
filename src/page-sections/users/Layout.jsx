@@ -24,6 +24,7 @@ import Bratislava from "@/icons/Bratislava";
 import MapMarkerIcon from "@/icons/MapMarkerIcon"; // CUSTOM UTILS METHOD
 
 import { currency } from "@/utils/currency"; // STYLED COMPONENTS
+import { Avatar } from "@mui/material";
 
 const ContentWrapper = styled("div")({
   zIndex: 1,
@@ -79,7 +80,7 @@ export default function Layout({
           position: "relative",
         }}
       >
-        <CoverPicWrapper>
+        {/* <CoverPicWrapper>
           <img
             width="100%"
             height="100%"
@@ -89,38 +90,16 @@ export default function Layout({
               objectFit: "cover",
             }}
           />
-        </CoverPicWrapper>
+        </CoverPicWrapper> */}
 
         <ContentWrapper sx={{p:0}}>
           <FlexBox justifyContent="center" sx={{p:0}}>
-            {/* <AvatarBadge
-              badgeContent={
-                <label htmlFor="icon-button-file"> */}
-                  {/* <input type="file" accept="image/*" id="icon-button-file" style={{
-              display: 'none'
-            }} /> */}
 
-                  {/* <IconButton aria-label="upload picture" component="span">
-                    <CameraAlt sx={{
-                fontSize: 16,
-                color: 'background.paper'
-              }} />
-                  </IconButton> */}
-                {/* </label>
-              }
-            > */}
-              <AvatarLoading
-                alt="user"
-                borderSize={2}
-                percentage={60}
-                src={allDataOfSingleUser?.profilePhoto}
-                // src="/static/user/user-11.png"
-                sx={{
+
+                <Avatar src={allDataOfSingleUser?.profilePhoto}  sx={{
                   width: 100,
                   height: 100,
-                }}
-              />
-            {/* </AvatarBadge> */}
+                }}/>
           </FlexBox>
 
           <Box mt={2}>

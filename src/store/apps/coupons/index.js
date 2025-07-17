@@ -98,8 +98,8 @@ export const deleteCoupons = createAsyncThunk('appCouponsSlice/deleteCoupons', a
   }
 })
 
-// //update coupons
-export const updateCoupons = createAsyncThunk('appCouponsSlice/updateCoupons', async (req, { rejectWithValue }) => {
+// //review coupons
+export const reviewCoupons = createAsyncThunk('appCouponsSlice/reviewCoupons', async (req, { rejectWithValue }) => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
     const accessToken = adminData.accessToken
@@ -108,9 +108,9 @@ export const updateCoupons = createAsyncThunk('appCouponsSlice/updateCoupons', a
       throw new Error('Access token not found in localStorage')
     }
 
-    const url = `${ip}/v1/coupons/${req?.editId}`
+    const url = `${ip}/v1/coupons/${req?.id}/review`
     
-    const response = await axiosInstance.patch(url, req?.changedData, {
+    const response = await axiosInstance.patch(url, req?.data, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
@@ -146,7 +146,7 @@ export const appCouponsSlice = createSlice({
     .addCase(deleteCoupons.fulfilled, (state, action) => {
       state.success = true
     })
-    .addCase(updateCoupons.fulfilled, (state, action) => {
+    .addCase(reviewCoupons.fulfilled, (state, action) => {
       state.success = true
     })
   }

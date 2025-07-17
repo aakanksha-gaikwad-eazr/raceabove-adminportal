@@ -14,7 +14,7 @@ import AveragePosition from '../AveragePosition';
 import HeadingArea from '../HeadingArea';
 export default function Analytics2PageView() {
   return <div className="pt-2 pb-4">
-         <HeadingArea />
+         {/* <HeadingArea /> */}
       <Grid container spacing={3}>
 
         {

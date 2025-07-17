@@ -44,23 +44,14 @@ export default function HeadingAreaCoupon({
         </Paragraph>
       </FlexBox>
 
-      {/* <TabContext value={value}>
-        <TabListWrapper variant="scrollable" onChange={changeTab}>
-          <Tab disableRipple label="All Users" value="" />
-          <Tab disableRipple label="Editor" value="editor" />
-          <Tab disableRipple label="Contributor" value="contributor" />
-          <Tab disableRipple label="Administrator" value="administrator" />
-          <Tab disableRipple label="Subscriber" value="subscriber" />
-        </TabListWrapper>
-      </TabContext> */}
 
-      <Button
+      {/* <Button
         variant="contained"
         startIcon={<Add />}
         onClick={() => navigate("/add-coupons")}
       >
         Add New Coupon
-      </Button>
+      </Button> */}
     </FlexBetween>
   );
 }

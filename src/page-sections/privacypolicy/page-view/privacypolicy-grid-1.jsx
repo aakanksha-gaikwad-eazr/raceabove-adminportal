@@ -23,7 +23,6 @@ import SearchArea from "../SearchArea";
 import HeadingAreaCoupon from "../HeadingAreaTnc";
 import MoreCouponButtontwo from "@/components/more-coupon-button-two";
 import { paginate } from "@/utils/paginate";
-import { getCoupons, updateCoupons } from "../../../store/apps/coupons";
 
 export default function PrivacyPolicyGrid1PageView() {
   const dispatch = useDispatch();
@@ -57,7 +56,7 @@ export default function PrivacyPolicyGrid1PageView() {
           const updateData = {
             isActive: !currentStatus,
           };
-          await dispatch(updateCoupons({ id: couponId, data: updateData }));
+          // await dispatch(updateCoupons({ id: couponId, data: updateData }));
           toast.success(
             `Coupon ${!currentStatus ? "activated" : "deactivated"} successfully`
           );
@@ -76,7 +75,7 @@ export default function PrivacyPolicyGrid1PageView() {
       const updateData = {
         isVisible: !currentStatus,
       };
-      await dispatch(updateCoupons({ id: couponId, data: updateData }));
+      // await dispatch(updateCoupons({ id: couponId, data: updateData }));
       toast.success(
         `Coupon visibility ${!currentStatus ? "enabled" : "disabled"} successfully`
       );

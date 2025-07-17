@@ -22,7 +22,7 @@ import { createUser } from "../../../store/apps/user";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { MenuItem } from "@mui/material";
-import { createOrganizer } from "../../../store/apps/organisers";
+import { createOrganizer } from "@/store/apps/organisers";
 
 const SwitchWrapper = styled("div")({
   width: "100%",
@@ -118,6 +118,8 @@ export default function AddNewOrganisersPageView() {
     companyName: "",
     companyLogoFile: null,
     commission: 0,
+    approvalStatus: "approved",
+    reviewReason: "approved by admin",
   };
 
   const validationSchema = Yup.object().shape({
@@ -153,6 +155,8 @@ export default function AddNewOrganisersPageView() {
     formData.append("phoneNumber", `+91${values.phoneNumber}`);
     formData.append("companyName", values.companyName);
     formData.append("commission", values.commission);
+    formData.append("approvalStatus", values.approvalStatus);
+    formData.append("reviewReason", values.reviewReason);
     formData.append("companyLogoFile", selectedFile);
 
     try {
@@ -163,7 +167,7 @@ export default function AddNewOrganisersPageView() {
 
       if (response?.status === 201) {
         toast.success("Organizer created successfully!");
-        navigate("/organiser-list");
+        navigate("/organiser-list-2");
       } else {
         console.log("23", response);
         throw new Error(
