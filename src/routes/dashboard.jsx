@@ -612,7 +612,7 @@ export const DashboardRoutes = [
         element: <OrganiserGridView2 />,
       }, 
       {
-        path: "organiser-details",
+        path: "organiser-details/:id",
         element: <OrganiserDetails />,
       },
 

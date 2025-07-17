@@ -5,7 +5,7 @@ import { getEventsById } from "../../../store/apps/events";
 import { toast } from "react-hot-toast";
 import { PROJECT_FILES } from "@/__fakeData__/projects";
 import TabPanel from '@mui/lab/TabPanel';
-import TabContext from '@mui/lab/TabContext'; // CUSTOM PAGE SECTION COMPONENTS
+import TabContext from '@mui/lab/TabContext'; 
 import Overview from '../overview';
 import Projects from '../projects';
 import Activity from '../activity';
@@ -14,17 +14,17 @@ import Documents from '../documents';
 import Connections from '../connections';
 import { getAllDataOfUser } from "../../../store/apps/user";
 import Layout from "../Layout";
+import { getSingleOrganizers } from "@/store/apps/organisers";
 
 export default function OrganizerDetailsPageView() {
   const dispatch = useDispatch();
-  const {allDataOfSingleUser} = useSelector((state) => state.user);
-
-  const storedUserId = localStorage.getItem("selectedUserId");
+  const {singleOrganizer} = useSelector((state) => state.organisers);
+  console.log("singleOrganizer",singleOrganizer)
+  const {id}= useParams()
 
   useEffect(()=>{
-    console.log("storedUserId", storedUserId)
-    dispatch(getAllDataOfUser(storedUserId))
-  },[storedUserId])
+    dispatch(getSingleOrganizers(id))
+  },[id])
 
   const navigate = useNavigate();
   
@@ -35,29 +35,29 @@ const [tabValue, setTabValue] = useState('1');
 
   return <div className="pt-2 pb-4">
       <TabContext value={tabValue}>
-        <Layout handleTabList={handleTabChange} allDataOfSingleUser={allDataOfSingleUser}>
+        <Layout handleTabList={handleTabChange} singleOrganizer={singleOrganizer}>
           <TabPanel value="1">  
-            <Overview allDataOfSingleUser={allDataOfSingleUser} />
+            <Overview singleOrganizer={singleOrganizer} />
           </TabPanel>
           {/* challengeParticipations */}
           <TabPanel value="2">
-            <Projects allDataOfSingleUser={allDataOfSingleUser} />
+            <Projects singleOrganizer={singleOrganizer} />
           </TabPanel>
           {/* events */}
           <TabPanel value="3">
-            <Campaigns allDataOfSingleUser={allDataOfSingleUser} />
+            <Campaigns singleOrganizer={singleOrganizer} />
+          </TabPanel>
+          {/* tickets types and template */}
+          <TabPanel value="4">
+            <Documents singleOrganizer={singleOrganizer}  />
+          </TabPanel>
+        {/* terms, pp, faq */}
+          <TabPanel value="5">
+            <Connections singleOrganizer={singleOrganizer} />
           </TabPanel>
 
-          {/* <TabPanel value="4">
-            <Documents />
-          </TabPanel> */}
-
-          {/* <TabPanel value="5">
-            <Connections />
-          </TabPanel> */}
-
           <TabPanel value="6">
-            <Activity allDataOfSingleUser={allDataOfSingleUser} />
+            <Activity singleOrganizer={singleOrganizer} />
           </TabPanel>
         </Layout>
       </TabContext>

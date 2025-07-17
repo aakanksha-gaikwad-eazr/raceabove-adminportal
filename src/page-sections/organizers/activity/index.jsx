@@ -17,9 +17,9 @@ import LayerItem from './LayerItem';
 import ActivityItem from './activityItem';
 // import ActivityItem from './ActivityItem'; // You create this generic item
 
-export default function Activity({allDataOfSingleUser}) {
-    const activities = allDataOfSingleUser?.activities || [];
-    console.log("activities", activities)
+export default function Activity({ singleOrganizer}) {
+    const frequentlyAskedQuestions = singleOrganizer?.frequentlyAskedQuestions || [];
+    console.log("activities", frequentlyAskedQuestions)
 
   return <Box py={3}>
    
@@ -28,7 +28,7 @@ export default function Activity({allDataOfSingleUser}) {
           <H6 fontSize={16}>
             My Activities{' '}
             <Span fontSize={14} fontWeight={400} color="text.secondary">
-              ({activities.length} activities)
+              ({frequentlyAskedQuestions.length} activities)
             </Span>
           </H6>
 
@@ -49,7 +49,7 @@ export default function Activity({allDataOfSingleUser}) {
               ))} */}
 
               {/* Static fallback items (optional) */}
-             {activities.map((activity) => ( <ChatItem key={activity.id} activity={activity} /> ))}
+             {frequentlyAskedQuestions.map((activity) => ( <ChatItem key={activity.id} activity={activity} /> ))}
               {/* <PinItem /> */}
               {/* <FileItem /> */}
               {/* <LayerItem /> */}

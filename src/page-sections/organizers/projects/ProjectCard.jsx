@@ -4,6 +4,9 @@ import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
 import AvatarGroup from "@mui/material/AvatarGroup";
 import LinearProgress from "@mui/material/LinearProgress";
+import Switch from "@mui/material/Switch";
+import Box from "@mui/material/Box";
+import Divider from "@mui/material/Divider";
 import { styled, alpha, useTheme } from "@mui/material/styles";
 // CUSTOM COMPONENTS
 import { H6, Paragraph } from "@/components/typography";
@@ -14,6 +17,7 @@ const IconWrapper = styled(FlexRowAlign)({
   height: 30,
   borderRadius: "4px",
 });
+
 const StyledAvatarGroup = styled(AvatarGroup, {
   shouldForwardProp: (prop) => prop !== "type",
 })(({ type }) => ({
@@ -26,78 +30,71 @@ const StyledAvatarGroup = styled(AvatarGroup, {
     fontWeight: 500,
     backgroundColor: alpha(type, 0.1),
   },
-})); // =======================================================================
+}));
+
+const InfoRow = styled(FlexBetween)(({ theme }) => ({
+  padding: "4px 0",
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  "&:last-child": {
+    borderBottom: "none",
+  },
+}));
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  padding: theme.spacing(3),
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(2),
+}));
 
 // =======================================================================
 export default function ProjectCard({ item }) {
   const theme = useTheme();
+  console.log("item", item);
 
-  // const getStatusColor = (status) => {
-  //   if (status === "Pending") return theme.palette.primary.main;
-  //   if (status === "Completed") return theme.palette.success.main;
-  //   return theme.palette.warning.main;
-  // };
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case "approved":
+        return "success";
+      case "pending":
+        return "warning";
+      case "rejected":
+        return "error";
+      default:
+        return "default";
+    }
+  };
 
-  const color = theme.palette.success.main; // FOR CHIP AND LINEAR PROGRESS
-
-  const getColorType = () => {
-    if (status === "Pending") return "primary";
-    else if (status === "Completed") return "success";
-    else return "warning";
+  const getChallengeTypeColor = (type) => {
+    switch (type?.toLowerCase()) {
+      case "daily":
+        return "primary";
+      case "weekly":
+        return "secondary";
+      case "monthly":
+        return "info";
+      default:
+        return "default";
+    }
   };
 
   return (
-    <Card className="p-3">
+    <StyledCard>
+      {/* Header Section with Badge and Status */}
       <FlexBetween mb={2}>
-        <div
-          style={{
-            width: "100%",
-            maxHeight: "50px",
-            overflow: "hidden",
+        <Box
+          sx={{
+            width: "60px",
+            height: "60px",
             borderRadius: "8px",
+            overflow: "hidden",
+            backgroundColor: "grey.100",
           }}
         >
           <img
-            src={item?.challenge?.badge}
+            src={item?.badge || "/default-badge.png"}
             alt="badge"
-            style={{
-              width: "15%",
-              height: "100%",
-              objectFit: "cover",
-              display: "block",
-            }}
-          />
-        </div>
-
-        {/* <Chip
-          label={item?.challenge?.startDate}
-          size="small"
-          color={getColorType()}
-        /> */}
-      </FlexBetween>
-
-      <H6 fontSize={16} my={1}>
-        {item?.challenge?.title}
-      </H6>
-      <Chip
-          label={item?.challenge?.startDate}
-          size="small"
-        />
-
-      {/* <Paragraph color="text.secondary">{item?.challenge?.description}</Paragraph> */}
-
-      <Stack my={2} direction="row" alignItems="center" spacing={2}>
-        <div
-          style={{
-            width: "100%",
-            maxHeight: "140px",
-            overflow: "hidden",
-            borderRadius: "8px",
-          }}
-        >
-          <img
-            src={item?.challenge?.banner}
-            alt="banner"
             style={{
               width: "100%",
               height: "100%",
@@ -105,26 +102,110 @@ export default function ProjectCard({ item }) {
               display: "block",
             }}
           />
-        </div>
+        </Box>
+
+        <Stack direction="column" spacing={1} alignItems="flex-end">
+          <Chip
+            label={item?.approvalStatus || "Pending"}
+            size="small"
+            color={getStatusColor(item?.approvalStatus)}
+            variant="outlined"
+          />
+          <Chip
+            label={item?.challengeType || "N/A"}
+            size="small"
+            color={getChallengeTypeColor(item?.challengeType)}
+          />
+        </Stack>
+      </FlexBetween>
+
+      {/* Title and Start Date */}
+      <Box>
+        <H6 fontSize={16} mb={1} sx={{ 
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap"
+        }}>
+          {item?.title || "Untitled Challenge"}
+        </H6>
+        <Paragraph color="text.secondary" fontSize={12}>
+          Start Date: {item?.startDate || "N/A"}
+        </Paragraph>
+      </Box>
+
+      {/* Banner Image */}
+      <Box
+        sx={{
+          width: "100%",
+          height: "120px",
+          borderRadius: "8px",
+          overflow: "hidden",
+          backgroundColor: "grey.100",
+        }}
+      >
+        <img
+          src={item?.banner || "/default-banner.png"}
+          alt="banner"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+          }}
+        />
+      </Box>
+
+      {/* Challenge Details */}
+      <Stack spacing={1}>
+        <InfoRow>
+          <Paragraph fontSize={12} color="text.secondary">
+            Daily Target:
+          </Paragraph>
+          <Paragraph fontSize={12} fontWeight={600}>
+            {item?.dailyTargetValue || "N/A"}
+          </Paragraph>
+        </InfoRow>
+
+        <InfoRow>
+          <Paragraph fontSize={12} color="text.secondary">
+            Max Reward Coins:
+          </Paragraph>
+          <Paragraph fontSize={12} fontWeight={600} color="primary.main">
+            {item?.maxRewardCoins || "0"}
+          </Paragraph>
+        </InfoRow>
+
+        <InfoRow>
+          <Paragraph fontSize={12} color="text.secondary">
+            Min Active Days:
+          </Paragraph>
+          <Paragraph fontSize={12} fontWeight={600}>
+            {item?.minActiveDays || "N/A"}
+          </Paragraph>
+        </InfoRow>
+
+        <InfoRow>
+          <Paragraph fontSize={12} color="text.secondary">
+            Status:
+          </Paragraph>
+          <Switch
+            checked={item?.isActive || false}
+            size="small"
+            color="primary"
+            disabled // Make it read-only for display purposes
+          />
+        </InfoRow>
       </Stack>
 
-      {/* <Stack my={2} direction="row" alignItems="center" spacing={2}>
-        <LinearProgress value={value} variant="determinate" color={getColorType()} />
-        <H6 fontSize={12}>{value}%</H6>
-      </Stack> */}
-
-      <FlexBetween>
-        {/* <StyledAvatarGroup max={3} type={color}>
-          <Avatar src="/static/user/user-11.png" />
-          <Avatar src="/static/user/user-11.png" />
-          <Avatar src="/static/user/user-11.png" />
-          <Avatar src="/static/user/user-11.png" />
-        </StyledAvatarGroup> */}
-
-        {/* <Paragraph fontWeight={600} color="text.secondary">
-          {item?.challenge?.startDate}
-        </Paragraph> */}
+      {/* Footer with additional info */}
+      <FlexBetween mt="auto">
+        <Paragraph fontSize={11} color="text.secondary">
+          ID: {item?.id || "N/A"}
+        </Paragraph>
+        <Paragraph fontSize={11} color="text.secondary">
+          {item?.createdAt ? new Date(item.createdAt).toLocaleDateString() : "N/A"}
+        </Paragraph>
       </FlexBetween>
-    </Card>
+    </StyledCard>
   );
 }

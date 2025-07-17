@@ -27,9 +27,7 @@ import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable"; //
 import { isDark } from "@/utils/constants"; // CUSTOM DUMMY DATA
 
 import { useDispatch, useSelector } from "react-redux";
-// import SearchFilter from "page-sections/challenge/SearchFilter";
 import SearchFilter from "../../challenge/SearchFilter";
-// import SearchFilter from "page-sections/challenge/SearchFilter";
 import StatusFilter from "../../challenge/StatusFilter";
 import { getOrganizers } from "@/store/apps/organisers";
 import HeadingArea from "../HeadingArea";
@@ -129,11 +127,11 @@ export default function OrganizersList2PageView() {
     const navigate = useNavigate();
   
 
-  const { organisers } = useSelector((state) => state.organisers);
-  console.log("organisers", organisers);
+  const {  allOrganisers } = useSelector((state) => state.organisers);
+  console.log("organisers", allOrganisers);
 
   const filteredOrganiser = stableSort(
-    organisers,
+    allOrganisers || [],
     getComparator(order, orderBy)
   ).filter((item) => {
     if (searchFilter)
@@ -149,14 +147,14 @@ export default function OrganizersList2PageView() {
 
   useEffect(() => {
     if (selectedOrganiser) {
-      const updatedOrganisers = organisers.find(
+      const updatedOrganisers = allOrganisers.find(
         (organiser) => organiser.id === selectedOrganiser.id
       );
       if (updatedOrganisers) setSelectedOrganiser(updatedOrganisers);
     } else {
-      setSelectedOrganiser(organisers[0]);
+      setSelectedOrganiser(allOrganisers[0]);
     }
-  }, [organisers]);
+  }, [allOrganisers]);
 
   const handleEditClick = (e, organiser) => {
       console.log("clciked")
@@ -197,6 +195,9 @@ export default function OrganizersList2PageView() {
   const handleDeleteClose = () => {
     setOpenDeleteModal(false);
     setUserToEdit(null);
+  };
+  const handleNavigationtoDetailsPage = (organiser) => {
+    navigate(`/organiser-details/${organiser?.id}`)
   };
   
 
@@ -278,7 +279,7 @@ export default function OrganizersList2PageView() {
                               : 0
                           }
                           onClick={() =>
-                            setSelectedOrganiser(organiser)
+                         handleNavigationtoDetailsPage(organiser)
                           }
                         >
                           <BodyTableCell>

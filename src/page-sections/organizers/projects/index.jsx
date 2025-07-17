@@ -5,19 +5,18 @@ import Typography from '@mui/material/Typography';
 import ProjectCard from './ProjectCard'; // CUSTOM DUMMY DATA
 
 import { PROJECT_LIST } from './data';
-export default function Projects({allDataOfSingleUser}) {
-  if (!allDataOfSingleUser) {
+export default function Projects({singleOrganizer}) {
+  if (!singleOrganizer) {
     return (
       <Box py={3} mt={3} display="flex" justifyContent="center" alignItems="center" minHeight="200px">
         <Typography variant="h6" color="text.secondary">
-          User data not available
+          Organizer data not available
         </Typography>
       </Box>
     );
   }
 
-  const allChallengesParticipations = allDataOfSingleUser?.challengeParticipations;
-  console.log("allChallengesParticipations", allChallengesParticipations);
+  const allChallengesParticipations = singleOrganizer?.challenges;
 
   if (!allChallengesParticipations || !Array.isArray(allChallengesParticipations) || allChallengesParticipations.length === 0) {
     return (

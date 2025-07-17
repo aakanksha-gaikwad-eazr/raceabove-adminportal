@@ -138,14 +138,14 @@ export const updateOrganizer = createAsyncThunk('appOrganizers/updateOrganizer',
 export const appOrganizersSlice = createSlice({
   name: 'appOrganizers',
   initialState: {
-    organisers:[],
+    allOrganisers:[],
     singleOrganizer:{},
   },
   reducers: {},
   extraReducers: builder => {
     builder
     .addCase(getOrganizers.fulfilled, (state, action) => {
-      state.organisers = action.payload 
+      state.allOrganisers = action.payload 
     })
     .addCase(getSingleOrganizers.fulfilled, (state, action) => {
       state.singleOrganizer = action.payload 

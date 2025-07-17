@@ -24,6 +24,7 @@ import Bratislava from "@/icons/Bratislava";
 import MapMarkerIcon from "@/icons/MapMarkerIcon"; // CUSTOM UTILS METHOD
 
 import { currency } from "@/utils/currency"; // STYLED COMPONENTS
+import { Avatar } from "@mui/material";
 
 const ContentWrapper = styled("div")({
   zIndex: 1,
@@ -57,12 +58,8 @@ const StyledTabList = styled(TabList)(({ theme }) => ({
 // =======================================================================
 
 // =======================================================================
-export default function Layout({
-  children,
-  handleTabList,
-  allDataOfSingleUser,
-}) {
-  const joinedDate = new Date(allDataOfSingleUser?.createdAt);
+export default function Layout({ children, handleTabList, singleOrganizer }) {
+  const joinedDate = new Date(singleOrganizer?.createdAt);
 
   const formattedDate = joinedDate.toLocaleDateString("en-US", {
     // weekday: 'long',
@@ -71,7 +68,6 @@ export default function Layout({
     day: "numeric",
   });
 
-
   return (
     <Fragment>
       <Card
@@ -79,7 +75,7 @@ export default function Layout({
           position: "relative",
         }}
       >
-        <CoverPicWrapper>
+        {/* <CoverPicWrapper>
           <img
             width="100%"
             height="100%"
@@ -89,44 +85,23 @@ export default function Layout({
               objectFit: "cover",
             }}
           />
-        </CoverPicWrapper>
+        </CoverPicWrapper>*/}
 
-        <ContentWrapper sx={{p:0}}>
-          <FlexBox justifyContent="center" sx={{p:0}}>
-            {/* <AvatarBadge
-              badgeContent={
-                <label htmlFor="icon-button-file"> */}
-                  {/* <input type="file" accept="image/*" id="icon-button-file" style={{
-              display: 'none'
-            }} /> */}
-
-                  {/* <IconButton aria-label="upload picture" component="span">
-                    <CameraAlt sx={{
-                fontSize: 16,
-                color: 'background.paper'
-              }} />
-                  </IconButton> */}
-                {/* </label>
-              }
-            > */}
-              <AvatarLoading
-                alt="user"
-                borderSize={2}
-                percentage={60}
-                src={allDataOfSingleUser?.profilePhoto}
-                // src="/static/user/user-11.png"
-                sx={{
-                  width: 100,
-                  height: 100,
-                }}
-              />
-            {/* </AvatarBadge> */}
+        <ContentWrapper sx={{ p: 0 }}>
+          <FlexBox justifyContent="center" sx={{ p: 0 }}>
+            <Avatar
+              sx={{
+                width: 100,
+                height: 100,
+              }}
+              src={singleOrganizer?.companyLogo}
+            />
           </FlexBox>
 
           <Box mt={2}>
             <FlexBox justifyContent="center" alignItems="center" gap={1}>
               <H6 fontSize={18} textAlign="center">
-                {allDataOfSingleUser?.name}
+                {singleOrganizer?.name}
               </H6>
               {/* <IconButton size="small" onClick={handleEdit}>
                 <Edit fontSize="small" />
@@ -145,17 +120,17 @@ export default function Layout({
 
           <StyledFlexBetween paddingTop={4} maxWidth={600}>
             <BoxItem
-              amount={`${allDataOfSingleUser?.wallet?.balance ?? "N/A"}`}
+              amount={`${singleOrganizer?.wallet?.balance ?? "N/A"}`}
               title="Balance"
               color="primary.main"
             />
             <BoxItem
-              amount={`${allDataOfSingleUser?.wallet?.totalCoinsEarned ?? "N/A"}`}
+              amount={`${singleOrganizer?.wallet?.totalCoinsEarned ?? "N/A"}`}
               title="Total Coins Earned"
               color="success.600"
             />
             <BoxItem
-              amount={`${allDataOfSingleUser?.wallet?.totalCoinsUsed ?? "N/A"}`}
+              amount={`${singleOrganizer?.wallet?.totalCoinsUsed ?? "N/A"}`}
               title="Total Coins Used"
               color="warning.600"
             />
@@ -166,8 +141,8 @@ export default function Layout({
           <Tab disableRipple label="Overview" value="1" />
           <Tab disableRipple label="Challenge" value="2" />
           <Tab disableRipple label="Events" value="3" />
-          {/* <Tab disableRipple label="Documents" value="4" /> */}
-          {/* <Tab disableRipple label="Connections" value="5" /> */}
+          <Tab disableRipple label="Tickets" value="4" />
+          <Tab disableRipple label="Terms" value="5" />
           <Tab disableRipple label="Activity" value="6" />
         </StyledTabList>
       </Card>
