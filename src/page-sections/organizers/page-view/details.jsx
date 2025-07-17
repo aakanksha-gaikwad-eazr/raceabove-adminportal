@@ -15,7 +15,7 @@ import Connections from '../connections';
 import { getAllDataOfUser } from "../../../store/apps/user";
 import Layout from "../Layout";
 
-export default function OrganizerDetails() {
+export default function OrganizerDetailsPageView() {
   const dispatch = useDispatch();
   const {allDataOfSingleUser} = useSelector((state) => state.user);
 
