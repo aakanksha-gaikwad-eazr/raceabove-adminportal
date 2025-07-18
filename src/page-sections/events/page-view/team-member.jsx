@@ -1,4 +1,4 @@
-// Multi-step Events Form using Formik & MUI
+// Multi-step Events Form using Formik & MUI - Fixed Version
 import { useState, useEffect } from "react";
 import {
   Stepper,
@@ -14,6 +14,11 @@ import {
   TextField,
   ListItemText,
   Tooltip,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+  IconButton,
+  Divider,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useFormik } from "formik";
@@ -22,12 +27,22 @@ import toast from "react-hot-toast";
 import ReactQuill from "react-quill";
 import Dropzone from "@/components/dropzone";
 import { useDispatch, useSelector } from "react-redux";
-import {  createEvents, getEvents } from "../../../store/apps/events";
-import { getCoupons } from "../../../store/apps/coupons";
-import { getFaq } from "../../../store/apps/faq";
 import MapPickerModal from "@/components/mapPickerModal/MapPickerModal.jsx";
 import { useNavigate } from "react-router-dom";
-("./team-member-style.css");
+import HeadingArea from "../HeadingArea";
+import { FlexBox } from "@/components/flexbox";
+import IconWrapper from "@/components/icon-wrapper/IconWrapper";
+import GroupSenior from "@/icons/GroupSenior";
+import { Paragraph } from "@/components/typography";
+import { Add, Remove } from "@mui/icons-material";
+import { getCoupons } from "@/store/apps/coupons";
+import { getPrivacyPolicies } from "@/store/apps/privacypolicy";
+import { getTicketTemplate } from "@/store/apps/tickettemplate";
+import { getAddOns } from "@/store/apps/addons";
+import { getFaq } from "@/store/apps/faq";
+import { getTnc } from "@/store/apps/tnc";
+import { createEvents, getEvents } from "@/store/apps/events"; // Added missing imports
+
 const steps = [
   {
     title: "Basic Event Info",
@@ -46,80 +61,116 @@ const steps = [
     subtitle: "Define participation, obstacles, and difficulty level",
   },
   {
-    title: "Time Slots",
-    subtitle: "Add one or more time slots for the event",
+    title: "Time Slots & Tickets",
+    subtitle: "Add time slots with ticket templates",
   },
   {
     title: "Coupons",
     subtitle: "Attach any applicable discount coupons",
   },
   {
-    title: "FAQ & Terms",
-    subtitle: "Add frequently asked questions and terms & conditions",
+    title: "Addon Products",
+    subtitle: "Add addon products with quantities",
+  },
+  {
+    title: "FAQ & Legal",
+    subtitle: "Add FAQ, Terms & Conditions, and Privacy Policy",
   },
 ];
 
+const MUMBAI_COORDINATES = {
+  latitude: 19.076,
+  longitude: 72.8777,
+};
+
 const validationSchemas = [
+  // Step 0: Basic Info
   Yup.object({
-    title: Yup.string().required("Required"),
-    date: Yup.string().required("Required"),
-    startTime: Yup.string().required("Required"),
-    endTime: Yup.string().required("Required"),
-    price: Yup.number().required("Required"),
-    coinsDiscountPercentage: Yup.number().required("Required"),
-    enduranceLevel: Yup.string().required("Required"),
-    participation: Yup.string().required("Required"),
+    title: Yup.string().required("Title is required"),
+    description: Yup.string().required("Description is required"),
+    price: Yup.number()
+      .min(0, "Price must be positive")
+      .required("Price is required"),
+    coinsDiscountPercentage: Yup.number()
+      .min(0, "Must be positive")
+      .max(100, "Cannot exceed 100%")
+      .required("Required"),
+    maxTicketsPerUser: Yup.number()
+      .min(1, "Must be at least 1")
+      .required("Required"),
+    bannerFile: Yup.mixed().required("Banner image is required"),
   }),
+  // Step 1: Schedule
+  Yup.object({
+    date: Yup.string().required("Date is required"),
+    startTime: Yup.string().required("Start time is required"),
+    endTime: Yup.string().required("End time is required"),
+  }),
+  // Step 2: Location
   Yup.object({
     location: Yup.object({
-      address: Yup.string().required("Required"),
+      address: Yup.string().required("Address is required"),
       coordinate: Yup.object({
         coordinates: Yup.array()
           .of(Yup.string())
-          .min(2, "Coordinates required"),
+          .length(2, "Both latitude and longitude are required")
+          .required("Coordinates are required"),
       }),
     }),
   }),
+  // Step 3: Event Details
   Yup.object({
-    description: Yup.string().required("Required"),
-    faq: Yup.string().required("Required"),
-    tnc: Yup.string().required("Required"),
+    participation: Yup.string().required("Participation info is required"),
+    obstacles: Yup.string().required("Obstacles info is required"),
+    enduranceLevel: Yup.string().required("Endurance level is required"),
   }),
+  // Step 4: Time Slots
   Yup.object({
-    bannerFile: Yup.mixed().required("Required"),
-    slots: Yup.array().of(
+    slots: Yup.array()
+      .of(
+        Yup.object({
+          startTime: Yup.string().required("Slot start time is required"),
+          endTime: Yup.string().required("Slot end time is required"),
+          eventTickets: Yup.array()
+            .of(
+              Yup.object({
+                ticketTemplateId: Yup.string().required(
+                  "Ticket template is required"
+                ),
+                isActive: Yup.boolean(),
+              })
+            )
+            .min(1, "At least one ticket template is required"),
+          isActive: Yup.boolean(),
+        })
+      )
+      .min(1, "At least one time slot is required"),
+  }),
+  // Step 5: Coupons
+  Yup.object({
+    couponIds: Yup.array().of(Yup.string()),
+  }),
+  // Step 6: Addon Products
+  Yup.object({
+    addOns: Yup.array().of(
       Yup.object({
-        startTime: Yup.string()
-          .required("Required")
-          .test('is-within-range', 'Slot start time must be within event time range', function(value) {
-            const { parent, from } = this;
-            const eventStartTime = from[1].value.startTime;
-            const eventEndTime = from[1].value.endTime;
-            return !value || !eventStartTime || !eventEndTime || 
-              (value >= eventStartTime && value <= eventEndTime);
-          }),
-        endTime: Yup.string()
-          .required("Required")
-          .test('is-within-range', 'Slot end time must be within event time range', function(value) {
-            const { parent, from } = this;
-            const eventStartTime = from[1].value.startTime;
-            const eventEndTime = from[1].value.endTime;
-            return !value || !eventStartTime || !eventEndTime || 
-              (value >= eventStartTime && value <= eventEndTime);
-          })
-          .test('is-after-start', 'End time must be after start time', function(value) {
-            const { parent } = this;
-            return !value || !parent.startTime || value > parent.startTime;
-          }),
-        capacity: Yup.number().required("Required"),
+        productId: Yup.string().required("Product is required"),
+        quantity: Yup.number()
+          .min(1, "Quantity must be at least 1")
+          .required("Quantity is required"),
+        isActive: Yup.boolean(),
       })
     ),
   }),
+  // Step 7: FAQ & Legal
   Yup.object({
-    coupons: Yup.array().of(Yup.string()),
-  }),
-  Yup.object({
-    faq: Yup.array().of(Yup.string()),
+    frequentlyAskedQuestionsIds: Yup.array().of(
+      Yup.string().required("FAQ is required")
+    ),
+    termsAndConditionsId: Yup.string().required(
+      "Terms & Conditions is required"
+    ),
+    privacyPolicyId: Yup.string().required("Privacy Policy is required"),
   }),
 ];
 
@@ -127,80 +178,131 @@ export default function TeamMemberPageView({ open, handleClose }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { coupons } = useSelector((state) => state.coupons);
-  const { faq } = useSelector((state) => state.faq);
+  const { allFaq } = useSelector((state) => state.faq);
+  const { allTnc } = useSelector((state) => state.tnc);
+  const { privacypolicies } = useSelector((state) => state.privacypolicy);
+  const { allTicketTemplate } = useSelector((state) => state.tickettemplate);
+  const { allAddons } = useSelector((state) => state.addons);
   const [activeStep, setActiveStep] = useState(0);
   const [openMap, setOpenMap] = useState(false);
-  const [state, setState] = useState({
-    password: "",
-    password2: "",
-    showPassword: false,
-    showPassword2: false,
-  });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    dispatch(getCoupons());
-    dispatch(getFaq());
-  }, []);
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        await Promise.all([
+          dispatch(getCoupons()),
+          dispatch(getFaq()),
+          dispatch(getTnc()),
+          dispatch(getPrivacyPolicies()),
+          dispatch(getTicketTemplate()),
+          dispatch(getAddOns()),
+        ]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Failed to load form data");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const handleMapSelect = ([lat, lng]) => {
-    // setLatitude(lat.toFixed(6));
-    // setLongitude(lng.toFixed(6));
-    console.log("lat", lat);
-    console.log("lng", lng);
-    formik.setFieldValue(
-      "location.coordinate.coordinates[0]",
-      lat.toFixed(6)
-    );
-    formik.setFieldValue(
-      "location.coordinate.coordinates[1]",
-      lng.toFixed(6)
-    );
+    fetchData();
+  }, [dispatch]);
+
+  // Debug log to check ticket templates
+  useEffect(() => {
+  }, [allTicketTemplate, allAddons, coupons]);
+
+  const handleMapSelect = ([lat, lng],address) => {
+    formik.setFieldValue("location.coordinate.coordinates[0]", lat.toFixed(6));
+    formik.setFieldValue("location.coordinate.coordinates[1]", lng.toFixed(6));
+      formik.setFieldValue("location.address", address || "some place");
+
     setOpenMap(false);
   };
 
   const timeOptions = Array.from({ length: 24 * 4 }, (_, i) => {
     const hour = Math.floor(i / 4);
     const minute = (i % 4) * 15;
-    return `${hour.toString().padStart(2, "0")}:${minute
-      .toString()
-      .padStart(2, "0")}:00`;
+    return `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
   });
 
   const formik = useFormik({
     initialValues: {
       title: "",
       description: "",
-      faq: "",
-      tnc: "",
       date: "",
       startTime: "",
       endTime: "",
       price: "",
       coinsDiscountPercentage: 0,
+      maxTicketsPerUser: 1,
       participation: "",
       obstacles: "",
       enduranceLevel: "",
-      rewardCoinsInterval: "",
-      coupons: [],
-      // faq: [],
+      couponIds: [],
+      addOns: [],
       location: {
         address: "",
         coordinate: {
           type: "Point",
           coordinates: ["", ""],
         },
+        isActive: true,
       },
-      slots: [{ startTime: "", endTime: "", capacity: 0 }],
+      slots: [
+        {
+          startTime: "",
+          endTime: "",
+          eventTickets: [
+            {
+              ticketTemplateId: "",
+              isActive: true,
+            },
+          ],
+          isActive: true,
+        },
+      ],
       bannerFile: null,
+      frequentlyAskedQuestionsIds: [],
+      termsAndConditionsId: "",
+      privacyPolicyId: "",
+      isActive: true,
     },
-    // validationSchema: validationSchemas[activeStep],
+    validationSchema: validationSchemas[activeStep],
     onSubmit: async (values) => {
       if (activeStep < steps.length - 1) {
         setActiveStep((prev) => prev + 1);
         return;
       }
 
+      // Create FormData according to API specification
       const formData = new FormData();
+
+      // Basic fields
+      formData.append("title", values.title);
+      formData.append("description", values.description);
+      formData.append("date", values.date);
+      formData.append("startTime", values.startTime);
+      formData.append("endTime", values.endTime);
+      formData.append("price", values.price);
+      formData.append(
+        "coinsDiscountPercentage",
+        values.coinsDiscountPercentage
+      );
+      formData.append("maxTicketsPerUser", values.maxTicketsPerUser);
+      formData.append("participation", values.participation);
+      formData.append("obstacles", values.obstacles);
+      formData.append("enduranceLevel", values.enduranceLevel);
+      formData.append("isActive", values.isActive);
+
+      // Banner file
+      if (values.bannerFile) {
+        formData.append("bannerFile", values.bannerFile);
+      }
+
+      // Location
       formData.append("location[address]", values.location.address);
       formData.append(
         "location[coordinate][type]",
@@ -214,282 +316,332 @@ export default function TeamMemberPageView({ open, handleClose }) {
         "location[coordinate][coordinates][1]",
         values.location.coordinate.coordinates[1]
       );
+      formData.append("location[isActive]", values.location.isActive);
 
-      Object.entries(values).forEach(([key, value]) => {
-        if (key === "location") return;
-        if (key === "slots") {
-          value.forEach((slot, i) => {
-            formData.append(`slots[${i}][startTime]`, slot.startTime);
-            formData.append(`slots[${i}][endTime]`, slot.endTime);
-            formData.append(`slots[${i}][capacity]`, slot.capacity);
-          });
-        } else if (key === "coupons") {
-          value.forEach((c, i) =>
-            formData.append(`coupons[${i}]`, c)
+      // Slots with tickets
+      values.slots.forEach((slot, slotIndex) => {
+        formData.append(`slots[${slotIndex}][startTime]`, slot.startTime);
+        formData.append(`slots[${slotIndex}][endTime]`, slot.endTime);
+        formData.append(`slots[${slotIndex}][isActive]`, slot.isActive);
+
+        slot.eventTickets.forEach((ticket, ticketIndex) => {
+          formData.append(
+            `slots[${slotIndex}][eventTickets][${ticketIndex}][ticketTemplateId]`,
+            ticket.ticketTemplateId
           );
-        } else if (key === "faq") {
-          value.forEach((f, i) =>
-            formData.append(`faq[${i}]`, f)
+          formData.append(
+            `slots[${slotIndex}][eventTickets][${ticketIndex}][isActive]`,
+            ticket.isActive
           );
-        } else if (key === "bannerFile") {
-          if (value) formData.append("bannerFile", value);
-        } else {
-          formData.append(key, value);
-        }
+        });
       });
 
+      // Coupons
+      values.couponIds.forEach((couponId, index) => {
+        formData.append(`couponIds[${index}]`, couponId);
+      });
+
+      // Add-ons
+      values.addOns.forEach((addOn, index) => {
+        formData.append(`addOns[${index}][productId]`, addOn.productId);
+        formData.append(`addOns[${index}][quantity]`, addOn.quantity);
+        formData.append(`addOns[${index}][isActive]`, addOn.isActive);
+      });
+
+      // FAQ
+      values.frequentlyAskedQuestionsIds.forEach((faqId, index) => {
+        formData.append(`frequentlyAskedQuestionsIds[${index}]`, faqId);
+      });
+      // PP
+      if (values.privacyPolicyId) {
+        formData.append("privacyPolicyId", values.privacyPolicyId);
+      }
+
+      //tnc
+      if (values.termsAndConditionsId) {
+        formData.append("termsAndConditionsId", values.termsAndConditionsId);
+      }
       try {
         const res = await dispatch(createEvents(formData));
-        console.log("formData", formData);
         if (res?.payload?.status === 201) {
-          console.log("res", res);
           toast.success("Event created successfully");
-          // handleClose();
-          navigate("/events/version-3");
+          navigate("/events/version-4");
           await dispatch(getEvents());
+        }else if(res?.payload?.status===400){
+      // Handle API errors with specific messages
+      const errorData = res?.payload;
+      
+      if (errorData?.message) {
+        // If message is an array (validation errors)
+        if (Array.isArray(errorData.message)) {
+          errorData.message.forEach(msg => {
+            toast.error(msg);
+          });
         } else {
-          toast.error("Failed to create event");
+          // Single error message
+          toast.error(errorData.message);
         }
-      } catch (err) {
-        console.error(err);
-        toast.error("Something went wrong");
+      } else {
+        toast.error("Failed to create event");
       }
-    },
+    }
+  } catch (err) {
+    console.error("Form submission error:", err);
+    
+    // Handle any additional errors
+    if (err?.message) {
+      toast.error(err.message);
+    } else {
+      toast.error("Something went wrong");
+    }
+  }}
   });
 
   const handleBack = () => setActiveStep((prev) => prev - 1);
+
   const handleNext = () => {
-    if (activeStep === 4) {
-      // Validate time slots
-      const eventStartTime = formik.values.startTime;
-      const eventEndTime = formik.values.endTime;
-      const slots = formik.values.slots;
-
-      const invalidSlots = slots.some((slot) => {
-        return (
-          slot.startTime < eventStartTime ||
-          slot.endTime > eventEndTime ||
-          slot.startTime >= slot.endTime
-        );
-      });
-
-      if (invalidSlots) {
-        toast.error(
-          "Time slots must be within the event time range and end time must be after start time"
-        );
-        return;
+    formik.validateForm().then((errors) => {
+      if (Object.keys(errors).length === 0) {
+        formik.handleSubmit();
+      } else {
+        // Show validation errors - flatten nested errors
+        const showError = (obj, path = "") => {
+          Object.keys(obj).forEach((key) => {
+            const fullPath = path ? `${path}.${key}` : key;
+            if (typeof obj[key] === "string") {
+              toast.error(`${fullPath}: ${obj[key]}`);
+            } else if (typeof obj[key] === "object" && obj[key] !== null) {
+              showError(obj[key], fullPath);
+            }
+          });
+        };
+        showError(errors);
       }
-    }
-    formik.handleSubmit();
+    });
   };
 
-  const handleConfirmLocation = (position) => {
-    formik.setFieldValue(
-      "location.coordinate.coordinates[1]",
-      position.lat
-    );
-    formik.setFieldValue(
-      "location.coordinate.coordinates[0]",
-      position.lng
-    );
-    setOpenMap(false);
+  const addSlot = () => {
+    const newSlot = {
+      startTime: "",
+      endTime: "",
+      eventTickets: [
+        {
+          ticketTemplateId: "",
+          isActive: true,
+        },
+      ],
+      isActive: true,
+    };
+    formik.setFieldValue("slots", [...formik.values.slots, newSlot]);
+  };
+
+  const removeSlot = (index) => {
+    const newSlots = formik.values.slots.filter((_, i) => i !== index);
+    formik.setFieldValue("slots", newSlots);
+  };
+
+  const addTicketToSlot = (slotIndex) => {
+    const newTicket = {
+      ticketTemplateId: "",
+      isActive: true,
+    };
+    const updatedSlots = [...formik.values.slots];
+    updatedSlots[slotIndex].eventTickets.push(newTicket);
+    formik.setFieldValue("slots", updatedSlots);
+  };
+
+  const removeTicketFromSlot = (slotIndex, ticketIndex) => {
+    const updatedSlots = [...formik.values.slots];
+    updatedSlots[slotIndex].eventTickets = updatedSlots[
+      slotIndex
+    ].eventTickets.filter((_, i) => i !== ticketIndex);
+    formik.setFieldValue("slots", updatedSlots);
+  };
+
+  const addAddon = () => {
+    const newAddon = {
+      productId: "",
+      quantity: 1,
+      isActive: true,
+    };
+    formik.setFieldValue("addOns", [...formik.values.addOns, newAddon]);
+  };
+
+  const removeAddon = (index) => {
+    const newAddons = formik.values.addOns.filter((_, i) => i !== index);
+    formik.setFieldValue("addOns", newAddons);
   };
 
   const renderStep = () => {
-    const { values, handleChange, errors, touched, setFieldValue } =
-      formik;
+    const { values, handleChange, errors, touched, setFieldValue } = formik;
 
     switch (activeStep) {
       case 0:
         return (
-          <Stack spacing={2}>
-            {/* title */}
+          <Stack spacing={3}>
             <TextField
               label="Title"
               name="title"
               value={values.title}
               onChange={handleChange}
-              error={!!errors.title}
-              helperText={errors.title}
+              error={!!(errors.title && touched.title)}
+              helperText={touched.title && errors.title}
+              fullWidth
             />
 
-            {/* description */}
-            {/* <Typography>Description</Typography> */}
-            <ReactQuill
-              className="custom-quill"
-              value={values.description}
-              onChange={(val) => setFieldValue("description", val)}
-              placeholder="write some description about the event here..."
-            />
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Description
+              </Typography>
+              <ReactQuill
+                value={values.description}
+                onChange={(val) => setFieldValue("description", val)}
+                placeholder="Write some description about the event here..."
+              />
+              {errors.description && touched.description && (
+                <Typography color="error" variant="caption">
+                  {errors.description}
+                </Typography>
+              )}
+            </Box>
 
-            {/* banner */}
-            <Dropzone
-              onDrop={(files) =>
-                setFieldValue("bannerFile", files[0])
-              }
-            />
+            <Box>
+              <Typography variant="subtitle2" gutterBottom>
+                Banner Image
+              </Typography>
+              <Dropzone
+                onDrop={(files) => setFieldValue("bannerFile", files[0])}
+              />
+              {errors.bannerFile && touched.bannerFile && (
+                <Typography color="error" variant="caption">
+                  {errors.bannerFile}
+                </Typography>
+              )}
+            </Box>
 
-            {/* price */}
             <TextField
               name="price"
               label="Price"
+              type="number"
               value={values.price}
               onChange={handleChange}
+              error={!!(errors.price && touched.price)}
+              helperText={touched.price && errors.price}
+              fullWidth
             />
 
-            {/* coinsDiscountPercentage */}
             <TextField
               name="coinsDiscountPercentage"
               label="Coins Discount Percentage"
+              type="number"
               value={values.coinsDiscountPercentage}
               onChange={handleChange}
+              error={
+                !!(
+                  errors.coinsDiscountPercentage &&
+                  touched.coinsDiscountPercentage
+                )
+              }
+              helperText={
+                touched.coinsDiscountPercentage &&
+                errors.coinsDiscountPercentage
+              }
+              fullWidth
+            />
+
+            <TextField
+              name="maxTicketsPerUser"
+              label="Max Tickets Per User"
+              type="number"
+              value={values.maxTicketsPerUser}
+              onChange={handleChange}
+              error={!!(errors.maxTicketsPerUser && touched.maxTicketsPerUser)}
+              helperText={touched.maxTicketsPerUser && errors.maxTicketsPerUser}
+              fullWidth
             />
           </Stack>
         );
+
       case 1:
         return (
-          <Stack spacing={2}>
-            {/* date */}
+          <Stack spacing={3}>
             <DatePicker
+              label="Event Date"
               value={values.date ? new Date(values.date) : null}
-              placeholder="MM/DD/YYYY"
               onChange={(date) =>
-                date &&
-                setFieldValue(
-                  "date",
-                  date.toISOString().split("T")[0]
-                )
+                date && setFieldValue("date", date.toISOString().split("T")[0])
               }
               slotProps={{
                 textField: {
                   fullWidth: true,
-                  error: !!errors.date,
-                  helperText: errors.date,
+                  error: !!(errors.date && touched.date),
+                  helperText: touched.date && errors.date,
                 },
               }}
             />
 
-            {/* start Time */}
-            <Select
+            <FormControl
               fullWidth
-              name="startTime"
-              value={values.startTime}
-              onChange={handleChange}
-              displayEmpty
+              error={!!(errors.startTime && touched.startTime)}
             >
-              <MenuItem value="">
-                <em>Select Start Time</em>
-              </MenuItem>
-              {timeOptions.map((time) => (
-                <MenuItem key={time} value={time}>
-                  {time}
-                </MenuItem>
-              ))}
-            </Select>
+              <InputLabel>Start Time</InputLabel>
+              <Select
+                name="startTime"
+                value={values.startTime}
+                onChange={handleChange}
+                label="Start Time"
+              >
+                {timeOptions.map((time) => (
+                  <MenuItem key={time} value={time}>
+                    {time}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.startTime && touched.startTime && (
+                <FormHelperText>{errors.startTime}</FormHelperText>
+              )}
+            </FormControl>
 
-            {/* end time */}
-            <Select
+            <FormControl
               fullWidth
-              name="endTime"
-              value={values.endTime}
-              onChange={handleChange}
-              displayEmpty
+              error={!!(errors.endTime && touched.endTime)}
             >
-              <MenuItem value="">
-                <em>Select End Time</em>
-              </MenuItem>
-              {timeOptions.map((time) => (
-                <MenuItem key={time} value={time}>
-                  {time}
-                </MenuItem>
-              ))}
-            </Select>
+              <InputLabel>End Time</InputLabel>
+              <Select
+                name="endTime"
+                value={values.endTime}
+                onChange={handleChange}
+                label="End Time"
+              >
+                {timeOptions.map((time) => (
+                  <MenuItem key={time} value={time}>
+                    {time}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.endTime && touched.endTime && (
+                <FormHelperText>{errors.endTime}</FormHelperText>
+              )}
+            </FormControl>
           </Stack>
         );
-        return (
-          <Stack spacing={2}>
-            {/* date */}
-            <DatePicker
-              value={values.date ? new Date(values.date) : null}
-              placeholder="MM/DD/YYYY"
-              onChange={(date) =>
-                date &&
-                setFieldValue(
-                  "date",
-                  date.toISOString().split("T")[0]
-                )
-              }
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  error: !!errors.date,
-                  helperText: errors.date,
-                },
-              }}
-            />
 
-            {/* start Time */}
-            <Select
-              fullWidth
-              name="startTime"
-              value={values.startTime}
-              onChange={handleChange}
-              displayEmpty
-            >
-              <MenuItem value="">
-                <em>Select Start Time</em>
-              </MenuItem>
-              {timeOptions.map((time) => (
-                <MenuItem key={time} value={time}>
-                  {time}
-                </MenuItem>
-              ))}
-            </Select>
-
-            {/* end time */}
-            <Select
-              fullWidth
-              name="endTime"
-              value={values.endTime}
-              onChange={handleChange}
-              displayEmpty
-            >
-              <MenuItem value="">
-                <em>Select End Time</em>
-              </MenuItem>
-              {timeOptions.map((time) => (
-                <MenuItem key={time} value={time}>
-                  {time}
-                </MenuItem>
-              ))}
-            </Select>
-          </Stack>
-        );
       case 2:
         return (
-          <Stack spacing={2}>
-            {/* location */}
+          <Stack spacing={3}>
             <TextField
               label="Address"
               name="location.address"
               value={values.location.address}
               onChange={handleChange}
+              error={!!(errors.location?.address && touched.location?.address)}
+              helperText={touched.location?.address && errors.location?.address}
+              fullWidth
             />
-            {/* location */}
 
             <Stack direction="row" spacing={2}>
               <TextField
                 label="Latitude"
-                value={values.location.coordinate.coordinates[1]}
-                onChange={(e) =>
-                  setFieldValue(
-                    "location.coordinate.coordinates[1]",
-                    e.target.value
-                  )
-                }
-              />
-              <TextField
-                label="Longitude"
                 value={values.location.coordinate.coordinates[0]}
                 onChange={(e) =>
                   setFieldValue(
@@ -497,529 +649,563 @@ export default function TeamMemberPageView({ open, handleClose }) {
                     e.target.value
                   )
                 }
+                error={
+                  !!(
+                    errors.location?.coordinate?.coordinates &&
+                    touched.location?.coordinate?.coordinates
+                  )
+                }
+                style={{ width: "500px" }}
               />
-              {/* <Button onClick={() => setOpenMap(true)}>Pick on Map</Button> */}
-              <Tooltip
-                title="Fetch latitude and longitude from map"
-                arrow
-              >
-                <Button onClick={() => setOpenMap(true)}>
+              <TextField
+                label="Longitude"
+                value={values.location.coordinate.coordinates[1]}
+                onChange={(e) =>
+                  setFieldValue(
+                    "location.coordinate.coordinates[1]",
+                    e.target.value
+                  )
+                }
+                error={
+                  !!(
+                    errors.location?.coordinate?.coordinates &&
+                    touched.location?.coordinate?.coordinates
+                  )
+                }
+                style={{ width: "500px" }}
+              />
+              <Tooltip title="Pick location on map">
+                <Button variant="outlined" onClick={() => setOpenMap(true)}>
                   Pick on Map
                 </Button>
               </Tooltip>
             </Stack>
 
+            {errors.location?.coordinate?.coordinates &&
+              touched.location?.coordinate?.coordinates && (
+                <Typography color="error" variant="caption">
+                  {errors.location.coordinate.coordinates}
+                </Typography>
+              )}
+
             <MapPickerModal
               open={openMap}
               onClose={() => setOpenMap(false)}
               onSelect={handleMapSelect}
+              // initialLatLng={[
+              //   Number(values.location.coordinate.coordinates[0]) || 0,
+              //   Number(values.location.coordinate.coordinates[1]) || 0,
+              // ]}
               initialLatLng={[
-                Number(
-                  formik.values.location.coordinate.coordinates[0]
-                ),
-                Number(
-                  formik.values.location.coordinate.coordinates[1]
-                ),
+                Number(values.location.coordinate.coordinates[0]) ||
+                  MUMBAI_COORDINATES.latitude,
+                Number(values.location.coordinate.coordinates[1]) ||
+                  MUMBAI_COORDINATES.longitude,
               ]}
             />
           </Stack>
         );
+
       case 3:
         return (
-          <Stack spacing={2}>
-            {/* participation */}
+          <Stack spacing={3}>
             <TextField
               name="participation"
               label="Participation"
+              multiline
+              rows={3}
               value={values.participation}
               onChange={handleChange}
+              error={!!(errors.participation && touched.participation)}
+              helperText={touched.participation && errors.participation}
+              fullWidth
             />
 
-            {/* enduranceLevel */}
-            <TextField
-              name="enduranceLevel"
-              label="Endurance"
-              value={values.enduranceLevel}
-              onChange={handleChange}
-            />
-
-            {/* obstacles */}
             <TextField
               name="obstacles"
               label="Obstacles"
+              multiline
+              rows={3}
               value={values.obstacles}
               onChange={handleChange}
+              error={!!(errors.obstacles && touched.obstacles)}
+              helperText={touched.obstacles && errors.obstacles}
+              fullWidth
+            />
+
+            <TextField
+              name="enduranceLevel"
+              label="Endurance Level"
+              value={values.enduranceLevel}
+              onChange={handleChange}
+              error={!!(errors.enduranceLevel && touched.enduranceLevel)}
+              helperText={touched.enduranceLevel && errors.enduranceLevel}
+              fullWidth
             />
           </Stack>
         );
+
       case 4:
-        // Parse time strings to minutes for comparison
-        const timeToMinutes = (t) => {
-          const [h, m, s] = t.split(":").map(Number);
-          return h * 60 + m + (s ? s / 60 : 0);
-        };
-
-        // Filter only if valid values exist
-        const startTimeOptions = timeOptions.filter((t) => {
-          if (!values.startTime || !values.endTime) return true;
-          const timeMins = timeToMinutes(t);
-          return (
-            timeMins >= timeToMinutes(values.startTime) &&
-            timeMins <= timeToMinutes(values.endTime)
-          );
-        });
-
-        const getEndTimeOptions = (slotStart) => {
-          return timeOptions.filter((t) => {
-            if (!values.startTime || !values.endTime || !slotStart)
-              return true;
-
-            const timeMins = timeToMinutes(t);
-            return (
-              timeMins > timeToMinutes(slotStart) &&
-              timeMins <= timeToMinutes(values.endTime)
-            );
-          });
-        };
-
-        console.log(startTimeOptions);
-
         return (
-          <Stack spacing={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Event Time Range: {values.startTime || "--:--:--"} -{" "}
-              {values.endTime || "--:--:--"}
+          <Stack spacing={3}>
+            <Typography variant="h6">Time Slots & Tickets</Typography>
+            <Typography variant="body2" color="textSecondary">
+              Event Time Range: {values.startTime || "--:--"} -{" "}
+              {values.endTime || "--:--"}
             </Typography>
-            {values.slots.map((slot, idx) => (
-              <Stack direction="row" spacing={2} key={idx}>
-                <Select
-                  fullWidth
-                  value={slot.startTime}
-                  onChange={(e) =>
-                    setFieldValue(
-                      `slots[${idx}].startTime`,
-                      e.target.value
-                    )
-                  }
-                  displayEmpty
-                >
-                  <MenuItem value="">
-                    <em>Select Start Time</em>
-                  </MenuItem>
-                  {startTimeOptions.map((time) => (
-                    <MenuItem key={time} value={time}>
-                      {time}
-                    </MenuItem>
+
+            {/* Debug info */}
+            {process.env.NODE_ENV === "development" && (
+              <Typography variant="caption" color="info.main">
+                Available Ticket Templates:{" "}
+                {(allTicketTemplate?.data || allTicketTemplate || []).length}
+              </Typography>
+            )}
+
+            {values.slots.map((slot, slotIndex) => (
+              <Box
+                key={slotIndex}
+                sx={{
+                  border: 1,
+                  borderColor: "divider",
+                  p: 2,
+                  borderRadius: 1,
+                }}
+              >
+                <Stack spacing={2}>
+                  <Stack direction="row" alignItems="center" spacing={2}>
+                    <Typography variant="subtitle1">
+                      Slot {slotIndex + 1}
+                    </Typography>
+                    {values.slots.length > 1 && (
+                      <IconButton
+                        color="error"
+                        onClick={() => removeSlot(slotIndex)}
+                        size="small"
+                      >
+                        <Remove />
+                      </IconButton>
+                    )}
+                  </Stack>
+
+                  <Stack direction="row" spacing={2}>
+                    <FormControl
+                      fullWidth
+                      error={
+                        !!(
+                          errors.slots?.[slotIndex]?.startTime &&
+                          touched.slots?.[slotIndex]?.startTime
+                        )
+                      }
+                    >
+                      {/* <InputLabel>Start Time</InputLabel> */}
+                      <Select
+                        value={slot.startTime}
+                        onChange={(e) =>
+                          setFieldValue(
+                            `slots[${slotIndex}].startTime`,
+                            e.target.value
+                          )
+                        }
+                        label="Start Time"
+                        displayEmpty
+                      >
+                        <MenuItem value="">
+                          <em>Select Start Time</em>
+                        </MenuItem>
+                        {timeOptions
+                          .filter(
+                            (time) =>
+                              !values.startTime ||
+                              !values.endTime ||
+                              (time >= values.startTime &&
+                                time <= values.endTime)
+                          )
+                          .map((time) => (
+                            <MenuItem key={time} value={time}>
+                              {time}
+                            </MenuItem>
+                          ))}
+                      </Select>
+                      {errors.slots?.[slotIndex]?.startTime &&
+                        touched.slots?.[slotIndex]?.startTime && (
+                          <FormHelperText>
+                            {errors.slots[slotIndex].startTime}
+                          </FormHelperText>
+                        )}
+                    </FormControl>
+
+                    <FormControl
+                      fullWidth
+                      error={
+                        !!(
+                          errors.slots?.[slotIndex]?.endTime &&
+                          touched.slots?.[slotIndex]?.endTime
+                        )
+                      }
+                    >
+                      {/* <InputLabel>End Time</InputLabel> */}
+                      <Select
+                        value={slot.endTime}
+                        onChange={(e) =>
+                          setFieldValue(
+                            `slots[${slotIndex}].endTime`,
+                            e.target.value
+                          )
+                        }
+                        label="End Time"
+                        displayEmpty
+                      >
+                        <MenuItem value="">
+                          <em>Select End Time</em>
+                        </MenuItem>
+                        {timeOptions
+                          .filter(
+                            (time) =>
+                              !values.startTime ||
+                              !values.endTime ||
+                              !slot.startTime ||
+                              (time > slot.startTime && time <= values.endTime)
+                          )
+                          .map((time) => (
+                            <MenuItem key={time} value={time}>
+                              {time}
+                            </MenuItem>
+                          ))}
+                      </Select>
+                      {errors.slots?.[slotIndex]?.endTime &&
+                        touched.slots?.[slotIndex]?.endTime && (
+                          <FormHelperText>
+                            {errors.slots[slotIndex].endTime}
+                          </FormHelperText>
+                        )}
+                    </FormControl>
+                  </Stack>
+
+                  <Divider />
+                  <Typography variant="subtitle2">Ticket Templates</Typography>
+
+                  {slot.eventTickets.map((ticket, ticketIndex) => (
+                    <Stack
+                      key={ticketIndex}
+                      direction="row"
+                      spacing={2}
+                      alignItems="center"
+                    >
+                      <FormControl
+                        fullWidth
+                        error={
+                          !!(
+                            errors.slots?.[slotIndex]?.eventTickets?.[
+                              ticketIndex
+                            ]?.ticketTemplateId &&
+                            touched.slots?.[slotIndex]?.eventTickets?.[
+                              ticketIndex
+                            ]?.ticketTemplateId
+                          )
+                        }
+                      >
+                        <InputLabel>Ticket Template</InputLabel>
+                        <Select
+                          value={ticket.ticketTemplateId}
+                          onChange={(e) =>
+                            setFieldValue(
+                              `slots[${slotIndex}].eventTickets[${ticketIndex}].ticketTemplateId`,
+                              e.target.value
+                            )
+                          }
+                          label="Ticket Template"
+                          disabled={isLoading}
+                        >
+                          {isLoading ? (
+                            <MenuItem disabled>Loading...</MenuItem>
+                          ) : (
+                              allTicketTemplate?.data ||
+                              allTicketTemplate ||
+                              []
+                            ).length === 0 ? (
+                            <MenuItem disabled>
+                              No ticket templates available
+                            </MenuItem>
+                          ) : (
+                            (
+                              allTicketTemplate?.data ||
+                              allTicketTemplate ||
+                              []
+                            )?.map((template) => (
+                              <MenuItem key={template.id} value={template.id}>
+                                {template?.ticketType?.title}
+                              </MenuItem>
+                            ))
+                          )}
+                        </Select>
+                        {errors.slots?.[slotIndex]?.eventTickets?.[ticketIndex]
+                          ?.ticketTemplateId &&
+                          touched.slots?.[slotIndex]?.eventTickets?.[
+                            ticketIndex
+                          ]?.ticketTemplateId && (
+                            <FormHelperText>
+                              {
+                                errors.slots[slotIndex].eventTickets[
+                                  ticketIndex
+                                ].ticketTemplateId
+                              }
+                            </FormHelperText>
+                          )}
+                      </FormControl>
+
+                      {slot.eventTickets.length > 1 && (
+                        <IconButton
+                          color="error"
+                          onClick={() =>
+                            removeTicketFromSlot(slotIndex, ticketIndex)
+                          }
+                          size="small"
+                        >
+                          <Remove />
+                        </IconButton>
+                      )}
+                    </Stack>
                   ))}
-                </Select>
 
-                <Select
-                  fullWidth
-                  value={slot.endTime}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val <= slot.startTime) {
-                      toast.error(
-                        "End time must be after start time"
-                      );
-                      return;
-                    }
-                    setFieldValue(`slots[${idx}].endTime`, val);
-                  }}
-                  displayEmpty
-                  disabled={
-                    !values.startTime ||
-                    !values.endTime ||
-                    !slot.startTime
-                  }
-                >
-                  <MenuItem value="">
-                    <em>Select End Time</em>
-                  </MenuItem>
-                  {getEndTimeOptions(slot.startTime).map((time) => (
-                    <MenuItem key={time} value={time}>
-                      {time}
-                    </MenuItem>
-                  ))}
-                </Select>
-
-                <TextField
-                  label="Capacity"
-                  type="number"
-                  value={slot.capacity}
-                  onChange={(e) =>
-                    setFieldValue(
-                      `slots[${idx}].capacity`,
-                      parseInt(e.target.value)
-                    )
-                  }
-                />
-
-                {idx > 0 && (
-                  <Button
-                    color="error"
-                    onClick={() => {
-                      const newSlots = [...values.slots];
-                      newSlots.splice(idx, 1);
-                      setFieldValue("slots", newSlots);
-                    }}
-                  >
-                    Remove
-                  </Button>
-                )}
-              </Stack>
+                </Stack>
+              </Box>
             ))}
 
-            <Button
-              variant="outlined"
-              onClick={() => {
-                setFieldValue("slots", [
-                  ...values.slots,
-                  { startTime: "", endTime: "", capacity: 0 },
-                ]);
-              }}
-            >
+            <Button variant="outlined" onClick={addSlot} startIcon={<Add />}>
               Add Time Slot
             </Button>
+
+            {errors.slots &&
+              touched.slots &&
+              typeof errors.slots === "string" && (
+                <Typography color="error" variant="caption">
+                  {errors.slots}
+                </Typography>
+              )}
           </Stack>
         );
 
-        return (
-          <Stack spacing={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Event Time Range: {values.startTime} - {values.endTime}
-            </Typography>
-            {values.slots.map((slot, idx) => (
-              <Stack direction="row" spacing={2} key={idx}>
-                <Select
-                  fullWidth
-                  value={slot.startTime}
-                  onChange={(e) =>
-                    setFieldValue(
-                      `slots[${idx}].startTime`,
-                      e.target.value
-                    )
-                  }
-                  displayEmpty
-                >
-                  <MenuItem value="">
-                    <em>Select Start Time</em>
-                  </MenuItem>
-                  {timeOptions
-                    .filter(
-                      (t) =>
-                        t >= values.startTime && t <= values.endTime
-                    )
-                    .map((time) => (
-                      <MenuItem key={time} value={time}>
-                        {time}
-                      </MenuItem>
-                    ))}
-                </Select>
-
-                <Select
-                  fullWidth
-                  value={slot.endTime}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val <= slot.startTime) {
-                      toast.error(
-                        "End time must be after start time"
-                      );
-                      return;
-                    }
-                    setFieldValue(`slots[${idx}].endTime`, val);
-                  }}
-                  displayEmpty
-                >
-                  <MenuItem value="">
-                    <em>Select End Time</em>
-                  </MenuItem>
-                  {timeOptions
-                    .filter(
-                      (t) =>
-                        t >= values.startTime &&
-                        t <= values.endTime &&
-                        t > slot.startTime
-                    )
-                    .map((time) => (
-                      <MenuItem key={time} value={time}>
-                        {time}
-                      </MenuItem>
-                    ))}
-                </Select>
-
-                <TextField
-                  label="Capacity"
-                  type="number"
-                  value={slot.capacity}
-                  onChange={(e) =>
-                    setFieldValue(
-                      `slots[${idx}].capacity`,
-                      parseInt(e.target.value)
-                    )
-                  }
-                />
-
-                {idx > 0 && (
-                  <Button
-                    color="error"
-                    onClick={() => {
-                      const newSlots = [...values.slots];
-                      newSlots.splice(idx, 1);
-                      setFieldValue("slots", newSlots);
-                    }}
-                  >
-                    Remove
-                  </Button>
-                )}
-              </Stack>
-            ))}
-
-            <Button
-              variant="outlined"
-              onClick={() => {
-                setFieldValue("slots", [
-                  ...values.slots,
-                  { startTime: "", endTime: "", capacity: 0 },
-                ]);
-              }}
-            >
-              Add Time Slot
-            </Button>
-          </Stack>
-        );
-        return (
-          <Stack spacing={2}>
-            <Typography variant="subtitle2" color="textSecondary">
-              Event Time Range: {values.startTime} - {values.endTime}
-            </Typography>
-            {values.slots.map((slot, idx) => (
-              <Stack direction="row" spacing={2} key={idx}>
-                <TextField
-                  label="Start Time"
-                  value={slot.startTime}
-                  onChange={(e) => {
-                    const newTime = e.target.value;
-                    if (
-                      newTime < values.startTime ||
-                      newTime > values.endTime
-                    ) {
-                      toast.error(
-                        "Slot start time must be within event time range"
-                      );
-                      return;
-                    }
-                    setFieldValue(`slots[${idx}].startTime`, newTime);
-                  }}
-                  placeholder="HH:MM:SS"
-                  error={
-                    slot.startTime < values.startTime ||
-                    slot.startTime > values.endTime
-                  }
-                  helperText={
-                    slot.startTime < values.startTime ||
-                    slot.startTime > values.endTime
-                      ? "Must be within event time range"
-                      : ""
-                  }
-                />
-                <TextField
-                  label="End Time"
-                  value={slot.endTime}
-                  onChange={(e) => {
-                    const newTime = e.target.value;
-                    if (
-                      newTime < values.startTime ||
-                      newTime > values.endTime
-                    ) {
-                      toast.error(
-                        "Slot end time must be within event time range"
-                      );
-                      return;
-                    }
-                    if (newTime <= slot.startTime) {
-                      toast.error(
-                        "End time must be after start time"
-                      );
-                      return;
-                    }
-                    setFieldValue(`slots[${idx}].endTime`, newTime);
-                  }}
-                  placeholder="HH:MM:SS"
-                  error={
-                    slot.endTime < values.startTime ||
-                    slot.endTime > values.endTime ||
-                    slot.endTime <= slot.startTime
-                  }
-                  helperText={
-                    slot.endTime < values.startTime ||
-                    slot.endTime > values.endTime
-                      ? "Must be within event time range"
-                      : slot.endTime <= slot.startTime
-                        ? "Must be after start time"
-                        : ""
-                  }
-                />
-                <TextField
-                  label="Capacity"
-                  type="number"
-                  value={slot.capacity}
-                  onChange={(e) =>
-                    setFieldValue(
-                      `slots[${idx}].capacity`,
-                      parseInt(e.target.value)
-                    )
-                  }
-                />
-                {idx > 0 && (
-                  <Button
-                    color="error"
-                    onClick={() => {
-                      const newSlots = [...values.slots];
-                      newSlots.splice(idx, 1);
-                      setFieldValue("slots", newSlots);
-                    }}
-                  >
-                    Remove
-                  </Button>
-                )}
-              </Stack>
-            ))}
-            <Button
-              variant="outlined"
-              onClick={() => {
-                setFieldValue("slots", [
-                  ...values.slots,
-                  { startTime: "", endTime: "", capacity: 0 },
-                ]);
-              }}
-            >
-              Add Time Slot
-            </Button>
-          </Stack>
-        );
       case 5:
         return (
-          <Stack spacing={2}>
-            <Select
-              multiple
-              fullWidth
-              value={values.coupons}
-              onChange={(e) =>
-                setFieldValue("coupons", e.target.value)
-              }
-              renderValue={(selected) =>
-                selected
-                  .map((id) => coupons.find((c) => c.id === id)?.code)
-                  .join(", ")
-              }
-            >
-              {coupons.map((coupon) => (
-                <MenuItem key={coupon.id} value={coupon.id}>
-                  <Checkbox
-                    checked={values.coupons.includes(coupon.id)}
-                  />
-                  <ListItemText
-                    primary={`${coupon.code} (${coupon.description})`}
-                  />
-                </MenuItem>
-              ))}
-            </Select>
-          </Stack>
-        );
-      case 6:
-        return (
-          <Stack spacing={2}>
-            <Typography>FAQ</Typography>
-            <Select
-              multiple
-              fullWidth
-              value={values.faq}
-              onChange={(e) =>
-                setFieldValue("faq", e.target.value)
-              }
-              renderValue={(selected) =>
-                selected
-                  .map((id) => faq.find((c) => c.id === id)?.question)
-                  .join(", ")
-              }
-            >
-              {faq.map((f) => (
-                <MenuItem key={f.id} value={f.id}>
-                  <Checkbox
-                    checked={values.faq.includes(f.id)}
-                  />
-                  <ListItemText
-                    primary={`${f.question}`}
-                  />
-                </MenuItem>
-              ))}
-            </Select>
-            <Typography>TnC</Typography>
-            <ReactQuill
-              value={values.tnc}
-              onChange={(val) => setFieldValue("tnc", val)}
-            />
+          <Stack spacing={3}>
+            <Typography variant="h6">Select Coupons</Typography>
+            <FormControl fullWidth>
+              <InputLabel>Coupons</InputLabel>
+              <Select
+                multiple
+                value={values.couponIds}
+                onChange={(e) => setFieldValue("couponIds", e.target.value)}
+                renderValue={(selected) =>
+                  selected
+                    .map(
+                      (id) => (coupons || [])?.find((c) => c.id === id)?.code
+                    )
+                    .filter(Boolean)
+                    .join(", ")
+                }
+                label="Coupons"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <MenuItem disabled>Loading...</MenuItem>
+                ) : (coupons || []).length === 0 ? (
+                  <MenuItem disabled>No coupons available</MenuItem>
+                ) : (
+                  (coupons || [])?.map((coupon) => (
+                    <MenuItem key={coupon.id} value={coupon.id}>
+                      <Checkbox
+                        checked={values.couponIds.includes(coupon.id)}
+                      />
+                      <ListItemText
+                        primary={`${coupon.code} - ${coupon.description}`}
+                      />
+                    </MenuItem>
+                  ))
+                )}
+              </Select>
+            </FormControl>
           </Stack>
         );
 
+      case 6:
         return (
-          <Stack spacing={2}>
-            <Select
-              multiple
-              fullWidth
-              value={values.coupons}
-              onChange={(e) =>
-                setFieldValue("coupons", e.target.value)
-              }
-              renderValue={(selected) =>
-                selected
-                  .map((id) => coupons.find((c) => c.id === id)?.code)
-                  .join(", ")
-              }
-            >
-              {coupons.map((coupon) => (
-                <MenuItem key={coupon.id} value={coupon.id}>
-                  <Checkbox
-                    checked={values.coupons.includes(coupon.id)}
+          <Stack spacing={3}>
+            <Typography variant="h6">Addon Products</Typography>
+
+            {values.addOns.map((addon, index) => (
+              <Box
+                key={index}
+                sx={{
+                  border: 1,
+                  borderColor: "divider",
+                  p: 2,
+                  borderRadius: 1,
+                }}
+              >
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <FormControl
+                    fullWidth
+                    error={
+                      !!(
+                        errors.addOns?.[index]?.productId &&
+                        touched.addOns?.[index]?.productId
+                      )
+                    }
+                  >
+                    <InputLabel>Product</InputLabel>
+                    <Select
+                      value={addon.productId}
+                      onChange={(e) =>
+                        setFieldValue(
+                          `addOns[${index}].productId`,
+                          e.target.value
+                        )
+                      }
+                      label="Product"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <MenuItem disabled>Loading...</MenuItem>
+                      ) : (allAddons || []).length === 0 ? (
+                        <MenuItem disabled>No products available</MenuItem>
+                      ) : (
+                        (allAddons || [])?.map((addon) => (
+                          <MenuItem key={addon.id} value={addon.id}>
+                            {addon.name || addon.title}
+                          </MenuItem>
+                        ))
+                      )}
+                    </Select>
+                    {errors.addOns?.[index]?.productId &&
+                      touched.addOns?.[index]?.productId && (
+                        <FormHelperText>
+                          {errors.addOns[index].productId}
+                        </FormHelperText>
+                      )}
+                  </FormControl>
+
+                  <TextField
+                    label="Quantity"
+                    type="number"
+                    value={addon.quantity}
+                    onChange={(e) =>
+                      setFieldValue(
+                        `addOns[${index}].quantity`,
+                        parseInt(e.target.value)
+                      )
+                    }
+                    error={
+                      !!(
+                        errors.addOns?.[index]?.quantity &&
+                        touched.addOns?.[index]?.quantity
+                      )
+                    }
+                    helperText={
+                      touched.addOns?.[index]?.quantity &&
+                      errors.addOns?.[index]?.quantity
+                    }
+                    inputProps={{ min: 1 }}
                   />
-                  <ListItemText
-                    primary={`${coupon.code} (${coupon.description})`}
-                  />
-                </MenuItem>
-              ))}
-            </Select>
+
+                  <IconButton color="error" onClick={() => removeAddon(index)}>
+                    <Remove />
+                  </IconButton>
+                </Stack>
+              </Box>
+            ))}
+
+            <Button variant="outlined" onClick={addAddon} startIcon={<Add />}>
+              Add Addon Product
+            </Button>
           </Stack>
         );
+
+      case 7:
         return (
-          <Stack spacing={2}>
-            <Select
-              multiple
+          <Stack spacing={3}>
+            <Typography variant="h6">FAQ & Legal Documents</Typography>
+
+            <FormControl fullWidth>
+              <InputLabel>Frequently Asked Questions</InputLabel>
+              <Select
+                multiple
+                value={values.frequentlyAskedQuestionsIds}
+                onChange={(e) =>
+                  setFieldValue("frequentlyAskedQuestionsIds", e.target.value)
+                }
+                renderValue={(selected) =>
+                  selected
+                    .map((id) => allFaq?.find((f) => f.id === id)?.question)
+                    .join(", ")
+                }
+                label="Frequently Asked Questions"
+              >
+                {allFaq?.map((f) => (
+                  <MenuItem key={f.id} value={f.id}>
+                    <Checkbox
+                      checked={values.frequentlyAskedQuestionsIds.includes(
+                        f.id
+                      )}
+                    />
+                    <ListItemText primary={f.question} />
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl
               fullWidth
-              value={values.coupons}
-              onChange={(e) =>
-                setFieldValue("coupons", e.target.value)
-              }
-              renderValue={(selected) =>
-                selected
-                  .map((id) => coupons.find((c) => c.id === id)?.code)
-                  .join(", ")
+              error={
+                !!(errors.termsAndConditionsId && touched.termsAndConditionsId)
               }
             >
-              {coupons.map((coupon) => (
-                <MenuItem key={coupon.id} value={coupon.id}>
-                  <Checkbox
-                    checked={values.coupons.includes(coupon.id)}
-                  />
-                  <ListItemText
-                    primary={`${coupon.code} (${coupon.description})`}
-                  />
-                </MenuItem>
-              ))}
-            </Select>
+              <InputLabel>Terms & Conditions</InputLabel>
+              <Select
+                name="termsAndConditionsId"
+                value={values.termsAndConditionsId}
+                onChange={(e) =>
+                  setFieldValue("termsAndConditionsId", e.target.value)
+                }
+                label="Terms & Conditions"
+              >
+                {allTnc?.map((tnc) => (
+                  <MenuItem key={tnc.id} value={tnc.id}>
+                    {tnc.content}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.termsAndConditionsId && touched.termsAndConditionsId && (
+                <FormHelperText>{errors.termsAndConditionsId}</FormHelperText>
+              )}
+            </FormControl>
+
+            <FormControl
+              fullWidth
+              error={!!(errors.privacyPolicyId && touched.privacyPolicyId)}
+            >
+              <InputLabel>Privacy Policy</InputLabel>
+              <Select
+                name="privacyPolicyId"
+                value={values.privacyPolicyId}
+                onChange={(e) =>
+                  setFieldValue("privacyPolicyId", e.target.value)
+                }
+                label="Privacy Policy"
+              >
+                {privacypolicies?.map((pp) => (
+                  <MenuItem key={pp.id} value={pp.id}>
+                    {pp.content}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.privacyPolicyId && touched.privacyPolicyId && (
+                <FormHelperText>{errors.privacyPolicyId}</FormHelperText>
+              )}
+            </FormControl>
           </Stack>
         );
+
       default:
         return null;
     }
@@ -1027,11 +1213,19 @@ export default function TeamMemberPageView({ open, handleClose }) {
 
   return (
     <div className="pt-2 pb-4">
+      <FlexBox alignItems="center">
+        <IconWrapper>
+          <GroupSenior sx={{ color: "primary.main" }} />
+        </IconWrapper>
+        <Paragraph fontSize={20} fontWeight="bold">
+          Create Event
+        </Paragraph>
+      </FlexBox>
+
       <Box p={4}>
         <Stepper activeStep={activeStep} alternativeLabel>
-          {steps.map((item) => (
-            <Step key={item}>
-              {/* <StepLabel>{item.label}</StepLabel> */}
+          {steps.map((item, index) => (
+            <Step key={index}>
               <StepLabel>
                 <Stack spacing={0.5}>
                   <Typography variant="subtitle1" fontWeight="bold">
@@ -1053,8 +1247,8 @@ export default function TeamMemberPageView({ open, handleClose }) {
             <Button disabled={activeStep === 0} onClick={handleBack}>
               Back
             </Button>
-            <Button variant="contained" type="submit">
-              {activeStep === steps.length - 1 ? "Submit" : "Next"}
+            <Button variant="contained" onClick={handleNext}>
+              {activeStep === steps.length - 1 ? "Create Event" : "Next"}
             </Button>
           </Box>
         </form>

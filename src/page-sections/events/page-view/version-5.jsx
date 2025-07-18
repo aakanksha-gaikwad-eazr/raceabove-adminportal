@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"; // MUI
-
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid2";
@@ -17,26 +16,26 @@ import styled from "@mui/material/styles/styled"; // CUSTOM COMPONENTS
 import { H6 } from "@/components/typography";
 import Scrollbar from "@/components/scrollbar";
 import { TableDataNotFound } from "@/components/table"; // CUSTOM PAGE SECTION COMPONENTS
-import SearchArea from "../SearchArea";
-import UserDetails from "../TickettypeDetails"; // CUSTOM DEFINED HOOK
-import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable"; // CUSTOM UTILS METHOD
-import { isDark } from "@/utils/constants"; // CUSTOM DUMMY DATA
-import { useDispatch, useSelector } from "react-redux";
-import { getUsers } from "../../../store/apps/user";
-import HeadingArea from "../HeadingArea";
-import { getTicketType } from "@/store/apps/tickettype";
-import { Button, Chip, Switch } from "@mui/material";
 import DeleteIcon from "@/icons/Delete";
 import EditIcon from "@/icons/Edit";
-import DeleteModal from "@/components/delete-modal";
-import toast from "react-hot-toast";
+import DeleteModal from "@/components/delete-modal/DeleteModal";
 import { useNavigate } from "react-router-dom";
+import SearchArea from "../SearchArea";
+import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable";
+import { isDark } from "@/utils/constants";
+import { useDispatch, useSelector } from "react-redux";
+import HeadingArea from "../HeadingArea";
+import toast from "react-hot-toast";
+import { Button, Chip, Switch } from "@mui/material";
+import { warning } from "@/theme/colors";
+import Eye from "@/icons/Eye";
+// import EyeOff from "@/icons/EyeOff";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { IconButton } from "@mui/material";
+import { getEvents } from "@/store/apps/events";
 import ApprovalModal from "@/components/approval-modal";
-import { Paragraph } from "@/components/typography";
-import { reviewTicketTypes } from "@/store/apps/tickettype";
-
-
-
+import { reviewEvents } from "@/store/apps/events";
 
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
   fontSize: 14,
@@ -52,7 +51,7 @@ const HeadTableCell = styled(TableCell)(({ theme }) => ({
     paddingRight: 24,
   },
 }));
-const BodyTableCell = styled(HeadTableCell)({
+const BodyTableCell = styled(HeadTableCell,)({
   fontSize: 12,
   fontWeight: 400,
   backgroundColor: "transparent",
@@ -67,32 +66,48 @@ const BodyTableRow = styled(TableRow, {
 }));
 const headCells = [
   {
-    id: "title",
+    id: "name",
     numeric: true,
     disablePadding: false,
     label: "Title",
   },
   {
-    id: "description",
+    id: "date",
     numeric: true,
     disablePadding: false,
-    label: "Description",
+    label: "Date",
   },
-
+  {
+    id: "location",
+    numeric: true,
+    disablePadding: false,
+    label: "Location",
+  },
+  {
+    id: "price",
+    numeric: true,
+    disablePadding: false,
+    label: "Price",
+  },
+  {
+    id: "timestamp",
+    numeric: true,
+    disablePadding: false,
+    label: "TimeStamp",
+  },
   {
     id: "approvalStatus",
     numeric: true,
     disablePadding: false,
     label: "Approval Status",
   },
-   {
-    id: "reviewedby",
-    numeric: false,
-    disablePadding: false,
-    label: "Reviewed By",
-  },
-
   {
+    id: "reviewedBy",
+    numeric: true,
+    disablePadding: false,
+    label: "reviewedBy",
+  },
+    {
     id: "actions",
     numeric: true,
     disablePadding: false,
@@ -100,12 +115,11 @@ const headCells = [
   },
 ];
 
-export default function TicketType2PageView() {
-  // const [users] = useState([...USER_LIST]);
+export default function EventsVersionFivePageView() {
   const [searchFilter, setSearchFilter] = useState("");
-  const [selectedTicketType, setSelectedTicketTypes] = useState();
+  const [selectedEvents, setSelectedEvents] = useState();
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
-  const [ticketTypeToReview, setTickettypeToReview] = useState(null);
+  const [eventToReview, setEventToReview] = useState(null);
 
   const {
     page,
@@ -123,10 +137,14 @@ export default function TicketType2PageView() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { tickettypes } = useSelector((state) => state.tickettype);
+  const { allEvents } = useSelector((state) => state.events);
+  console.log("allEvents", allEvents);
 
-  const filteredTicketTypes = stableSort(
-    tickettypes,
+  const EventsArray = Array.isArray(allEvents) ? allEvents : [];
+
+
+  const filteredEvents = stableSort(
+    EventsArray,
     getComparator(order, orderBy)
   ).filter((item) => {
     if (searchFilter)
@@ -135,36 +153,39 @@ export default function TicketType2PageView() {
   });
 
   useEffect(() => {
-    dispatch(getTicketType());
+    dispatch(getEvents());
   }, [dispatch]);
 
   useEffect(() => {
-    if (selectedTicketType) {
-      const updatedTicketType = tickettypes.find(
-        (tickettypes) => tickettypes.id === selectedTicketType.id
+    if (selectedEvents) {
+      const updatedEvents = EventsArray.find(
+        (event) => event.id === selectedEvents.id
       );
-      if (updatedTicketType) setSelectedTicketTypes(updatedTicketType);
+      if (updatedEvents) setSelectedEvents(updatedEvents);
     } else {
-      setSelectedTicketTypes(tickettypes[0]);
+      setSelectedEvents(EventsArray[0]);
     }
-  }, [tickettypes]);
+  }, [EventsArray]);
 
-  const handleReviewClick = (tickettype) => {
-    setTickettypeToReview(tickettype);
+  const handleReviewClick = (event) => {
+    setEventToReview(event);
     setApprovalModalOpen(true);
   };
 
   const handleApprovalCancel = () => {
     setApprovalModalOpen(false);
-    setTickettypeToReview(null);
+    setEventToReview(null);
+  };
+  const handleNavigationEventDetailsPage = (eventId) => {
+    navigate(`/events/details/${eventId}`)
   };
 
-    const handleApprovalSubmit = async (formData) => {
-      console.log("formData1223",formData)
-        if (ticketTypeToReview) {
+
+  const handleApprovalSubmit = async (formData) => {
+        if (eventToReview) {
           try {
             const reviewData = {
-              id: ticketTypeToReview.id,
+              id: eventToReview.id,
               data:{
                 approvalStatus: String(formData.approvalStatus).toLowerCase().trim(),
                 reviewReason: String(formData.reviewReason).trim(),
@@ -181,42 +202,44 @@ export default function TicketType2PageView() {
               toast.error("Review reason is required");
               return;
             }
-            const result = await dispatch(reviewTicketTypes(reviewData));
+            const result = await dispatch(reviewEvents(reviewData));
             console.log("result", result)
             if (result?.payload?.status === 200) {
-              dispatch(getTicketType());
+              dispatch(getEvents());
               
               // Show success toast based on approval status
               switch (reviewData?.data?.approvalStatus) {
                 case "approved":
-                  toast.success("Ticket Type approved successfully!");
+                  toast.success("Event are approved successfully!");
                   break;
                 case "rejected":
-                  toast.success("Ticket Type rejected successfully!");
+                  toast.success("Event are rejected successfully!");
                   break;
                 default:
-                  toast.success("Ticket Type reviewed successfully!");
+                  toast.success("Event are reviewed successfully!");
               }
               // Reset state
               setApprovalModalOpen(false);
-              setTickettypeToReview(null);
+              setEventToReview(null);
             } else {
               // Handle API error response
-              const errorMessage = result.payload?.message || result.error?.message || "Failed to review Ticket type";
+              const errorMessage = result.payload?.message || result.error?.message || "Failed to review Event";
               toast.error(errorMessage);
             }
             
           } catch (error) {
-            console.error("Error reviewing Ticket Type:", error);
-            const errorMessage = error.response?.data?.message || error.message || "Failed to review Ticket type. Please try again.";
+            console.error("Error reviewing Event:", error);
+            const errorMessage = error.response?.data?.message || error.message || "Failed to review Event. Please try again.";
             toast.error(errorMessage);
           }
         }
       };
 
+
   return (
     <div className="pt-2 pb-4">
       <HeadingArea />
+
       <Grid container>
         <Grid
           size={{
@@ -236,8 +259,8 @@ export default function TicketType2PageView() {
               <SearchArea
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
-                gridRoute="/ticket-type-grid"
-                listRoute="/ticket-type-list-2"
+                // gridRoute="/events/event-grid"
+                listRoute="/events/event-list"
               />
             </Box>
 
@@ -251,6 +274,7 @@ export default function TicketType2PageView() {
                       {headCells.map((headCell) => (
                         <HeadTableCell
                           key={headCell.id}
+                          align="center"
                           padding={headCell.disablePadding ? "none" : "normal"}
                           sortDirection={
                             orderBy === headCell.id ? order : false
@@ -270,78 +294,112 @@ export default function TicketType2PageView() {
 
                   {/* TABLE BODY AND DATA */}
                   <TableBody>
-                    {filteredTicketTypes
+                    {filteredEvents
                       .slice(
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
-                      ).filter(tickettype=>tickettype.deletedAt === null)
-                      .map((tickettype) => (
+                      )
+                      .map((events) => (
                         <BodyTableRow
-                          key={tickettype.id}
-                          active={
-                            selectedTicketType?.id === tickettype.id ? 1 : 0
-                          }
-                          onClick={() => setSelectedTicketTypes(tickettype)}
+                          key={events.id}
+                          // active={selectedEvents?.id === events.id ? 1 : 0}
+                          // onClick={() => setSelectedEvents(events)}
+                          onClick={()=>handleNavigationEventDetailsPage(events?.id)}
                         >
-                          <BodyTableCell>
+                          <BodyTableCell align="center">
                             <Stack
                               direction="row"
                               alignItems="center"
                               spacing={1}
                             >
+                              <Avatar
+                                src={events.banner}
+                                sx={{
+                                  borderRadius: "20%",
+                                  backgroundColor: "grey.100",
+                                }}
+                              />
                               <H6 fontSize={12} color="text.primary">
-                                {tickettype.title ?? "N/A"}
+                                {events.title ?? "N/A"}
                               </H6>
                             </Stack>
                           </BodyTableCell>
-                          <BodyTableCell>
-                            {tickettype.description ?? "N/A"}
+                          <BodyTableCell align="center">
+                            <H6 fontSize={12} color="text.primary">
+                              {events.date ?? "N/A"}
+                            </H6>
                           </BodyTableCell>
-                          <BodyTableCell>
-                            <Chip
+                          <BodyTableCell align="center">
+                            {events?.location?.address}
+                            {/* <Chip
                               label={
-                                tickettype.approvalStatus
-                                  ? tickettype.approvalStatus
+                                events.discountType
+                                  ? events.discountType
                                       .charAt(0)
                                       .toUpperCase() +
-                                    tickettype.approvalStatus.slice(1)
+                                    events.discountType.slice(1)
                                   : "N/A"
                               }
-                            color={
-                                  tickettype.approvalStatus === "approved"
-                                    ? "success"
-                                    : tickettype.approvalStatus === "pending"
+                              color={
+                                events.discountType === "percentage"
+                                  ? "primary"
+                                  : "primary"
+                              }
+                              variant="outlined"
+                              size="small"
+                            /> */}
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            ₹ {Math.floor(events.price)}
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            <div>
+                              <div> Start: {events.startTime}</div>
+                              <div> End: {events.endTime}</div>
+                            </div>
+                          </BodyTableCell>
+                          <BodyTableCell alignItems="center">
+                            {/* {addoncatgory.approvalStatus ?? "N/A"} */}
+                            <Chip
+                              label={
+                                events.approvalStatus
+                                  ? events.approvalStatus
+                                      .charAt(0)
+                                      .toUpperCase() +
+                                    events.approvalStatus.slice(1)
+                                  : "N/A"
+                              }
+                              color={
+                                events.approvalStatus === "approved"
+                                  ? "success"
+                                  : events.approvalStatus === "pending"
                                     ? "warning"
-                                    : tickettype.approvalStatus === "rejected"
-                                    ? "error"
-                                    : "default"
-                                }
+                                    : events.approvalStatus === "rejected"
+                                      ? "error"
+                                      : "default"
+                              }
                               variant="outlined"
                               size="small"
                             />
                           </BodyTableCell>
-                       <BodyTableCell align="center">
-                                                 <Paragraph>{tickettype?.reviewedBy ?? "N/A"}</Paragraph>
-                                             </BodyTableCell>
+                          <BodyTableCell>{events?.reviewedBy}</BodyTableCell>
                           <BodyTableCell>
-                               <Button
-                                                              size="small"
-                                                              variant="outlined"
-                                                              disabled={tickettype.approvalStatus === "approved" || tickettype.approvalStatus === "rejected"}
-                                                              onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleReviewClick(tickettype);
-                                                              }}
-                                                            >
-                                                              Review
-                                                            </Button>
-                          </BodyTableCell>
-
-                        
+                                                      <Button
+                                                            size="small"
+                                                            variant="outlined"
+                                                            disabled={events.approvalStatus === "approved" || events.approvalStatus === "rejected"}
+                                                            onClick={(e) => {
+                                                              e.stopPropagation();
+                                                              handleReviewClick(events);
+                                                            }}
+                                                          >
+                                                            Review
+                                                          </Button>
+                                                    </BodyTableCell>
                         </BodyTableRow>
                       ))}
 
-                    {filteredTicketTypes.length === 0 && <TableDataNotFound />}
+                    {filteredEvents.length === 0 && <TableDataNotFound />}
                   </TableBody>
                 </Table>
               </Scrollbar>
@@ -352,7 +410,7 @@ export default function TicketType2PageView() {
               page={page}
               component="div"
               rowsPerPage={rowsPerPage}
-              count={filteredTicketTypes.length}
+              count={filteredEvents.length}
               onPageChange={handleChangePage}
               rowsPerPageOptions={[5, 10, 25]}
               onRowsPerPageChange={handleChangeRowsPerPage}
@@ -360,15 +418,15 @@ export default function TicketType2PageView() {
           </Card>
         </Grid>
       </Grid>
-       {/* APPROVAL MODAL */}
+     {/* APPROVAL MODAL */}
       <ApprovalModal
         open={approvalModalOpen}
         handleClose={handleApprovalCancel}
-        title="Review Ticket Types"
+        title="Review Event"
         onSubmit={handleApprovalSubmit}
         initialData={{
-          approvalStatus: ticketTypeToReview?.approvalStatus || "",
-          reviewReason: ticketTypeToReview?.reviewReason || ""
+          approvalStatus: eventToReview?.approvalStatus || "",
+          reviewReason: eventToReview?.reviewReason || ""
         }}
       />
     </div>

@@ -49,20 +49,20 @@ export default function MoreEventButtontwo({
     }
   }
 
-  const handleDelete = () => {
+  // const handleDelete = () => {
     
-    dispatch(deleteEvents(eventsId))
-      .then((response) => {
-        if (response?.payload?.status === 200) {
-          dispatch(getEvents());
-          toast.success("Successfully deleted");
-        } else {
-          toast.error("Error while deleting");
-        }
-      })
-      .catch((error) => console.error("Error deleting event:", error))
-      .finally(() => setOpenDeleteModal(false));
-  };
+  //   dispatch(deleteEvents(eventsId))
+  //     .then((response) => {
+  //       if (response?.payload?.status === 200) {
+  //         dispatch(getEvents());
+  //         toast.success("Successfully deleted");
+  //       } else {
+  //         toast.error("Error while deleting");
+  //       }
+  //     })
+  //     .catch((error) => console.error("Error deleting event:", error))
+  //     .finally(() => setOpenDeleteModal(false));
+  // };
 
   return (
     <div>

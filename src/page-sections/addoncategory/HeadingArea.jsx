@@ -9,9 +9,8 @@ import styled from '@mui/material/styles/styled'; // CUSTOM COMPONENTS
 import IconWrapper from '@/components/icon-wrapper';
 import { Paragraph } from '@/components/typography';
 import { FlexBetween, FlexBox } from '@/components/flexbox'; // CUSTOM ICON COMPONENTS
+import StorefrontIcon from '@mui/icons-material/Storefront';
 
-import GroupSenior from '@/icons/GroupSenior';
-import Add from '@/icons/Add'; // STYLED COMPONENT
 
 const TabListWrapper = styled(TabList)(({
   theme
@@ -31,7 +30,7 @@ export default function HeadingArea({
   return <FlexBetween flexWrap="wrap" gap={1} mb={"2rem"}>
       <FlexBox alignItems="center">
         <IconWrapper>
-          <GroupSenior sx={{
+          <StorefrontIcon sx={{
           color: 'primary.main'
         }} />
         </IconWrapper>

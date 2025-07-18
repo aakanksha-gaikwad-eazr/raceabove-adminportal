@@ -23,7 +23,7 @@ import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable"; //
 import { isDark } from "@/utils/constants"; // CUSTOM DUMMY DATA
 import { useDispatch, useSelector } from "react-redux";
 import { getUsers } from "../../../store/apps/user";
-import HeadingAreaCoupon from "../HeadingAreaCoupon";
+import HeadingArea from "../HeadingArea";
 import { Button, Chip, Switch } from "@mui/material";
 import DeleteIcon from "@/icons/Delete";
 import EditIcon from "@/icons/Edit";
@@ -226,7 +226,7 @@ export default function TicketTemplate2PageView() {
 
   return (
     <div className="pt-2 pb-4">
-      <HeadingAreaCoupon />
+      <HeadingArea />
       <Grid container>
         <Grid
           size={{

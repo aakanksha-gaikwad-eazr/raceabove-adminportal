@@ -11,7 +11,10 @@ import { Paragraph } from '@/components/typography';
 import { FlexBetween, FlexBox } from '@/components/flexbox'; // CUSTOM ICON COMPONENTS
 
 import GroupSenior from '@/icons/GroupSenior';
-import Add from '@/icons/Add'; // STYLED COMPONENT
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+
+
+
 
 const TabListWrapper = styled(TabList)(({
   theme
@@ -23,7 +26,7 @@ const TabListWrapper = styled(TabList)(({
 })); // ===================================================================
 
 // ===================================================================
-export default function HeadingAreaCoupon({
+export default function HeadingArea({
   value,
   changeTab
 }) {
@@ -32,7 +35,7 @@ export default function HeadingAreaCoupon({
     <FlexBetween flexWrap="wrap" gap={1} mb={"2rem"}>
       <FlexBox alignItems="center">
         <IconWrapper>
-          <GroupSenior
+          <ConfirmationNumberIcon
             sx={{
               color: "primary.main",
             }}
@@ -40,7 +43,7 @@ export default function HeadingAreaCoupon({
         </IconWrapper>
 
         <Paragraph fontSize={20} fontWeight="bold">
-          Ticket Type
+          Ticket Templates
         </Paragraph>
       </FlexBox>
 
@@ -57,9 +60,9 @@ export default function HeadingAreaCoupon({
       {/* <Button
         variant="contained"
         startIcon={<Add />}
-        onClick={() => navigate("/add-ticket-type")}
+        onClick={() => navigate("/add-ticket-template")}
       >
-        Add Ticket Type
+        Add Ticket Templates
       </Button> */}
     </FlexBetween>
   );

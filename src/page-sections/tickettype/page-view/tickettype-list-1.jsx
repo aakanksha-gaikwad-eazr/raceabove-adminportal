@@ -11,7 +11,7 @@ import Scrollbar from '@/components/scrollbar';
 import { TableDataNotFound, TableToolbar } from '@/components/table'; // CUSTOM PAGE SECTION COMPONENTS
 
 import SearchArea from '../SearchArea';
-import HeadingArea from '../HeadingAreaCoupon';
+import HeadingArea from '../HeadingArea';
 import UserTableRow from '../TicketTypeTableRow';
 import UserTableHead from '../TicketTypeTableHead'; // CUSTOM DEFINED HOOK
 

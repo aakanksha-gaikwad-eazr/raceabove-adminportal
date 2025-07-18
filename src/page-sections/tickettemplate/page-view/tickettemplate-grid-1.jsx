@@ -9,7 +9,7 @@ import IconButton from "@mui/material/IconButton";
 import Pagination from "@mui/material/Pagination"; // CUSTOM COMPONENTS
 import { FlexBetween } from "@/components/flexbox";
 import { Paragraph, Small } from "@/components/typography"; // CUSTOM PAGE SECTION COMPONENTS
-import HeadingAreaCoupon from "../HeadingAreaCoupon"; // CUSTOM ICON COMPONENTS
+import HeadingArea from "../HeadingArea"; // CUSTOM ICON COMPONENTS
 import { paginate } from "@/utils/paginate"; // CUSTOM DUMMY DATA
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
@@ -86,7 +86,7 @@ export default function TicketTemplateGrid1PageView() {
 
   return (
     <div className="pt-2 pb-4">
-      <HeadingAreaCoupon value={ticketemplateFilter.role} />
+      <HeadingArea value={ticketemplateFilter.role} />
       <Card
         sx={{
           px: 3,

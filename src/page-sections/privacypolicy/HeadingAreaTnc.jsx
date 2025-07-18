@@ -9,8 +9,7 @@ import styled from '@mui/material/styles/styled'; // CUSTOM COMPONENTS
 import IconWrapper from '@/components/icon-wrapper';
 import { Paragraph } from '@/components/typography';
 import { FlexBetween, FlexBox } from '@/components/flexbox'; // CUSTOM ICON COMPONENTS
-
-import GroupSenior from '@/icons/GroupSenior';
+import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
 import Add from '@/icons/Add'; // STYLED COMPONENT
 
 const TabListWrapper = styled(TabList)(({
@@ -32,7 +31,7 @@ export default function HeadingAreaTnc({
     <FlexBetween flexWrap="wrap" gap={1} mb={"2rem"}>
       <FlexBox alignItems="center">
         <IconWrapper>
-          <GroupSenior
+          <PrivacyTipIcon
             sx={{
               color: "primary.main",
             }}

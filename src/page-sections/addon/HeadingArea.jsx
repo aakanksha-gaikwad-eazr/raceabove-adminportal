@@ -11,7 +11,7 @@ import { Paragraph } from '@/components/typography';
 import { FlexBetween, FlexBox } from '@/components/flexbox'; // CUSTOM ICON COMPONENTS
 
 import GroupSenior from '@/icons/GroupSenior';
-import Add from '@/icons/Add'; // STYLED COMPONENT
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 
 const TabListWrapper = styled(TabList)(({
   theme
@@ -31,7 +31,7 @@ export default function HeadingArea({
   return <FlexBetween flexWrap="wrap" gap={1} mb={"2rem"}>
       <FlexBox alignItems="center">
         <IconWrapper>
-          <GroupSenior sx={{
+          <ShoppingBagIcon sx={{
           color: 'primary.main'
         }} />
         </IconWrapper>

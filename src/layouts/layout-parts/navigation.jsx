@@ -34,7 +34,7 @@ export const navigations = [
   {
     name: "Events",
     icon: duotone.Calender,
-    path: "/events/version-3",
+    path: "/events/event-list",
   },
     {
     name: "Challenges",

@@ -10,8 +10,7 @@ import IconWrapper from '@/components/icon-wrapper';
 import { Paragraph } from '@/components/typography';
 import { FlexBetween, FlexBox } from '@/components/flexbox'; // CUSTOM ICON COMPONENTS
 
-import GroupSenior from '@/icons/GroupSenior';
-import Add from '@/icons/Add'; // STYLED COMPONENT
+import EventIcon from '@mui/icons-material/Event';
 
 const TabListWrapper = styled(TabList)(({
   theme
@@ -32,7 +31,7 @@ export default function HeadingAreaCoupon({
     <FlexBetween flexWrap="wrap" gap={1} mb={"2rem"}>
       <FlexBox alignItems="center">
         <IconWrapper>
-          <GroupSenior
+          <EventIcon
             sx={{
               color: "primary.main",
             }}
@@ -40,27 +39,18 @@ export default function HeadingAreaCoupon({
         </IconWrapper>
 
         <Paragraph fontSize={20} fontWeight="bold">
-          Ticket Templates
+          Events
         </Paragraph>
+
       </FlexBox>
 
-      {/* <TabContext value={value}>
-        <TabListWrapper variant="scrollable" onChange={changeTab}>
-          <Tab disableRipple label="All Users" value="" />
-          <Tab disableRipple label="Editor" value="editor" />
-          <Tab disableRipple label="Contributor" value="contributor" />
-          <Tab disableRipple label="Administrator" value="administrator" />
-          <Tab disableRipple label="Subscriber" value="subscriber" />
-        </TabListWrapper>
-      </TabContext> */}
-
-      {/* <Button
-        variant="contained"
-        startIcon={<Add />}
-        onClick={() => navigate("/add-ticket-template")}
-      >
-        Add Ticket Templates
-      </Button> */}
+    {/* <Button
+          variant="contained"
+          startIcon={<Add />}
+          onClick={() => navigate("/events/team-member")}
+        >
+          Create Event
+        </Button> */}
     </FlexBetween>
   );
 }

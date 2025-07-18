@@ -1,17 +1,19 @@
-import { useNavigate } from 'react-router-dom'; // MUI
+import { useNavigate } from 'react-router-dom'; 
 
 import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
 import TabList from '@mui/lab/TabList';
 import TabContext from '@mui/lab/TabContext';
-import styled from '@mui/material/styles/styled'; // CUSTOM COMPONENTS
+import styled from '@mui/material/styles/styled'; 
 
 import IconWrapper from '@/components/icon-wrapper';
 import { Paragraph } from '@/components/typography';
-import { FlexBetween, FlexBox } from '@/components/flexbox'; // CUSTOM ICON COMPONENTS
+import { FlexBetween, FlexBox } from '@/components/flexbox';
 
-import GroupSenior from '@/icons/GroupSenior';
-import Add from '@/icons/Add'; // STYLED COMPONENT
+import Add from '@/icons/Add'; 
+import SportsBaseballIcon from '@mui/icons-material/SportsBaseball';
+
+
 
 const TabListWrapper = styled(TabList)(({
   theme
@@ -31,7 +33,7 @@ export default function HeadingArea({
     <FlexBetween flexWrap="wrap" gap={1}>
       <FlexBox alignItems="center">
         <IconWrapper>
-          <GroupSenior
+          <SportsBaseballIcon
             sx={{
               color: "primary.main",
             }}

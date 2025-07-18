@@ -89,10 +89,6 @@ const OrganiserListView2 = Loadable(
 const OrganiserGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/organizers/organizers-grid-2"))
 );
-const OrganiserDetails = Loadable(
-  lazy(() => import("@/pages/dashboard/organizers/details"))
-);
-
 
 // coupons
 const AddNewCoupons = Loadable(
@@ -114,7 +110,6 @@ const CouponsGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/coupons/coupons-grid-2"))
 );
 
-
 // Tnc
 const AddNewTnc = Loadable(
   lazy(() => import("@/pages/dashboard/tnc/add-new-tnc"))
@@ -133,6 +128,38 @@ const TncListView2 = Loadable(
 );
 const TncGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/tnc/tnc-grid-2"))
+);
+
+// Faq
+const AddNewFaq = Loadable(
+  lazy(() => import("@/pages/dashboard/faqsection/add-new-faq"))
+);
+const EditFaq = Loadable(
+  lazy(() => import("@/pages/dashboard/faqsection/edit-faq"))
+);
+
+const FaqListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/faqsection/faq-list-2"))
+);
+
+// privacy policy
+const AddNewPrivacyPolicy = Loadable(
+  lazy(() => import("@/pages/dashboard/privacypolicy/add-new-privacypolicy"))
+);
+const EditPrivacyPolicy = Loadable(
+  lazy(() => import("@/pages/dashboard/privacypolicy/edit-privacypolicy"))
+);
+const PrivacyPolicyListView = Loadable(
+  lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy-list-1"))
+);
+const PrivacyPolicyGridView = Loadable(
+  lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy-grid-1"))
+);
+const PrivacyPolicyListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy-list-2"))
+);
+const PrivacyPolicyGridView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy-grid-2"))
 );
 
 
@@ -176,6 +203,47 @@ const TicketTemplateListView2 = Loadable(
 );
 const TicketTemplateGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/tickettemplate/tickettemplate-grid-2"))
+);
+
+
+
+// add on categoy
+const AddNewAddonCategory = Loadable(
+  lazy(() => import("@/pages/dashboard/addoncategory/add-new-addonscategory"))
+);
+const EditAddonCategory = Loadable(
+  lazy(() => import("@/pages/dashboard/addoncategory/edit-addonscategory"))
+);
+const AddonCategoryListView = Loadable(
+  lazy(() => import("@/pages/dashboard/addoncategory/addonscategory-list-1"))
+);
+const AddonCategoryGridView = Loadable(
+  lazy(() => import("@/pages/dashboard/addoncategory/addoncategory-grid-1"))
+);
+const AddonCategoryListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/addoncategory/addoncategory-list-2"))
+);
+const AddonCategoryGridView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/addoncategory/addoncategory-grid-2"))
+);
+// add ons
+const AddNewAddon = Loadable(
+  lazy(() => import("@/pages/dashboard/addon/add-new-addon"))
+);
+const EditAddon = Loadable(
+  lazy(() => import("@/pages/dashboard/addon/edit-addon"))
+);
+const AddonListView = Loadable(
+  lazy(() => import("@/pages/dashboard/addon/addon-list-1"))
+);
+const AddonGridView = Loadable(
+  lazy(() => import("@/pages/dashboard/addon/addon-grid-1"))
+);
+const AddonListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/addon/addon-list-2"))
+);
+const AddonGridView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/addon/addon-grid-2"))
 );
 
 // sports
@@ -302,30 +370,20 @@ const Support = Loadable(
 const CreateTicket = Loadable(
   lazy(() => import("@/pages/dashboard/support/create-ticket"))
 );
+// FAQ section PAGE
+
+// const FAQSection = Loadable(
+//   lazy(() => import("@/pages/dashboard/faqsection/faq"))
+// );
+// const CreateFaq = Loadable(
+//   lazy(() => import("@/pages/dashboard/faqsection/create-faq"))
+// ); 
+// const EditFaq = Loadable(
+//   lazy(() => import("@/pages/dashboard/faqsection/edit-faq"))
+// ); 
 
 
-
-// privacy policy
-const AddNewPrivacyPolicy = Loadable(
-  lazy(() => import("@/pages/dashboard/privacypolicy/add-new-privacypolicy"))
-);
-const EditPrivacyPolicy = Loadable(
-  lazy(() => import("@/pages/dashboard/privacypolicy/edit-privacypolicy"))
-);
-const PrivacyPolicyListView = Loadable(
-  lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy-list-1"))
-);
-const PrivacyPolicyGridView = Loadable(
-  lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy-grid-1"))
-);
-const PrivacyPolicyListView2 = Loadable(
-  lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy-list-2"))
-);
-const PrivacyPolicyGridView2 = Loadable(
-  lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy-grid-2"))
-);
 // CHAT PAGE
-
 const Chat = Loadable(lazy(() => import("@/pages/dashboard/chat"))); // USER TODO LIST PAGE
 
 const TodoList = Loadable(lazy(() => import("@/pages/dashboard/todo-list"))); // MAIL RELATED PAGES
@@ -361,14 +419,12 @@ const AddChallenge = Loadable(
   lazy(() => import("@/pages/dashboard/challenge/add-challenge"))
 );
 
-const EventsV1 = Loadable(
-  lazy(() => import("@/pages/dashboard/events/version-1"))
+//events
+const EventsV4 = Loadable(
+  lazy(() => import("@/pages/dashboard/events/version-4"))
 );
-const EventsV2 = Loadable(
-  lazy(() => import("@/pages/dashboard/events/version-2"))
-);
-const EventsV3 = Loadable(
-  lazy(() => import("@/pages/dashboard/events/version-3"))
+const EventsV5 = Loadable(
+  lazy(() => import("@/pages/dashboard/events/version-5"))
 );
 const EventsDetails = Loadable(
   lazy(() => import("@/pages/dashboard/events/details"))
@@ -380,66 +436,8 @@ const EditEvents = Loadable(
   lazy(() => import("@/pages/dashboard/events/edit-event"))
 );
 
-// Faq
-const AddNewFaq = Loadable(
-  lazy(() => import("@/pages/dashboard/faqsection/add-new-faq"))
-);
-const EditFaq = Loadable(
-  lazy(() => import("@/pages/dashboard/faqsection/edit-faq"))
-);
-const FaqListView = Loadable(
-  lazy(() => import("@/pages/dashboard/faqsection/faq-list-1"))
-);
-const FaqGridView = Loadable(
-  lazy(() => import("@/pages/dashboard/faqsection/faq-grid-1"))
-);
-const FaqListView2 = Loadable(
-  lazy(() => import("@/pages/dashboard/faqsection/faq-list-2"))
-);
-const FaqGridView2 = Loadable(
-  lazy(() => import("@/pages/dashboard/faqsection/faq-grid-2"))
-);
 
-// add on categoy
-const AddNewAddonCategory = Loadable(
-  lazy(() => import("@/pages/dashboard/addoncategory/add-new-addonscategory"))
-);
-const EditAddonCategory = Loadable(
-  lazy(() => import("@/pages/dashboard/addoncategory/edit-addonscategory"))
-);
-const AddonCategoryListView = Loadable(
-  lazy(() => import("@/pages/dashboard/addoncategory/addonscategory-list-1"))
-);
-const AddonCategoryGridView = Loadable(
-  lazy(() => import("@/pages/dashboard/addoncategory/addoncategory-grid-1"))
-);
-const AddonCategoryListView2 = Loadable(
-  lazy(() => import("@/pages/dashboard/addoncategory/addoncategory-list-2"))
-);
-const AddonCategoryGridView2 = Loadable(
-  lazy(() => import("@/pages/dashboard/addoncategory/addoncategory-grid-2"))
-);
-// add ons
-const AddNewAddon = Loadable(
-  lazy(() => import("@/pages/dashboard/addon/add-new-addon"))
-);
-const EditAddon = Loadable(
-  lazy(() => import("@/pages/dashboard/addon/edit-addon"))
-);
-const AddonListView = Loadable(
-  lazy(() => import("@/pages/dashboard/addon/addon-list-1"))
-);
-const AddonGridView = Loadable(
-  lazy(() => import("@/pages/dashboard/addon/addon-grid-1"))
-);
-const AddonListView2 = Loadable(
-  lazy(() => import("@/pages/dashboard/addon/addon-list-2"))
-);
-const AddonGridView2 = Loadable(
-  lazy(() => import("@/pages/dashboard/addon/addon-grid-2"))
-);
 
-//bookings
 const BookingsV1 = Loadable(
   lazy(() => import("@/pages/dashboard/bookings/version-1"))
 );
@@ -534,7 +532,7 @@ export const DashboardRoutes = [
         element: <AddNewUser />,
       },
       {
-        path: "edit-user/:id",
+        path: "edit-user",
         element: <EditUser />,
       },
       {
@@ -554,7 +552,7 @@ export const DashboardRoutes = [
         element: <UserGridView2 />,
       },
       {
-        path: "user-details/:id",
+        path: "user-details",
         element: <UserDetails />,
       },
 
@@ -610,12 +608,8 @@ export const DashboardRoutes = [
       {
         path: "organiser-grid-2",
         element: <OrganiserGridView2 />,
-      }, 
-      {
-        path: "organiser-details/:id",
-        element: <OrganiserDetails />,
       },
-
+// coupons
       {
         path: "add-coupons",
         element: <AddNewCoupons />,
@@ -640,7 +634,50 @@ export const DashboardRoutes = [
       {
         path: "coupons-grid-2",
         element: <CouponsGridView2 />,
-      }, 
+      },
+
+// tnc
+      {
+        path: "add-tnc",
+        element: <AddNewTnc />,
+      },
+      {
+        path: "edit-tnc/:id",
+        element: <EditTnc />,
+      },
+
+      {
+        path: "tnc-list",
+        element: <TncListView />,
+      },
+      {
+        path: "tnc-grid",
+        element: <TncGridView />,
+      },
+      {
+        path: "tnc-list-2",
+        element: <TncListView2 />,
+      },
+      {
+        path: "tnc-grid-2",
+        element: <TncGridView2 />,
+      },
+
+// faq
+      {
+        path: "add-faq",
+        element: <AddNewFaq />,
+      },
+      {
+        path: "edit-faq/:id",
+        element: <EditFaq />,
+      },
+      {
+        path: "faq-list-2",
+        element: <FaqListView2 />,
+      },
+
+
 // privacypolicy
       {
         path: "add-privacy-policy",
@@ -666,35 +703,6 @@ export const DashboardRoutes = [
       {
         path: "privacy-policy-grid-2",
         element: <PrivacyPolicyGridView2 />,
-      },
-
-
-
-      // tnc
-      {
-        path: "add-tnc",
-        element: <AddNewTnc />,
-      },
-      {
-        path: "edit-tnc/:id",
-        element: <EditTnc />,
-      },
-
-      {
-        path: "tnc-list",
-        element: <TncListView />,
-      },
-      {
-        path: "tnc-grid",
-        element: <TncGridView />,
-      },
-      {
-        path: "tnc-list-2",
-        element: <TncListView2 />,
-      },
-      {
-        path: "tnc-grid-2",
-        element: <TncGridView2 />,
       },
 
       // ticket type
@@ -748,7 +756,7 @@ export const DashboardRoutes = [
         path: "ticket-template-grid-2",
         element: <TicketTemplateGridView2 />,
       },
-       
+      
 // addon category
       {
         path: "add-addoncategory",
@@ -793,12 +801,6 @@ export const DashboardRoutes = [
         path: "addon-list-2",
         element: <AddonListView2 />,
       },
-      // sports
-      {
-        path: "add-sports",
-        element: <AddNewSports />,
-      },
-     
       {
         path: "add-sports",
         element: <AddNewSports />,
@@ -860,35 +862,6 @@ export const DashboardRoutes = [
         path: "gears-grid-2",
         element: <GearsGridView2 />,
       },
-
-      
-// faq
-      {
-        path: "add-faq",
-        element: <AddNewFaq />,
-      },
-      {
-        path: "edit-faq/:id",
-        element: <EditFaq />,
-      },
-
-      {
-        path: "faq-list",
-        element: <FaqListView />,
-      },
-      {
-        path: "faq-grid",
-        element: <FaqGridView />,
-      },
-      {
-        path: "faq-list-2",
-        element: <FaqListView2 />,
-      },
-      {
-        path: "faq-grid-2",
-        element: <FaqGridView2 />,
-      },
-
 
       {
         path: "account",
@@ -1048,20 +1021,17 @@ export const DashboardRoutes = [
       {
         path: "events",
         children: [
+
           {
-            path: "version-1",
-            element: <EventsV1 />,
+            path: "event-list",
+            element: <EventsV5 />,
           },
           {
-            path: "version-2",
-            element: <EventsV2 />,
+            path: "event-grid",
+            element: <EventsV4 />,
           },
-          {
-            path: "version-3",
-            element: <EventsV3 />,
-          },
-          {
-            path: "details",
+          { 
+            path: "details/:id",
             element: <EventsDetails />,
           },
           {
@@ -1108,7 +1078,6 @@ export const DashboardRoutes = [
           },
         ],
       },
-    
 
     ],
   },

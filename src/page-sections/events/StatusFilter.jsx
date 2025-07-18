@@ -2,28 +2,30 @@ import Tab from "@mui/material/Tab";
 import Card from "@mui/material/Card";
 import TabList from "@mui/lab/TabList";
 import TabContext from "@mui/lab/TabContext";
-import styled from "@mui/material/styles/styled"; // CUSTOM COMPONENTS
+import styled from "@mui/material/styles/styled";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Box, IconButton } from "@mui/material";
+import Apps from "@mui/icons-material/Apps"; // Added missing import
 
-import { H6, Paragraph } from "@/components/typography"; // CUSTOM DATA
-
+// CUSTOM COMPONENTS
+import { H6, Paragraph } from "@/components/typography";
 import GroupSenior from "@/icons/GroupSenior";
-
 import IconWrapper from "@/components/icon-wrapper";
-import { FlexBetween, FlexBox } from "@/components/flexbox"; // CUSTOM ICON COMPONENTS
-
-import SearchInput from "@/components/search-input"; // STYLED COMPONENTS
-import { useNavigate } from "react-router-dom";
-import { Button } from "@mui/material";
+import { FlexBetween, FlexBox } from "@/components/flexbox";
+import SearchInput from "@/components/search-input";
 import Add from "@/icons/Add";
+import FormatBullets from "@/icons/FormatBullets";
+import { useCallback, useMemo } from "react";
 
+// STYLED COMPONENTS
 const StyledRoot = styled(Card)({
-  paddingTop: "1.5rem",
+  paddingTop: "1rem",
   paddingInline: "2rem",
   marginBottom: "1rem",
   "& .MuiTabs-root": {
     borderBottom: "none",
   },
-}); // ==============================================================
+});
 
 const SearchAction = styled("div")(({ theme }) => ({
   gap: 8,
@@ -42,69 +44,68 @@ const SearchAction = styled("div")(({ theme }) => ({
 export default function StatusFilter({
   value,
   handleChange,
-  events,
-  datewisefilter,
+ tabCounts,
+  gridRoute,
+  listRoute,
 }) {
-  const { pastEvents, upcomingEvents, all } = events
-    ? datewisefilter(events)
-    : { pastEvents: [], upcomingEvents: [], all: [] };
-  const tabOptions = [
-    { title: "All Events", value: "all", amount: all.length },
-    {
-      title: "Active Events",
-      value: "upcoming",
-      amount: upcomingEvents.length,
-    },
-    {
-      title: "Past Events",
-      value: "expired",
-      amount: pastEvents.length,
-    },
-  ];
-
+  // Move hooks inside the component
+  const { pathname } = useLocation();
   const navigate = useNavigate();
+
+  const activeColor = useCallback((path) =>    
+    pathname === path ? "primary.main" : "grey.400",[pathname])
+    
+  const tabOptions = useMemo(()=>[
+    { title: "All Events", value: "all", amount: tabCounts.all },
+    { title: "Upcoming Events", value: "upcoming", amount: tabCounts.all },
+    { title: "Past Events", value: "past", amount: tabCounts.past },
+    { title: "Active Events", value: "active", amount: tabCounts.active },
+    { title: "Inactive Events", value: "inactive", amount: tabCounts.inactive },
+
+  ],[tabCounts])
+
+ const handleListNavigation = useCallback(() => {
+    navigate(listRoute);
+  }, [navigate, listRoute]);
+
+  const handleGridNavigation = useCallback(() => {
+    navigate(gridRoute);
+  }, [navigate, gridRoute]);
 
   return (
     <StyledRoot>
+
       <FlexBetween
         flexWrap="wrap"
         gap={1}
-        style={{ marginBottom: "6px" }}
+         sx={{ width: "100%" }}
       >
-        <FlexBox alignItems="center">
-          <IconWrapper>
-            <GroupSenior
-              sx={{
-                color: "primary.main",
-              }}
-            />
-          </IconWrapper>
+        <SearchAction >
+          <SearchInput
+            placeholder="Find Events"
+            onChange={(e) => handleChange("searchValue",e.target.value)}
+          />
+        </SearchAction>
 
-          <Paragraph fontSize={20} fontWeight="bold">
-            Event
-          </Paragraph>
-        </FlexBox>
-{/* 
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={() => navigate("/events/team-member")}
-        >
-          Create Event
-        </Button> */}
+        <Box flexShrink={0} className="actions">
+          <IconButton onClick={handleListNavigation}>
+            <FormatBullets sx={{
+              color: activeColor(listRoute)
+            }} />
+          </IconButton>
+
+          <IconButton onClick={handleGridNavigation}>
+            <Apps sx={{
+              color: activeColor(gridRoute)
+            }} />
+          </IconButton>
+        </Box>
       </FlexBetween>
-      <SearchAction>
-        <SearchInput
-          placeholder="Find Events"
-          onChange={(e) => handleChange(e.target.value)}
-          sx={{ width: "100%", maxWidth: "100%" }}
-        />
-      </SearchAction>
 
       <TabContext value={value}>
         <TabList
           variant="scrollable"
-          onChange={(_, value) => handleChange(value)}
+          onChange={(_, value) => handleChange("date",value)}
         >
           {tabOptions.map(({ amount, title, value }) => (
             <Tab

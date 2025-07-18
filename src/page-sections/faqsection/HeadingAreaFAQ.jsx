@@ -1,17 +1,13 @@
-import { useNavigate } from 'react-router-dom'; // MUI
-
+import { useNavigate } from 'react-router-dom';
 import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
 import TabList from '@mui/lab/TabList';
 import TabContext from '@mui/lab/TabContext';
-import styled from '@mui/material/styles/styled'; // CUSTOM COMPONENTS
-
+import styled from '@mui/material/styles/styled'; 
 import IconWrapper from '@/components/icon-wrapper';
 import { Paragraph } from '@/components/typography';
-import { FlexBetween, FlexBox } from '@/components/flexbox'; // CUSTOM ICON COMPONENTS
-
-import GroupSenior from '@/icons/GroupSenior';
-import DiscountIcon from '@mui/icons-material/Discount';
+import { FlexBetween, FlexBox } from '@/components/flexbox';
+import LiveHelpIcon from '@mui/icons-material/LiveHelp';
 
 const TabListWrapper = styled(TabList)(({
   theme
@@ -20,10 +16,10 @@ const TabListWrapper = styled(TabList)(({
   [theme.breakpoints.down(727)]: {
     order: 3
   }
-})); // ===================================================================
+}));
 
 // ===================================================================
-export default function HeadingAreaCoupon({
+export default function HeadingAreaFAQ({
   value,
   changeTab
 }) {
@@ -32,7 +28,7 @@ export default function HeadingAreaCoupon({
     <FlexBetween flexWrap="wrap" gap={1} mb={"2rem"}>
       <FlexBox alignItems="center">
         <IconWrapper>
-          <DiscountIcon
+          <LiveHelpIcon
             sx={{
               color: "primary.main",
             }}
@@ -40,18 +36,10 @@ export default function HeadingAreaCoupon({
         </IconWrapper>
 
         <Paragraph fontSize={20} fontWeight="bold">
-          Coupons
+         Frequently Asked Questions
         </Paragraph>
       </FlexBox>
 
-
-      {/* <Button
-        variant="contained"
-        startIcon={<Add />}
-        onClick={() => navigate("/add-coupons")}
-      >
-        Add New Coupon
-      </Button> */}
     </FlexBetween>
   );
 }

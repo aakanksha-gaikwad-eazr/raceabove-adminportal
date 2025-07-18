@@ -10,8 +10,8 @@ import IconWrapper from '@/components/icon-wrapper';
 import { Paragraph } from '@/components/typography';
 import { FlexBetween, FlexBox } from '@/components/flexbox'; // CUSTOM ICON COMPONENTS
 
-import GroupSenior from '@/icons/GroupSenior';
-import Add from '@/icons/Add'; // STYLED COMPONENT
+import ReceiptIcon from '@mui/icons-material/Receipt';
+
 
 const TabListWrapper = styled(TabList)(({
   theme
@@ -23,7 +23,7 @@ const TabListWrapper = styled(TabList)(({
 })); // ===================================================================
 
 // ===================================================================
-export default function HeadingAreaTnc({
+export default function HeadingArea({
   value,
   changeTab
 }) {
@@ -32,7 +32,7 @@ export default function HeadingAreaTnc({
     <FlexBetween flexWrap="wrap" gap={1} mb={"2rem"}>
       <FlexBox alignItems="center">
         <IconWrapper>
-          <GroupSenior
+          <ReceiptIcon
             sx={{
               color: "primary.main",
             }}
@@ -40,10 +40,27 @@ export default function HeadingAreaTnc({
         </IconWrapper>
 
         <Paragraph fontSize={20} fontWeight="bold">
-         Frequently Asked Questions
+          Ticket Type
         </Paragraph>
       </FlexBox>
 
+      {/* <TabContext value={value}>
+        <TabListWrapper variant="scrollable" onChange={changeTab}>
+          <Tab disableRipple label="All Users" value="" />
+          <Tab disableRipple label="Editor" value="editor" />
+          <Tab disableRipple label="Contributor" value="contributor" />
+          <Tab disableRipple label="Administrator" value="administrator" />
+          <Tab disableRipple label="Subscriber" value="subscriber" />
+        </TabListWrapper>
+      </TabContext> */}
+
+      {/* <Button
+        variant="contained"
+        startIcon={<Add />}
+        onClick={() => navigate("/add-ticket-type")}
+      >
+        Add Ticket Type
+      </Button> */}
     </FlexBetween>
   );
 }

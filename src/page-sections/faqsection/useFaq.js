@@ -2,7 +2,7 @@ import { useState } from 'react'; // CUSTOM DATA
 
 import { PROJECTS } from '@/__fakeData__/projects';
 
-export default function useCoupons() {
+export default function useFaq() {
   const [openModal, setOpenModal] = useState(false);
   const [filters, setFilters] = useState({
     status: 'all',

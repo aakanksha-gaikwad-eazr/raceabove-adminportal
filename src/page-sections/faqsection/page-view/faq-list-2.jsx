@@ -23,9 +23,9 @@ import SearchArea from "../SearchArea";
 import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable";
 import { isDark } from "@/utils/constants";
 import { useDispatch, useSelector } from "react-redux";
-import HeadingAreaCoupon from "../HeadingAreaTnc";
+import HeadingAreaFAQ from "../HeadingAreaFAQ";
 import toast from "react-hot-toast";
-import { Chip, Switch, Collapse, IconButton, Typography, Paper, Button } from "@mui/material";
+import { Chip, Switch, Collapse, IconButton, Typography, Paper, Button, Skeleton } from "@mui/material";
 import { getFaq } from "@/store/apps/faq";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -113,12 +113,49 @@ const headCells = [
   },
 ];
 
+// MUI Skeleton Component for Table Row
+const SkeletonTableRow = () => (
+  <TableRow>
+    <BodyTableCell align="center" sx={{ width: 70 }}>
+      <Skeleton variant="circular" width={32} height={32} />
+    </BodyTableCell>
+    <BodyTableCell align="left">
+      <Stack spacing={1}>
+        <Skeleton variant="text" width="80%" height={20} />
+        <Skeleton variant="text" width="60%" height={20} />
+        <Skeleton variant="text" width="45%" height={20} />
+      </Stack>
+    </BodyTableCell>
+    <BodyTableCell align="left">
+      <Skeleton variant="rounded" width={80} height={28} />
+    </BodyTableCell>
+    <BodyTableCell align="left">
+      <Skeleton variant="text" width={60} height={20} />
+    </BodyTableCell>
+    <BodyTableCell align="left">
+      <Skeleton variant="rounded" width={70} height={36} />
+    </BodyTableCell>
+  </TableRow>
+);
+
+// MUI Skeleton Component for Search Area
+const SkeletonSearchArea = () => (
+  <Box px={2} py={2}>
+    <Stack direction="row" spacing={2} alignItems="center">
+      <Box flex={1}>
+        <Skeleton variant="rounded" width="100%" height={40} />
+      </Box>
+    </Stack>
+  </Box>
+);
+
 export default function Faq2PageView() {
   const [searchFilter, setSearchFilter] = useState("");
   const [selectedFaq, setSelectedFaq] = useState();
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [faqToReview, setFaqToReview] = useState(null);
   const [expandedRows, setExpandedRows] = useState(new Set());
+  const [isLoading, setIsLoading] = useState(true);
 
   const {
     page,
@@ -130,15 +167,14 @@ export default function Faq2PageView() {
     handleChangeRowsPerPage,
   } = useMuiTable({
     defaultOrderBy: "question",
-    defaultRowsPerPage: 10,
+    defaultRowsPerPage: 5,
   });
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const {allFaq} = useSelector((state) => state.faq);
-  // console.log("allfaq",allFaq)
-
+  const { allFaq } = useSelector((state) => state.faq);
+  
   const filteredFaq = stableSort(allFaq, getComparator(order, orderBy)).filter(
     (item) => {
       if (searchFilter)
@@ -150,7 +186,21 @@ export default function Faq2PageView() {
   );
 
   useEffect(() => {
-    dispatch(getFaq());
+    const fetchFaq = async () => {
+      setIsLoading(true);
+      try {
+        await dispatch(getFaq());
+      } catch (error) {
+        console.error("Error fetching FAQ:", error);
+      } finally {
+        // Add minimum loading time for better UX
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 800);
+      }
+    };
+
+    fetchFaq();
   }, [dispatch]);
 
   useEffect(() => {
@@ -167,22 +217,21 @@ export default function Faq2PageView() {
     setApprovalModalOpen(true);
   };
 
-
   const handleApprovalCancel = () => {
     setApprovalModalOpen(false);
     setFaqToReview(null);
   };
- const handleApprovalSubmit = async (formData) => {
-  console.log("formData1223",formData)
+
+  const handleApprovalSubmit = async (formData) => {
+    console.log("formData1223", formData);
     if (faqToReview) {
       try {
         const reviewData = {
           id: faqToReview.id,
-          data:{
+          data: {
             approvalStatus: String(formData.approvalStatus).toLowerCase().trim(),
             reviewReason: String(formData.reviewReason).trim(),
           }
-         
         };
 
         // Additional validation to ensure values are correct
@@ -257,7 +306,7 @@ export default function Faq2PageView() {
 
   return (
     <div className="pt-2 pb-4">
-      <HeadingAreaCoupon />
+      <HeadingAreaFAQ />
 
       <Grid container>
         <Grid
@@ -274,14 +323,18 @@ export default function Faq2PageView() {
             }}
           >
             {/* SEARCH BOX AREA */}
-            <Box px={3}>
-              <SearchArea
-                value={searchFilter}
-                onChange={(e) => setSearchFilter(e.target.value)}
-                gridRoute="/faq-grid"
-                listRoute="/faq-list-2"
-              />
-            </Box>
+            {isLoading ? (
+              <SkeletonSearchArea />
+            ) : (
+              <Box px={3}>
+                <SearchArea
+                  value={searchFilter}
+                  onChange={(e) => setSearchFilter(e.target.value)}
+                  gridRoute="/faq-grid"
+                  listRoute="/faq-list-2"
+                />
+              </Box>
+            )}
 
             {/* TABLE HEAD & BODY ROWS */}
             <TableContainer>
@@ -316,118 +369,126 @@ export default function Faq2PageView() {
 
                   {/* TABLE BODY AND DATA */}
                   <TableBody>
-                    {filteredFaq
-                      .slice(
-                        page * rowsPerPage,
-                        page * rowsPerPage + rowsPerPage
-                      ).filter(faq=>faq.deletedAt === null)
-                      .map((faq) => (
-                        <>
-                          <BodyTableRow
-                            key={faq.id}
-                            active={selectedFaq?.id === faq.id ? 1 : 0}
-                            onClick={() => setSelectedFaq(faq)}
-                          >
-                            <BodyTableCell align="center" sx={{ width: 70 }}>
-                              <IconButton
-                                size="small"
-                                onClick={(e) => handleToggleExpand(e, faq.id)}
-                              >
-                                {expandedRows.has(faq.id) ? 
-                                  <KeyboardArrowUpIcon /> : 
-                                  <KeyboardArrowDownIcon />
-                                }
-                              </IconButton>
-                            </BodyTableCell>
-
-                            <BodyTableCell align="left">
-                              <QuestionCell content={faq.question} />
-                            </BodyTableCell>
-
-                            <BodyTableCell align="left">
-                              <Chip
-                                label={
-                                  faq.approvalStatus
-                                    ? faq.approvalStatus.charAt(0).toUpperCase() +
-                                      faq.approvalStatus.slice(1)
-                                    : "N/A"
-                                }
-                                color={
-                                  faq.approvalStatus === "approved"
-                                    ? "success"
-                                    : faq.approvalStatus === "pending"
-                                    ? "warning"
-                                    : faq.approvalStatus === "rejected"
-                                    ? "error"
-                                    : "default"
-                                }
-                                variant="outlined"
-                                size="small"
-                              />
-                            </BodyTableCell>
-
-                            <BodyTableCell align="left">
-                              <Paragraph>{faq?.reviewedBy ?? "N/A"}</Paragraph>
-                            </BodyTableCell>
-
-                            <BodyTableCell align="left">
-                              <Stack direction="row" spacing={1}>
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  disabled={faq.approvalStatus === "approved" || faq.approvalStatus === "rejected"}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleReviewClick(faq);
-                                  }}
-                                >
-                                  Review
-                                </Button>
-                              </Stack>
-                            </BodyTableCell>
-                          </BodyTableRow>
-
-                          {/* EXPANDABLE ANSWER ROW */}
-                          <ExpandableRow>
-                            <TableCell
-                              style={{ paddingBottom: 0, paddingTop: 0 }}
-                              colSpan={headCells.length}
+                    {isLoading ? (
+                      // Show skeleton rows while loading
+                      Array.from({ length: rowsPerPage }).map((_, index) => (
+                        <SkeletonTableRow key={`skeleton-${index}`} />
+                      ))
+                    ) : (
+                      filteredFaq
+                        .slice(
+                          page * rowsPerPage,
+                          page * rowsPerPage + rowsPerPage
+                        )
+                        .filter(faq => faq.deletedAt === null)
+                        .map((faq) => (
+                          <>
+                            <BodyTableRow
+                              key={faq.id}
+                              active={selectedFaq?.id === faq.id ? 1 : 0}
+                              onClick={() => setSelectedFaq(faq)}
                             >
-                              <Collapse
-                                in={expandedRows.has(faq.id)}
-                                timeout="auto"
-                                unmountOnExit
-                              >
-                                <AnswerContainer elevation={0}>
-                                  <Typography
-                                    variant="subtitle2"
-                                    gutterBottom
-                                    sx={{
-                                      color: "primary.main",
-                                      fontWeight: 600,
-                                      mb: 2,
-                                    }}
-                                  >
-                                    Answer
-                                  </Typography>
-                                  <Typography
-                                    variant="body2"
-                                    sx={{
-                                      lineHeight: 1.8,
-                                      color: "text.secondary",
-                                      whiteSpace: "pre-wrap",
-                                    }}
-                                  >
-                                    {faq.answer || "No answer provided yet."}
-                                  </Typography>
-                                </AnswerContainer>
-                              </Collapse>
-                            </TableCell>
-                          </ExpandableRow>
-                        </>
-                      ))}
+                              <BodyTableCell align="center" sx={{ width: 70 }}>
+                                <IconButton
+                                  size="small"
+                                  onClick={(e) => handleToggleExpand(e, faq.id)}
+                                >
+                                  {expandedRows.has(faq.id) ? 
+                                    <KeyboardArrowUpIcon /> : 
+                                    <KeyboardArrowDownIcon />
+                                  }
+                                </IconButton>
+                              </BodyTableCell>
 
-                    {filteredFaq.length === 0 && <TableDataNotFound />}
+                              <BodyTableCell align="left">
+                                <QuestionCell content={faq.question} />
+                              </BodyTableCell>
+
+                              <BodyTableCell align="left">
+                                <Chip
+                                  label={
+                                    faq.approvalStatus
+                                      ? faq.approvalStatus.charAt(0).toUpperCase() +
+                                        faq.approvalStatus.slice(1)
+                                      : "N/A"
+                                  }
+                                  color={
+                                    faq.approvalStatus === "approved"
+                                      ? "success"
+                                      : faq.approvalStatus === "pending"
+                                      ? "warning"
+                                      : faq.approvalStatus === "rejected"
+                                      ? "error"
+                                      : "default"
+                                  }
+                                  variant="outlined"
+                                  size="small"
+                                />
+                              </BodyTableCell>
+
+                              <BodyTableCell align="left">
+                                <Paragraph>{faq?.reviewedBy ?? "Not Reviewed yet"}</Paragraph>
+                              </BodyTableCell>
+
+                              <BodyTableCell align="left">
+                                <Stack direction="row" spacing={1}>
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    disabled={faq.approvalStatus === "approved" || faq.approvalStatus === "rejected"}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleReviewClick(faq);
+                                    }}
+                                  >
+                                    Review
+                                  </Button>
+                                </Stack>
+                              </BodyTableCell>
+                            </BodyTableRow>
+
+                            {/* EXPANDABLE ANSWER ROW */}
+                            <ExpandableRow>
+                              <TableCell
+                                style={{ paddingBottom: 0, paddingTop: 0 }}
+                                colSpan={headCells.length}
+                              >
+                                <Collapse
+                                  in={expandedRows.has(faq.id)}
+                                  timeout="auto"
+                                  unmountOnExit
+                                >
+                                  <AnswerContainer elevation={0}>
+                                    <Typography
+                                      variant="subtitle2"
+                                      gutterBottom
+                                      sx={{
+                                        color: "primary.main",
+                                        fontWeight: 600,
+                                        mb: 2,
+                                      }}
+                                    >
+                                      Answer
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      sx={{
+                                        lineHeight: 1.8,
+                                        color: "text.secondary",
+                                        whiteSpace: "pre-wrap",
+                                      }}
+                                    >
+                                      {faq.answer || "No answer provided yet."}
+                                    </Typography>
+                                  </AnswerContainer>
+                                </Collapse>
+                              </TableCell>
+                            </ExpandableRow>
+                          </>
+                        ))
+                    )}
+
+                    {!isLoading && filteredFaq.length === 0 && <TableDataNotFound />}
                   </TableBody>
                 </Table>
               </Scrollbar>
@@ -438,7 +499,7 @@ export default function Faq2PageView() {
               page={page}
               component="div"
               rowsPerPage={rowsPerPage}
-              count={filteredFaq.length}
+              count={isLoading ? 0 : filteredFaq.length}
               onPageChange={handleChangePage}
               rowsPerPageOptions={[5, 10, 25]}
               onRowsPerPageChange={handleChangeRowsPerPage}

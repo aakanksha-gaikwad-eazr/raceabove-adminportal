@@ -1,8 +1,8 @@
 import Chip from "@mui/material/Chip";
 import Avatar from "@mui/material/Avatar";
 import AvatarGroup from "@mui/material/AvatarGroup";
-import Button from "@mui/material/Button";
-import ReviewIcon from "@mui/icons-material/RateReview";
+import { Box, IconButton, Divider } from "@mui/material";
+import { AccessTime, LocationOn, AttachMoney, CalendarToday, CheckCircle, Cancel, Schedule } from "@mui/icons-material";
 
 import Link from "@/components/link";
 import FlexBetween from "@/components/flexbox/FlexBetween";
@@ -11,33 +11,44 @@ import { H6, H5, Paragraph } from "@/components/typography";
 import { StyledRoot } from "./styles";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getEvents, getEventsById, reviewEvents } from "../../../store/apps/events";
+import { getEvents, getEventsById, updateEvents } from "../../../store/apps/events";
 import { useContext, useEffect, useState } from "react";
 import MoreHoriz from "@mui/icons-material/MoreHoriz";
 import MoreEventButtontwo from "@/components/more-event-button-two";
 import { Switch } from "@mui/material";
-import ApprovalModal from "@/components/approval-modal";
 import toast from "react-hot-toast";
 
 export default function EventsCard3({ allEventsarr = [] }) {
   const [isActive, setIsActive] = useState(false);
   const [allEvents, setAllEvents] = useState([]);
-  const [reviewModalOpen, setReviewModalOpen] = useState(false);
-    const [eventToReview, setEventToReview] = useState(null);
-    
-  
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  // console.log("/??allEventsarr", allEventsarr)
-  // console.log("allevents", allEvents)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (allEventsarr?.id) {
       setAllEvents(allEventsarr);
     }
   }, []);
+
+    const handleToggleActive =async(event, eventId, currentStatus) => {
+      console.log("clicked");
+          event.stopPropagation();
+          try {
+            const updateData = {
+              isActive: !currentStatus,
+            };
+            await dispatch(updateEvents({ id: eventId, data: updateData }));
+            toast.success(
+              `Event ${!currentStatus ? "activated" : "deactivated"} successfully`
+            );
+            dispatch(getEvents());
+          } catch (error) {
+            toast.error("Failed to update Event status");
+            console.error("Error updating Event:", error);
+          }
+    };
+  
 
   const handleToggleStatus = () => {
     // setIsActive((prev) => !prev);
@@ -48,80 +59,8 @@ export default function EventsCard3({ allEventsarr = [] }) {
     //   console.error("Event ID is undefined!");
     //   return;
     // }
-
     localStorage.setItem("eventsId", id);
     navigate("/events/details");
-  };
-
-  const handleReviewClick = (event) => {
-    setReviewModalOpen(true);
-    setEventToReview(event)
-  };
-
-  const handleReviewModalClose = () => {
-    setReviewModalOpen(false);
-  };
-
-  const handleReviewSubmit = async (formData) => {
-    if (eventToReview) {
-      try {
-        const reviewData = {
-          id: eventToReview.id,
-          data: {
-            approvalStatus: String(formData.approvalStatus)
-              .toLowerCase()
-              .trim(),
-            reviewReason: String(formData.reviewReason).trim(),
-          },
-        };
-
-        // Additional validation to ensure values are correct
-        if (
-          !["approved", "rejected"].includes(reviewData?.data?.approvalStatus)
-        ) {
-          toast.error("Invalid approval status");
-          return;
-        }
-        if (!reviewData?.data?.reviewReason) {
-          toast.error("Review reason is required");
-          return;
-        }
-        const result = await dispatch(reviewEvents(reviewData));
-        console.log("result", result);
-        if (result?.payload?.status === 200) {
-          dispatch(getEvents());
-
-          // Show success toast based on approval status
-          switch (reviewData?.data?.approvalStatus) {
-            case "approved":
-              toast.success("Event are approved successfully!");
-              break;
-            case "rejected":
-              toast.success("Event are rejected successfully!");
-              break;
-            default:
-              toast.success("Event are reviewed successfully!");
-          }
-          // Reset state
-          setReviewModalOpen(false);
-          setEventToReview(null);
-        } else {
-          // Handle API error response
-          const errorMessage =
-            result.payload?.message ||
-            result.error?.message ||
-            "Failed to review Event";
-          toast.error(errorMessage);
-        }
-      } catch (error) {
-        console.error("Error reviewing Event:", error);
-        const errorMessage =
-          error.response?.data?.message ||
-          error.message ||
-          "Failed to review Event. Please try again.";
-        toast.error(errorMessage);
-      }
-    }
   };
 
   function getDaysLeftUntil(dateStr) {
@@ -149,122 +88,231 @@ export default function EventsCard3({ allEventsarr = [] }) {
     return `${daysLeft} days left`;
   }
 
+  // Function to get approved status chip properties
+  const getApprovedStatusChip = (approvedStatus) => {
+    switch (approvedStatus?.toLowerCase()) {
+      case 'approved':
+        return {
+          label: 'Approved',
+          color: 'success',
+          icon: <CheckCircle sx={{ fontSize: 16 }} />,
+          bgcolor: 'rgba(76, 175, 80, 0.9)'
+        };
+      case 'rejected':
+        return {
+          label: 'Rejected',
+          color: 'error',
+          icon: <Cancel sx={{ fontSize: 16 }} />,
+          bgcolor: 'rgba(244, 67, 54, 0.9)'
+        };
+      case 'pending':
+      default:
+        return {
+          label: 'Pending',
+          color: 'warning',
+          icon: <Schedule sx={{ fontSize: 16 }} />,
+          bgcolor: 'rgba(255, 152, 0, 0.9)'
+        };
+    }
+  };
+
+  const InfoItem = ({ icon, label, value }) => (
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+      {icon}
+      <Paragraph color="text.secondary" sx={{ fontSize: "0.875rem" }}>
+        <strong>{label}:</strong> {value || "N/A"}
+      </Paragraph>
+    </Box>
+  );
+
   return (
-    <>
-      <StyledRoot style={{ height: "100%", cursor: "pointer" }}>
-        <div className="img-wrapper">
-          <img src={allEvents?.banner} alt="events Thumbnail" />
-        </div>
-        <div className="content">
-          <FlexBetween justifyContent="space-between" alignItems="center">
-            <Link
-              href="/events/details"
-              onClick={() => handleEventsDetailsClick(allEvents?.id)}
-            >
-              <H6
-                fontSize={18}
-                mb={1}
-                color="text.primary"
-                sx={{
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  display: "block",
-                  maxWidth: "100%",
-                }}
-              >
-                {allEvents?.title
-                  ? (allEvents?.title?.length > 30
-                      ? allEvents?.title.slice(0, 30) + "..."
-                      : allEvents?.title
-                    ).replace(/^./, (char) => char?.toUpperCase())
-                  : "No Title"}
-              </H6>
-            </Link>
-            <MoreEventButtontwo Icon={MoreHoriz} eventsId={allEvents?.id} />
-          </FlexBetween>
-
-          <Paragraph
-            lineHeight={1.8}
-            color="text.secondary"
-            sx={{
-              height: "25px",
-              overflow: "hidden",
-              display: "-webkit-box",
-              WebkitBoxOrient: "vertical",
-              WebkitLineClamp: 2,
-              textOverflow: "ellipsis",
-            }}
-          >
-            Location : {allEvents?.location?.address || "N/A"}
-          </Paragraph>
-
-          <Paragraph color="text.secondary">
-            Start Date : {allEvents?.date || "N/A"}
-          </Paragraph>
-          <Paragraph color="text.secondary">
-            Start Time : {allEvents?.startTime || "N/A"}
-          </Paragraph>
-          <Paragraph mb={2} color="text.secondary">
-            End Time : {allEvents?.endTime || "N/A"}
-          </Paragraph>
-          <Paragraph mb={2} color="text.secondary">
-            Price : {allEvents?.price || "N/A"}
-          </Paragraph>
-
+    <StyledRoot 
+      style={{ 
+        height: "100%", 
+        cursor: "pointer",
+        borderRadius: "12px",
+        overflow: "hidden",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        transition: "all 0.3s ease",
+        "&:hover": {
+          boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+          transform: "translateY(-2px)"
+        }
+      }}
+    >
+      {/* Image Section */}
+      <div className="img-wrapper" style={{ position: "relative" }}>
+        <img 
+          src={allEvents?.banner} 
+          alt="Event Thumbnail" 
+          style={{
+            width: "100%",
+            height: "200px",
+            objectFit: "cover"
+          }}
+        />
+        
+        {/* Status Badges Overlay */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+            zIndex: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: 1
+          }}
+        >
+          {/* Time Status Chip */}
           <Chip
+            label={formatTimeLeft(allEvents?.date)}
+            color={getDaysLeftUntil(allEvents?.date) < 0 ? "error" : "primary"}
+            size="small"
             sx={{
-              height: "30px",
-              visibility: allEvents?.enduranceLevel ? "visible" : "hidden",
+              bgcolor: getDaysLeftUntil(allEvents?.date) < 0 ? "rgba(244, 67, 54, 0.9)" : "rgba(33, 150, 243, 0.9)",
+              color: "white",
+              backdropFilter: "blur(4px)",
+              fontWeight: 600
             }}
-            label={allEvents?.enduranceLevel || "Placeholder"}
-            color="primary"
           />
+          
+          {/* Approved Status Chip */}
+          {(() => {
+            const statusChip = getApprovedStatusChip(allEvents?.approvalStatus);
+            return (
+              <Chip
+                label={statusChip.label}
+                icon={statusChip.icon}
+                size="small"
+                sx={{
+                  bgcolor: statusChip.bgcolor,
+                  color: "white",
+                  backdropFilter: "blur(4px)",
+                  fontWeight: 600,
+                  "& .MuiChip-icon": {
+                    color: "white"
+                  }
+                }}
+              />
+            );
+          })()}
+        </Box>
+      </div>
 
-          <FlexBetween flexWrap="wrap" pt="1rem" gap={1}>
-            <Switch
-              defaultChecked={allEvents?.isActive || "N/A"}
-              onChange={handleToggleStatus}
-              color="primary"
-            />
-            <Chip
-              label={formatTimeLeft(allEvents?.date)}
-              color={
-                getDaysLeftUntil(allEvents?.date) < 0 ? "error" : "secondary"
-              }
-            />
-          </FlexBetween>
-
-          {/* Review Button */}
-          <FlexBetween mt={2}>
-            <Button
-              variant="outlined"
-              color="primary"
-              startIcon={<ReviewIcon />}
-              size="small"
-              sx={{ minWidth: 100 }}
-               onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleReviewClick(allEvents);
-                                  }}
+      {/* Content Section */}
+      <Box sx={{ p: 3 }}>
+        {/* Header */}
+        <FlexBetween mb={2}>
+          <Link
+            href="/events/details"
+            onClick={() => handleEventsDetailsClick(allEvents?.id)}
+            style={{ textDecoration: "none", flex: 1 }}
+          >
+            <H6
+              fontSize={18}
+              color="text.primary"
+              sx={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                fontWeight: 600,
+                lineHeight: 1.3,
+                "&:hover": {
+                  color: "primary.main"
+                }
+              }}
             >
-              Review
-            </Button>
-          </FlexBetween>
-        </div>
-      </StyledRoot>
+              {allEvents?.title
+                ? (allEvents?.title?.length > 35
+                    ? allEvents?.title.slice(0, 35) + "..."
+                    : allEvents?.title
+                  ).replace(/^./, (char) => char?.toUpperCase())
+                : "No Title"}
+            </H6>
+          </Link>
+          <MoreEventButtontwo Icon={MoreHoriz} eventsId={allEvents?.id} />
+        </FlexBetween>
 
-      {/* Review Modal */}
-      <ApprovalModal
-        open={reviewModalOpen}
-        handleClose={handleReviewModalClose}
-        title={`Review Event: ${allEvents?.title || "Event"}`}
-        initialData={{
-          approvalStatus: allEvents?.approvalStatus || "",
-          reviewReason: allEvents?.reviewReason || "",
-        }}
-        onSubmit={handleReviewSubmit}
-      />   
-    </>
+        {/* Event Details */}
+        <Box sx={{ mb: 3 }}>
+          <InfoItem 
+            icon={<LocationOn sx={{ fontSize: 18, color: "text.secondary" }} />}
+            label="Location"
+            value={allEvents?.location?.address}
+          />
+          
+          <InfoItem 
+            icon={<CalendarToday sx={{ fontSize: 18, color: "text.secondary" }} />}
+            label="Date"
+            value={allEvents?.date}
+          />
+          
+          <Box sx={{ display: "flex", gap: 2, mb: 1 }}>
+            <InfoItem 
+              icon={<AccessTime sx={{ fontSize: 18, color: "text.secondary" }} />}
+              label="Start"
+              value={allEvents?.startTime}
+            />
+            <InfoItem 
+              icon={<AccessTime sx={{ fontSize: 18, color: "text.secondary" }} />}
+              label="End"
+              value={allEvents?.endTime}
+            />
+          </Box>
+          
+          <InfoItem 
+            icon={<AttachMoney sx={{ fontSize: 18, color: "text.secondary" }} />}
+            label="Price"
+            value={allEvents?.price}
+          />
+        </Box>
+
+        {/* Footer */}
+        <FlexBetween>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Paragraph color="text.secondary" sx={{ fontSize: "0.875rem" }}>
+              Active: 
+            </Paragraph>
+            <Switch
+              checked={allEvents?.isActive || false}
+              color="primary"
+              size="small"
+              onChange={(e) =>
+              handleToggleActive(e,allEvents.id,allEvents.isActive)}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </Box>
+          
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            {/* Approved Status Chip in Footer (Alternative placement) */}
+            {(() => {
+              const statusChip = getApprovedStatusChip(allEvents?.approvalStatus);
+              return (
+                <Chip
+                  label={statusChip.label}
+                  icon={statusChip.icon}
+                  size="small"
+                  color={statusChip.color}
+                  variant="outlined"
+                  sx={{
+                    fontSize: "0.75rem",
+                    height: "24px"
+                  }}
+                />
+              );
+            })()}
+            
+            {allEvents?.badge && (
+              <Avatar 
+                alt="Event Badge" 
+                src={allEvents.badge} 
+                sx={{ width: 32, height: 32 }}
+              />
+            )}
+          </Box>
+        </FlexBetween>
+      </Box>
+    </StyledRoot>
   );
 }

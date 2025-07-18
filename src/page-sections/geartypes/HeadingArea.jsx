@@ -10,8 +10,8 @@ import IconWrapper from '@/components/icon-wrapper';
 import { Paragraph } from '@/components/typography';
 import { FlexBetween, FlexBox } from '@/components/flexbox'; // CUSTOM ICON COMPONENTS
 
-import GroupSenior from '@/icons/GroupSenior';
 import Add from '@/icons/Add'; // STYLED COMPONENT
+import EngineeringIcon from '@mui/icons-material/Engineering';
 
 const TabListWrapper = styled(TabList)(({
   theme
@@ -33,7 +33,7 @@ export default function HeadingArea({ value, changeTab }) {
     >
       <FlexBox alignItems="center">
         <IconWrapper>
-          <GroupSenior
+          <EngineeringIcon
             sx={{
               color: "primary.main",
             }}

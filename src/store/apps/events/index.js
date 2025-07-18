@@ -144,7 +144,7 @@ export const reviewEvents = createAsyncThunk('appEventsSlice/reviewEvents', asyn
 export const appEventsSlice = createSlice({
   name: 'appEvents',
   initialState: {
-    events:[],
+    allEvents:[],
     singleEvents:[],
     isLoading: false,
   },
@@ -156,7 +156,7 @@ export const appEventsSlice = createSlice({
     })
     .addCase(getEvents.fulfilled, (state, action) => {
       state.isLoading = false
-      state.events = action.payload 
+      state.allEvents = action.payload 
     })
     .addCase(getEvents.rejected, (state) => {
       state.isLoading = false
