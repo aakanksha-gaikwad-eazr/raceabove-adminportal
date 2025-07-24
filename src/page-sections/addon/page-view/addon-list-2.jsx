@@ -302,7 +302,7 @@ export default function Addon2PageView() {
                               spacing={1}
                             >
                               <Avatar
-                                src={addon.profilePhoto}
+                                src={addon.image}
                                 sx={{
                                   borderRadius: "20%",
                                   backgroundColor: "grey.100",
@@ -346,7 +346,7 @@ export default function Addon2PageView() {
                             />
                           </BodyTableCell>
                            <BodyTableCell align="center">
-                                                                             <Paragraph>{addon?.reviewedBy ?? "N/A"}</Paragraph>
+                                                                             <Paragraph>{addon?.reviewedBy ?? "Not yet reviewed"}</Paragraph>
                                                                          </BodyTableCell>
                           <BodyTableCell>
                             <Button

@@ -31,7 +31,7 @@ import { useDispatch, useSelector } from "react-redux";
 import SearchFilter from "../../challenge/SearchFilter";
 import StatusFilter from "../../challenge/StatusFilter";
 import { getAddOnsCategory } from "@/store/apps/addonscategory";
-import HeadingAreaCoupon from "../HeadingArea";
+import HeadingArea from "../HeadingArea";
 import { Chip, Switch } from "@mui/material";
 import DeleteIcon from "@/icons/Delete";
 import EditIcon from "@/icons/Edit";
@@ -216,7 +216,7 @@ export default function Addoncategory2PageView() {
 
   return (
     <div className="pt-2 pb-4">
-      <HeadingAreaCoupon />
+      <HeadingArea />
 
       <Grid container>
         <Grid
