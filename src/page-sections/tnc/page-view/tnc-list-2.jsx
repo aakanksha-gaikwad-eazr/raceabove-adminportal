@@ -142,7 +142,6 @@ export default function Tnc2PageView() {
   };
 
    const handleApprovalSubmit = async (formData) => {
-    console.log("formData1223",formData)
       if (tncToReview) {
         try {
           const reviewData = {
@@ -165,6 +164,7 @@ export default function Tnc2PageView() {
           }
           const result = await dispatch(reviewTnc(reviewData));
           console.log("result", result)
+          
           if (result?.payload?.status === 200) {
             dispatch(getTnc());
             
@@ -228,6 +228,25 @@ export default function Tnc2PageView() {
       {content || "N/A"}
     </Box>
   );
+    const isReviewed = (approvalStatus) => {
+    return approvalStatus === "approved" || approvalStatus === "rejected";
+  };
+
+   const handleRowClick = (event, tncId) => {
+    // Check if the click originated from a button, icon button, or chip
+    const clickedElement = event.target;
+    const isInteractiveElement = 
+      clickedElement.closest('button') || 
+      clickedElement.closest('[role="button"]') ||
+      clickedElement.closest('.MuiChip-root') ||
+      clickedElement.closest('.MuiIconButton-root') ||
+      clickedElement.closest('.MuiButton-root');
+    
+    if (isInteractiveElement) {
+      return;
+    }
+        navigate(`/tnc-details/${tncId}`);
+  };
 
   return (
     <div className="pt-2 pb-4">
@@ -296,7 +315,10 @@ export default function Tnc2PageView() {
                         <BodyTableRow
                           key={tnc.id}
                           active={selectedTnc?.id === tnc.id ? 1 : 0}
-                          onClick={() => setSelectedTnc(tnc)}
+                           onClick={(e) => {
+                                  setSelectedTnc(tnc);
+                                  handleRowClick(e, tnc.id);
+                                }}
                         >
                           {/* <BodyTableCell align="center">
                             <Stack
@@ -355,13 +377,12 @@ export default function Tnc2PageView() {
                          <Button
                                   size="small"
                                   variant="outlined"
-                                  disabled={tnc.approvalStatus === "approved" || tnc.approvalStatus === "rejected"}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleReviewClick(tnc);
                                   }}
                                 >
-                                  Review
+                                  {isReviewed(tnc.approvalStatus) ? "Re-review" : "Review"}
                                 </Button>
                           </BodyTableCell>
                         </BodyTableRow>

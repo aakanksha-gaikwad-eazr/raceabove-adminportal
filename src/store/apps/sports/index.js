@@ -88,7 +88,7 @@ export const deleteSports = createAsyncThunk('appSports/deleteSports', async id 
     const response = await axiosInstance.delete(url, {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
-
+    console.log("res del", response)
     return response.data
     
   } catch (error) {

@@ -114,6 +114,9 @@ const CouponsGridView2 = Loadable(
 const AddNewTnc = Loadable(
   lazy(() => import("@/pages/dashboard/tnc/add-new-tnc"))
 );
+const DetailsTnc = Loadable(
+  lazy(() => import("@/pages/dashboard/tnc/details"))
+);
 const EditTnc = Loadable(
   lazy(() => import("@/pages/dashboard/tnc/edit-tnc"))
 );
@@ -137,9 +140,11 @@ const AddNewFaq = Loadable(
 const EditFaq = Loadable(
   lazy(() => import("@/pages/dashboard/faqsection/edit-faq"))
 );
-
 const FaqListView2 = Loadable(
   lazy(() => import("@/pages/dashboard/faqsection/faq-list-2"))
+);
+const FaqDetails = Loadable(
+  lazy(() => import("@/pages/dashboard/faqsection/details"))
 );
 
 // privacy policy
@@ -148,6 +153,9 @@ const AddNewPrivacyPolicy = Loadable(
 );
 const EditPrivacyPolicy = Loadable(
   lazy(() => import("@/pages/dashboard/privacypolicy/edit-privacypolicy"))
+);
+const DetailsPrivacyPolicy = Loadable(
+  lazy(() => import("@/pages/dashboard/privacypolicy/details"))
 );
 const PrivacyPolicyListView = Loadable(
   lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy-list-1"))
@@ -645,6 +653,10 @@ export const DashboardRoutes = [
         path: "edit-tnc/:id",
         element: <EditTnc />,
       },
+      {
+        path: "tnc-details/:id",
+        element: <DetailsTnc />,
+      },
 
       {
         path: "tnc-list",
@@ -673,6 +685,10 @@ export const DashboardRoutes = [
         element: <EditFaq />,
       },
       {
+        path: "details/:id",
+        element: <FaqDetails />,
+      },
+      {
         path: "faq-list-2",
         element: <FaqListView2 />,
       },
@@ -687,7 +703,10 @@ export const DashboardRoutes = [
         path: "edit-privacy-policy/:id",
         element: <EditPrivacyPolicy />,
       },
-
+    {
+        path: "privacy-policy-details/:id",
+        element: <DetailsPrivacyPolicy />,
+      },
       {
         path: "privacy-policy-list",
         element: <PrivacyPolicyListView />,

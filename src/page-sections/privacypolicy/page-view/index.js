@@ -4,4 +4,5 @@ export { default as PrivacyPolicyGrid1PageView } from './privacypolicy-grid-1';
 export { default as PrivacyPolicyGrid2PageView } from './privacypolicy-grid-2';
 export { default as AddNewPrivacyPolicyPageView } from './add-new-privacypolicy';
 export { default as EditPrivacyPolicy } from "./edit-privacypolicy";
+export { default as PrivacyPolicyDetails } from "./details";
 

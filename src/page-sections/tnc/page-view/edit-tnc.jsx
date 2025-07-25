@@ -16,6 +16,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { FlexBox } from "@/components/flexbox";
 import "react-datepicker/dist/react-datepicker.css";
 import styled from "@mui/material/styles/styled";
+import { getSingleTnc } from "@/store/apps/tnc";
 // import { getSingleTnc, getTnc, updateTnc } from "@/store/apps/tnc";
 
 

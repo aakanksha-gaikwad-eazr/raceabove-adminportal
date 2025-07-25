@@ -54,6 +54,7 @@ export default function MoreSportsButton({
  
 
   const handleOtpions = (option, sportsId) => {
+    console.log("option",option)
     if (option === "Edit") {
       // console.log("edit", sportsId);
       handleOpenModal();
@@ -66,8 +67,10 @@ export default function MoreSportsButton({
   };
 
   const handleDelete = () => {
+    console.log("clicked")
     dispatch(deleteSports(sportsId))
       .then((response) => {
+        console.log("res",response)
         if (response?.payload?.status === 200) {
           dispatch(getSports());
           toast.success("Successfully deleted");

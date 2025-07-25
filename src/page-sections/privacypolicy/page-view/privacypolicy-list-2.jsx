@@ -207,12 +207,33 @@ export default function PrivacyPolicy2PageView() {
         maxWidth: "600px",
         lineHeight: 1.2,
         cursor: "pointer",
+        textTransform:"capitalize"
       }}
       title={content}
     >
       {content || "N/A"}
     </Box>
   );
+
+    // Handle row click to navigate to details page
+  const handleRowClick = (event, ppId) => {
+    // Check if the click originated from a button, icon button, or chip
+    const clickedElement = event.target;
+    const isInteractiveElement = 
+      clickedElement.closest('button') || 
+      clickedElement.closest('[role="button"]') ||
+      clickedElement.closest('.MuiChip-root') ||
+      clickedElement.closest('.MuiIconButton-root') ||
+      clickedElement.closest('.MuiButton-root');
+    
+    if (isInteractiveElement) {
+      return;
+    }
+        navigate(`/privacy-policy-details/${ppId}`);
+  };
+    const isReviewed = (approvalStatus) => {
+    return approvalStatus === "approved" || approvalStatus === "rejected";
+  };
 
   return (
     <div className="pt-2 pb-4">
@@ -281,7 +302,10 @@ export default function PrivacyPolicy2PageView() {
                         <BodyTableRow
                           key={pp.id}
                           active={selectedPrivacyPolicy?.id === pp.id ? 1 : 0}
-                          onClick={() => setSelectedPrivacyPolicy(pp)}
+                         onClick={(e) => {
+                                  setSelectedPrivacyPolicy(pp);
+                                  handleRowClick(e, pp.id);
+                                }}
                         >
                           <BodyTableCell align="left">
                             <Stack
@@ -324,20 +348,19 @@ export default function PrivacyPolicy2PageView() {
                           </BodyTableCell>
 
                            <BodyTableCell align="center">
-                                                        <Paragraph>{pp?.reviewedBy ?? "N/A"}</Paragraph>
+                                                        <Paragraph>{pp?.reviewedBy ?? "Not Reviewed Yet"}</Paragraph>
                                                     </BodyTableCell>
 
                           <BodyTableCell align="center">
                             <Button
                                   size="small"
                                   variant="outlined"
-                                  disabled={pp.approvalStatus === "approved" || pp.approvalStatus === "rejected"}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleReviewClick(pp);
                                   }}
                                 >
-                                  Review
+                                      {isReviewed(faq.approvalStatus) ? "Re-review" : "Review"}
                                 </Button>
                           </BodyTableCell>
                         </BodyTableRow>
