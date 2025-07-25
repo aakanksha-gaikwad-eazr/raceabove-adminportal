@@ -289,10 +289,10 @@ export default function FAQDetailsPage() {
                       <Typography variant="caption" color="text.secondary">
                         Created By
                       </Typography>
-                      <Typography variant="body2">
+                      <Typography variant="body2" style={{textTransform:"capitalize"}}>
                         {faqData.createdBy || "Unknown"} 
                         {faqData.createdByRole && (
-                          <Typography component="span" variant="caption" color="text.secondary">
+                          <Typography component="span" variant="caption" color="text.secondary" style={{textTransform:"capitalize"}}>
                             {" "}• {faqData.createdByRole}
                           </Typography>
                         )}
@@ -317,10 +317,10 @@ export default function FAQDetailsPage() {
                         <Typography variant="caption" color="text.secondary">
                           Updated By
                         </Typography>
-                        <Typography variant="body2">
+                        <Typography variant="body2" style={{textTransform:"capitalize"}}>
                           {faqData.updatedBy}
                           {faqData.updatedByRole && (
-                            <Typography component="span" variant="caption" color="text.secondary">
+                            <Typography component="span" variant="caption" color="text.secondary" style={{textTransform:"capitalize"}}>
                               {" "}• {faqData.updatedByRole}
                             </Typography>
                           )}

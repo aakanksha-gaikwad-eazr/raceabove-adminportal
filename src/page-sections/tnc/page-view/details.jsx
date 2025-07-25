@@ -292,13 +292,14 @@ export default function TNCDetailsPage() {
                       <Typography variant="caption" color="text.secondary">
                         Created By
                       </Typography>
-                      <Typography variant="body2">
+                      <Typography variant="body2" style={{textTransform:"capitalize"}}>
                         {tncData.createdBy || "Unknown"}
                         {tncData.createdByRole && (
                           <Typography
                             component="span"
                             variant="caption"
-                            color="text.secondary"
+                            color="text.secondary" 
+                            style={{textTransform:"capitalize"}}
                           >
                             {" "}
                             • {tncData.createdByRole}
@@ -325,13 +326,14 @@ export default function TNCDetailsPage() {
                         <Typography variant="caption" color="text.secondary">
                           Updated By
                         </Typography>
-                        <Typography variant="body2">
+                        <Typography variant="body2" style={{textTransform:"capitalize"}}>
                           {tncData.updatedBy}
                           {tncData.updatedByRole && (
                             <Typography
                               component="span"
                               variant="caption"
                               color="text.secondary"
+                              style={{textTransform:"capitalize"}}
                             >
                               {" "}
                               • {tncData.updatedByRole}
@@ -438,7 +440,7 @@ export default function TNCDetailsPage() {
                         <Typography variant="caption" color="text.secondary">
                           Name
                         </Typography>
-                        <Typography variant="body2">
+                        <Typography variant="body2" >
                           {tncData.organizer.name}
                         </Typography>
                       </Box>

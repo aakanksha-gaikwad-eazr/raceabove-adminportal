@@ -50,6 +50,7 @@ const HeadTableCell = styled(TableCell)(({ theme }) => ({
   color: theme.palette.text.secondary,
   backgroundColor: theme.palette.grey[isDark(theme) ? 700 : 100],
   borderBottom: `1px solid ${theme.palette.grey[isDark(theme) ? 700 : 100]}`,
+  textAlign: "center",
   "&:first-of-type": {
     paddingLeft: 24,
   },
@@ -62,6 +63,7 @@ const BodyTableCell = styled(HeadTableCell)({
   fontSize: 12,
   fontWeight: 400,
   backgroundColor: "transparent",
+  textAlign: "center",
 });
 
 const BodyTableRow = styled(TableRow, {
@@ -96,63 +98,92 @@ const headCells = [
     numeric: false,
     disablePadding: true,
     label: "Id",
-    width:"5%"
+    width: "5%",
+    align: "center"
   },
   {
     id: "expand",
     numeric: false,
     disablePadding: true,
     label: "",
-     width:"10%"
+    width: "7%",
+    align: "center"
   },
   {
     id: "question",
     numeric: false,
     disablePadding: false,
     label: "Question",
-     width:"30%"
+    width: "20%",
+    align: "center"
   },
   {
     id: "approvalStatus",
     numeric: false,
     disablePadding: false,
     label: "Approval Status",
-     width:"20%"
+    width: "15%",
+    align: "center"
+  },
+  {
+    id: "createdAt",
+    numeric: false,
+    disablePadding: false,
+    label: "Created At",
+    width: "10%",
+    align: "center"
+  },
+  {
+    id: "createdBy",
+    numeric: false,
+    disablePadding: false,
+    label: "Created By",
+    width: "10%",
+    align: "center"
   },
   {
     id: "reviewedby",
     numeric: false,
     disablePadding: false,
     label: "Reviewed By",
-     width:"20%"
+    width: "13%",
+    align: "center"
   },
   {
     id: "actions",
     numeric: false,
     disablePadding: false,
     label: "Actions",
-     width:"15%"
+    width: "10%",
+    align: "center"
   },
 ];
 
 // MUI Skeleton Component for Table Row
 const SkeletonTableRow = () => (
   <TableRow>
-    <BodyTableCell align="center" sx={{ width: 70 }}>
+    <BodyTableCell align="center">
       <Skeleton variant="text" width={32} height={32} />
     </BodyTableCell>
-    <BodyTableCell align="left">
+    <BodyTableCell align="center">
+      <Skeleton variant="circular" width={24} height={24} />
     </BodyTableCell>
-    <BodyTableCell align="left">
+    <BodyTableCell align="center">
+      <Skeleton variant="text" width="80%" height={20} />
+    </BodyTableCell>
+    <BodyTableCell align="center">
       <Skeleton variant="rounded" width={80} height={28} />
     </BodyTableCell>
-    <BodyTableCell align="left">
-      <Skeleton variant="text" width={60} height={20} />
+    <BodyTableCell align="center">
+      <Skeleton variant="text" width={100} height={20} />
     </BodyTableCell>
-    <BodyTableCell align="left">
-      <Skeleton variant="rounded" width={70} height={10} />
+    <BodyTableCell align="center">
+      <Skeleton variant="text" width={80} height={20} />
     </BodyTableCell>
-    <BodyTableCell align="left">
+    <BodyTableCell align="center">
+      <Skeleton variant="text" width={80} height={20} />
+    </BodyTableCell>
+    <BodyTableCell align="center">
       <Skeleton variant="rounded" width={70} height={36} />
     </BodyTableCell>
   </TableRow>
@@ -168,6 +199,55 @@ const SkeletonSearchArea = () => (
     </Stack>
   </Box>
 );
+
+// Date formatter function
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  
+  try {
+    const date = new Date(dateString);
+    
+    // Format: Dec 25, 2024
+    const options = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric'
+    };
+    
+    return date.toLocaleDateString('en-US', options);
+  } catch (error) {
+    return "Invalid Date";
+  }
+};
+
+// Alternative format with time
+const formatDateTime = (dateString) => {
+  if (!dateString) return "N/A";
+  
+  try {
+    const date = new Date(dateString);
+    
+    // Format: Dec 25, 2024 2:30 PM
+    const dateOptions = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric'
+    };
+    
+    const timeOptions = {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    };
+    
+    const formattedDate = date.toLocaleDateString('en-US', dateOptions);
+    const formattedTime = date.toLocaleTimeString('en-US', timeOptions);
+    
+    return `${formattedDate} ${formattedTime}`;
+  } catch (error) {
+    return "Invalid Date";
+  }
+};
 
 export default function Faq2PageView() {
   const [searchFilter, setSearchFilter] = useState("");
@@ -341,7 +421,7 @@ export default function Faq2PageView() {
     if (isInteractiveElement) {
       return;
     }
-        navigate(`/details/${faqId}`);
+    navigate(`/details/${faqId}`);
   };
 
   const QuestionCell = ({ content }) => (
@@ -352,11 +432,13 @@ export default function Faq2PageView() {
         WebkitBoxOrient: "vertical",
         overflow: "hidden",
         textOverflow: "ellipsis",
-        maxWidth: "500px",
+        maxWidth: "100%",
         lineHeight: 1.4,
         fontWeight: 500,
         color: "text.primary",
-        textTransform:"capitalize"
+        textTransform: "capitalize",
+        textAlign: "left",
+        px: 1
       }}
     >
       {content || "N/A"}
@@ -381,8 +463,7 @@ export default function Faq2PageView() {
           <Card
             sx={{
               height: "100%",
-              borderTopRightRadius: 0,
-              borderBottomRightRadius: 0,
+              borderRadius: "10px",
               boxShadow: "2px 4px 20px rgba(0, 0, 0, 0.05)",
             }}
           >
@@ -403,20 +484,19 @@ export default function Faq2PageView() {
             {/* TABLE HEAD & BODY ROWS */}
             <TableContainer>
               <Scrollbar autoHide={false}>
-                <Table>
+                <Table sx={{ tableLayout: "fixed" }}>
                   {/* TABLE HEADER */}
                   <TableHead>
                     <TableRow>
                       {headCells.map((headCell) => (
                         <HeadTableCell
                           key={headCell.id}
-                          align={headCell.id === "expand" ? "center" : "left"}
+                          align={headCell.align || "center"}
                           padding={headCell.disablePadding ? "none" : "normal"}
                           sortDirection={
                             orderBy === headCell.id ? order : false
                           }
                           width={headCell.width}
-                          sx={headCell.id === "expand" ? { width: 70 } : {}}
                         >
                           {headCell.id !== "expand" && (
                             <TableSortLabel
@@ -442,11 +522,11 @@ export default function Faq2PageView() {
                           <SkeletonTableRow key={`skeleton-${index}`} />
                         ))
                       : filteredFaq
+                          .filter((faq) => faq.deletedAt === null)
                           .slice(
                             page * rowsPerPage,
                             page * rowsPerPage + rowsPerPage
                           )
-                          .filter((faq) => faq.deletedAt === null)
                           .map((faq, ind) => (
                             <>
                               <BodyTableRow
@@ -457,16 +537,13 @@ export default function Faq2PageView() {
                                   handleRowClick(e, faq.id);
                                 }}
                               >
-                                <BodyTableCell align="left">
+                                <BodyTableCell align="center">
                                   <Typography variant="caption">
-                                     {/* {filteredFaq.indexOf(faq) + 1} */}
-                                     {page * rowsPerPage + ind + 1}
+                                    {page * rowsPerPage + ind + 1}
                                   </Typography>
                                 </BodyTableCell>
-                                <BodyTableCell
-                                  align="center"
-                                  // sx={{ width: 70 }}
-                                >
+                                
+                                <BodyTableCell align="center">
                                   <IconButton
                                     size="small"
                                     onClick={(e) =>
@@ -481,11 +558,11 @@ export default function Faq2PageView() {
                                   </IconButton>
                                 </BodyTableCell>
 
-                                <BodyTableCell align="left">
+                                <BodyTableCell align="center">
                                   <QuestionCell content={faq.question} />
                                 </BodyTableCell>
 
-                                <BodyTableCell align="left">
+                                <BodyTableCell align="center">
                                   <Chip
                                     label={
                                       faq.approvalStatus
@@ -509,25 +586,35 @@ export default function Faq2PageView() {
                                   />
                                 </BodyTableCell>
 
-                                <BodyTableCell align="left">
-                                  <Paragraph>
-                                    {faq?.reviewedBy ?? "Not Reviewed yet"}
-                                  </Paragraph>
+                                <BodyTableCell align="center">
+                                  <Typography variant="caption" sx={{ fontWeight: 400 }}>
+                                    {formatDate(faq?.createdAt)}
+                                  </Typography>
+                                </BodyTableCell>
+                                
+                                <BodyTableCell align="center">
+                                  <Typography variant="caption" sx={{ fontWeight: 400 }}>
+                                    {faq?.createdBy || "N/A"}
+                                  </Typography>
+                                </BodyTableCell>
+                                
+                                <BodyTableCell align="center">
+                                  <Typography variant="caption" sx={{ fontWeight: 400 }}>
+                                    {faq?.reviewedBy || "Not Reviewed"}
+                                  </Typography>
                                 </BodyTableCell>
 
-                                <BodyTableCell align="right">
-                                  <Stack direction="row" spacing={1}>
-                                    <Button
-                                      size="small"
-                                      variant="outlined"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleReviewClick(faq);
-                                      }}
-                                    >
-                                      {isReviewed(faq.approvalStatus) ? "Re-review" : "Review"}
-                                    </Button>
-                                  </Stack>
+                                <BodyTableCell align="center">
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleReviewClick(faq);
+                                    }}
+                                  >
+                                    {isReviewed(faq.approvalStatus) ? "Re-review" : "Review"}
+                                  </Button>
                                 </BodyTableCell>
                               </BodyTableRow>
 
@@ -560,7 +647,7 @@ export default function Faq2PageView() {
                                           lineHeight: 1.8,
                                           color: "text.secondary",
                                           whiteSpace: "pre-wrap",
-                                          textTransform:"capitalize"
+                                          textTransform: "capitalize"
                                         }}
                                       >
                                         {faq.answer ||
@@ -586,7 +673,7 @@ export default function Faq2PageView() {
               page={page}
               component="div"
               rowsPerPage={rowsPerPage}
-              count={isLoading ? 0 : filteredFaq.length}
+              count={isLoading ? 0 : filteredFaq.filter(faq => faq.deletedAt === null).length}
               onPageChange={handleChangePage}
               rowsPerPageOptions={[5, 10, 25]}
               onRowsPerPageChange={handleChangeRowsPerPage}
