@@ -41,6 +41,8 @@ import EditSportsFormModal from "../EditSportFormModal";
 import DeleteEventModal from "@/components/delete-modal-event";
 import HeadingArea from "../HeadingArea";
 import { deleteSports } from "@/store/apps/sports";
+import { limitWords } from "@/utils/wordLimiter";
+import { formatDate } from "@/utils/dateFormatter";
 
 // STYLED COMPONENTS
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
@@ -330,22 +332,6 @@ export default function SportsListPageView() {
       handleOpenDeleteModal(sport);
     }
   };
-
-    const limitWords =(text, maxLength)=>{
-    if(!text) return "N/A"
-    return text.length > maxLength ? text.slice(0,maxLength) + "..." : text;
-  }
-
-const formatDate = (dateString) => {
-  if (!dateString) return "N/A";
-  
-  return new Date(dateString).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  });
-  // This will return: "18 Jul 2025"
-};
 
   return (
     <div className="pt-2 pb-4">

@@ -87,6 +87,7 @@ export default function EditTicketTemplatePageView() {
     ticketTypeId: "",
   };
 
+  ///details-ticket-template/id
   // Create a state to track if data is loaded
   const [dataLoaded, setDataLoaded] = useState(false);
 

@@ -180,6 +180,9 @@ const AddNewTicketType = Loadable(
 const EditTicketType = Loadable(
   lazy(() => import("@/pages/dashboard/tickettype/edit-tickettype"))
 );
+const DetailsTicketType = Loadable(
+  lazy(() => import("@/pages/dashboard/tickettype/details"))
+);
 const TicketTypeListView = Loadable(
   lazy(() => import("@/pages/dashboard/tickettype/tickettype-list-1"))
 );
@@ -199,6 +202,9 @@ const AddNewTicketTemplate = Loadable(
 );
 const EditTicketTemplate = Loadable(
   lazy(() => import("@/pages/dashboard/tickettemplate/edit-tickettemplate"))
+);
+const DetailsTicketTemplate = Loadable(
+  lazy(() => import("@/pages/dashboard/tickettemplate/details"))
 );
 const TicketTemplateListView = Loadable(
   lazy(() => import("@/pages/dashboard/tickettemplate/tickettemplate-list-1"))
@@ -733,6 +739,10 @@ export const DashboardRoutes = [
         path: "edit-ticket-type/:id",
         element: <EditTicketType />,
       },
+            {
+        path: "details-ticket-type/:id",
+        element: <DetailsTicketType />,
+      },
       {
         path: "ticket-type-list",
         element: <TicketTypeListView />,
@@ -758,6 +768,10 @@ export const DashboardRoutes = [
       {
         path: "edit-ticket-template/:id",
         element: <EditTicketTemplate />,
+      },
+      {
+        path: "details-ticket-template/:id",
+        element: <DetailsTicketTemplate />,
       },
       {
         path: "ticket-template-list",

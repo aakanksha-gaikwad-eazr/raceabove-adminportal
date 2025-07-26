@@ -34,9 +34,8 @@ import { useNavigate } from "react-router-dom";
 import ApprovalModal from "@/components/approval-modal";
 import { Paragraph } from "@/components/typography";
 import { reviewTicketTypes } from "@/store/apps/tickettype";
-
-
-
+import { limitWords } from "@/utils/wordLimiter";
+import { formatDate } from "@/utils/dateFormatter";
 
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
   fontSize: 14,
@@ -67,36 +66,60 @@ const BodyTableRow = styled(TableRow, {
 }));
 const headCells = [
   {
+    id: "id",
+    numeric: true,
+    disablePadding: false,
+    label: "Id",
+    width: "5%"
+  },
+  {
     id: "title",
     numeric: true,
     disablePadding: false,
     label: "Title",
+    width: "12%"
   },
   {
     id: "description",
     numeric: true,
     disablePadding: false,
     label: "Description",
+    width: "18%"
   },
-
   {
     id: "approvalStatus",
     numeric: true,
     disablePadding: false,
     label: "Approval Status",
+    width: "19%"
   },
-   {
+  {
+    id: "organizer",
+    numeric: false,
+    disablePadding: false,
+    label: "Organizer",
+    width: "17%"
+  },
+  {
+    id: "date",
+    numeric: false,
+    disablePadding: false,
+    label: "Date",
+    width: "12%"
+  },
+  {
     id: "reviewedby",
     numeric: false,
     disablePadding: false,
     label: "Reviewed By",
+    width: "18%"
   },
-
   {
     id: "actions",
     numeric: true,
     disablePadding: false,
     label: "Actions",
+    width: "10%"
   },
 ];
 
@@ -150,8 +173,7 @@ export default function TicketType2PageView() {
   }, [tickettypes]);
 
   const handleReviewClick = (tickettype) => {
-    setTickettypeToReview(tickettype);
-    setApprovalModalOpen(true);
+    navigate(`/details-ticket-type/${tickettype.id}`);
   };
 
   const handleApprovalCancel = () => {
@@ -159,61 +181,87 @@ export default function TicketType2PageView() {
     setTickettypeToReview(null);
   };
 
-    const handleApprovalSubmit = async (formData) => {
-      console.log("formData1223",formData)
-        if (ticketTypeToReview) {
-          try {
-            const reviewData = {
-              id: ticketTypeToReview.id,
-              data:{
-                approvalStatus: String(formData.approvalStatus).toLowerCase().trim(),
-                reviewReason: String(formData.reviewReason).trim(),
-              }
-             
-            };
-    
-            // Additional validation to ensure values are correct
-            if (!["approved", "rejected"].includes(reviewData?.data?.approvalStatus)) {
-              toast.error("Invalid approval status");
-              return;
-            }
-            if (!reviewData?.data?.reviewReason) {
-              toast.error("Review reason is required");
-              return;
-            }
-            const result = await dispatch(reviewTicketTypes(reviewData));
-            console.log("result", result)
-            if (result?.payload?.status === 200) {
-              dispatch(getTicketType());
-              
-              // Show success toast based on approval status
-              switch (reviewData?.data?.approvalStatus) {
-                case "approved":
-                  toast.success("Ticket Type approved successfully!");
-                  break;
-                case "rejected":
-                  toast.success("Ticket Type rejected successfully!");
-                  break;
-                default:
-                  toast.success("Ticket Type reviewed successfully!");
-              }
-              // Reset state
-              setApprovalModalOpen(false);
-              setTickettypeToReview(null);
-            } else {
-              // Handle API error response
-              const errorMessage = result.payload?.message || result.error?.message || "Failed to review Ticket type";
-              toast.error(errorMessage);
-            }
-            
-          } catch (error) {
-            console.error("Error reviewing Ticket Type:", error);
-            const errorMessage = error.response?.data?.message || error.message || "Failed to review Ticket type. Please try again.";
-            toast.error(errorMessage);
-          }
-        }
-      };
+  const handleApprovalSubmit = async (formData) => {
+    console.log("formData1223", formData);
+    if (ticketTypeToReview) {
+      try {
+        const reviewData = {
+          id: ticketTypeToReview.id,
+          data: {
+            approvalStatus: String(formData.approvalStatus)
+              .toLowerCase()
+              .trim(),
+            reviewReason: String(formData.reviewReason).trim(),
+          },
+        };
 
+        // Additional validation to ensure values are correct
+        if (
+          !["approved", "rejected"].includes(reviewData?.data?.approvalStatus)
+        ) {
+          toast.error("Invalid approval status");
+          return;
+        }
+        if (!reviewData?.data?.reviewReason) {
+          toast.error("Review reason is required");
+          return;
+        }
+        const result = await dispatch(reviewTicketTypes(reviewData));
+        console.log("result", result);
+        if (result?.payload?.status === 200) {
+          dispatch(getTicketType());
+
+          // Show success toast based on approval status
+          switch (reviewData?.data?.approvalStatus) {
+            case "approved":
+              toast.success("Ticket Type approved successfully!");
+              break;
+            case "rejected":
+              toast.success("Ticket Type rejected successfully!");
+              break;
+            default:
+              toast.success("Ticket Type reviewed successfully!");
+          }
+          // Reset state
+          setApprovalModalOpen(false);
+          setTickettypeToReview(null);
+        } else {
+          // Handle API error response
+          const errorMessage =
+            result.payload?.message ||
+            result.error?.message ||
+            "Failed to review Ticket type";
+          toast.error(errorMessage);
+        }
+      } catch (error) {
+        console.error("Error reviewing Ticket Type:", error);
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to review Ticket type. Please try again.";
+        toast.error(errorMessage);
+      }
+    }
+  };
+
+  const handleRowClick = (event, ticketTypeId) => {
+    const clickedElement = event.target;
+    const isInteractiveElement =
+      clickedElement.closest("button") ||
+      clickedElement.closest('[role="button"]') ||
+      clickedElement.closest(".MuiChip-root") ||
+      clickedElement.closest(".MuiIconButton-root") ||
+      clickedElement.closest(".MuiButton-root");
+
+    if (isInteractiveElement) {
+      return;
+    }
+    navigate(`/details-ticket-type/${ticketTypeId}`);
+  };
+
+  const isReviewed = (approvalStatus) => {
+    return approvalStatus === "approved" || approvalStatus === "rejected";
+  };
   return (
     <div className="pt-2 pb-4">
       <HeadingArea />
@@ -255,6 +303,7 @@ export default function TicketType2PageView() {
                           sortDirection={
                             orderBy === headCell.id ? order : false
                           }
+                          width={headCell.width}
                         >
                           <TableSortLabel
                             active={orderBy === headCell.id}
@@ -274,30 +323,43 @@ export default function TicketType2PageView() {
                       .slice(
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
-                      ).filter(tickettype=>tickettype.deletedAt === null)
-                      .map((tickettype) => (
+                      )
+                      .filter((tickettype) => tickettype.deletedAt === null)
+                      .map((tickettype,ind) => (
                         <BodyTableRow
                           key={tickettype.id}
                           active={
                             selectedTicketType?.id === tickettype.id ? 1 : 0
                           }
-                          onClick={() => setSelectedTicketTypes(tickettype)}
+                          onClick={(e) => {
+                            setSelectedTicketTypes(tickettype);
+                            handleRowClick(e, tickettype.id);
+                          }}
                         >
-                          <BodyTableCell>
-                            <Stack
+                           <BodyTableCell align="left">
+                             {page * rowsPerPage + ind + 1}
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            {/* <Stack
                               direction="row"
                               alignItems="center"
                               spacing={1}
-                            >
-                              <H6 fontSize={12} color="text.primary">
-                                {tickettype.title ?? "N/A"}
+                            > */}
+                              <H6
+                                fontSize={12}
+                                color="text.primary"
+                                style={{ textTransform: "capitalize" }}
+                              >
+                                {limitWords(tickettype.title,15)}
                               </H6>
-                            </Stack>
+                            {/* </Stack> */}
                           </BodyTableCell>
-                          <BodyTableCell>
-                            {tickettype.description ?? "N/A"}
+                          <BodyTableCell align="center"
+                            style={{ textTransform: "capitalize" }}
+                          >
+                            {limitWords(tickettype.description,20)}
                           </BodyTableCell>
-                          <BodyTableCell>
+                          <BodyTableCell align="center">
                             <Chip
                               label={
                                 tickettype.approvalStatus
@@ -307,37 +369,48 @@ export default function TicketType2PageView() {
                                     tickettype.approvalStatus.slice(1)
                                   : "N/A"
                               }
-                            color={
-                                  tickettype.approvalStatus === "approved"
-                                    ? "success"
-                                    : tickettype.approvalStatus === "pending"
+                              color={
+                                tickettype.approvalStatus === "approved"
+                                  ? "success"
+                                  : tickettype.approvalStatus === "pending"
                                     ? "warning"
                                     : tickettype.approvalStatus === "rejected"
-                                    ? "error"
-                                    : "default"
-                                }
+                                      ? "error"
+                                      : "default"
+                              }
                               variant="outlined"
                               size="small"
                             />
                           </BodyTableCell>
-                       <BodyTableCell align="center">
-                                                 <Paragraph>{tickettype?.reviewedBy ?? "N/A"}</Paragraph>
-                                             </BodyTableCell>
-                          <BodyTableCell>
-                               <Button
-                                                              size="small"
-                                                              variant="outlined"
-                                                              disabled={tickettype.approvalStatus === "approved" || tickettype.approvalStatus === "rejected"}
-                                                              onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleReviewClick(tickettype);
-                                                              }}
-                                                            >
-                                                              Review
-                                                            </Button>
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {tickettype?.createdBy}
+                            </Paragraph>
+                          </BodyTableCell>  
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {formatDate(tickettype?.createdAt)}
+                            </Paragraph>
                           </BodyTableCell>
-
-                        
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {tickettype?.reviewedBy ?? "N/A"}
+                            </Paragraph>
+                          </BodyTableCell>
+                          <BodyTableCell align="right">
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleReviewClick(tickettype);
+                              }}
+                            >
+                              {isReviewed(tickettype.approvalStatus)
+                                ? "Re-review"
+                                : "Review"}
+                            </Button>
+                          </BodyTableCell>
                         </BodyTableRow>
                       ))}
 
@@ -360,7 +433,7 @@ export default function TicketType2PageView() {
           </Card>
         </Grid>
       </Grid>
-       {/* APPROVAL MODAL */}
+      {/* APPROVAL MODAL */}
       <ApprovalModal
         open={approvalModalOpen}
         handleClose={handleApprovalCancel}
@@ -368,7 +441,7 @@ export default function TicketType2PageView() {
         onSubmit={handleApprovalSubmit}
         initialData={{
           approvalStatus: ticketTypeToReview?.approvalStatus || "",
-          reviewReason: ticketTypeToReview?.reviewReason || ""
+          reviewReason: ticketTypeToReview?.reviewReason || "",
         }}
       />
     </div>

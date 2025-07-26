@@ -89,18 +89,18 @@ const headCells = [
     align: "center"
   },
   {
-    id: "createdAt",
+    id: "Date",
     numeric: false,
     disablePadding: false,
-    label: "Created At",
+    label: "Date",
     width: "12%",
     align: "center"
   },
   {
-    id: "createdBy",
+    id: "organizer",
     numeric: false,
     disablePadding: false,
-    label: "Created By",
+    label: "Organizer",
     width: "15%",
     align: "center"
   },
@@ -243,8 +243,11 @@ export default function PrivacyPolicy2PageView() {
   }, [privacypolicies]);
 
   const handleReviewClick = (pp) => {
-    setPPToReview(pp);
-    setApprovalModalOpen(true);
+    // setPPToReview(pp);
+    // setApprovalModalOpen(true);
+    navigate(`/privacy-policy-details/${pp?.id}`);
+
+
   };
 
   const handleApprovalCancel = () => {

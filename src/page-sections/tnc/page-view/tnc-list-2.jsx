@@ -89,18 +89,18 @@ const headCells = [
     align: "center"
   },
   {
-    id: "createdAt",
+    id: "date",
     numeric: false,
     disablePadding: false,
-    label: "Created At",
+    label: "Date",
     width: "12%",
     align: "center"
   },
   {
-    id: "createdBy",
+    id: "organizer",
     numeric: false,
     disablePadding: false,
-    label: "Created By",
+    label: "Organizer",
     width: "15%",
     align: "center"
   },
@@ -244,8 +244,13 @@ export default function Tnc2PageView() {
   }, [allTnc]);
 
   const handleReviewClick = (tnc) => {
-    setTncToReview(tnc);
-    setApprovalModalOpen(true);
+    // setTncToReview(tnc);
+    // setApprovalModalOpen(true);
+    navigate(`/tnc-details/${tnc.id}`);
+
+
+
+
   };
 
   const handleApprovalCancel = () => {

@@ -126,18 +126,18 @@ const headCells = [
     align: "center"
   },
   {
-    id: "createdAt",
+    id: "date",
     numeric: false,
     disablePadding: false,
-    label: "Created At",
+    label: "Date",
     width: "10%",
     align: "center"
   },
   {
-    id: "createdBy",
+    id: "organizer",
     numeric: false,
     disablePadding: false,
-    label: "Created By",
+    label: "Organizer",
     width: "10%",
     align: "center"
   },
@@ -313,8 +313,10 @@ export default function Faq2PageView() {
   }, [allFaq]);
 
   const handleReviewClick = (faq) => {
-    setFaqToReview(faq);
-    setApprovalModalOpen(true);
+        navigate(`/details/${faq.id}`);
+
+    // setFaqToReview(faq);
+    // setApprovalModalOpen(true);
   };
 
   const handleApprovalCancel = () => {
