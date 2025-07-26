@@ -75,7 +75,6 @@ export default function AddNewChallengePageView() {
   //store
   const dispatch = useDispatch();
   const { sports } = useSelector((state) => state.sports);
-  console.log("sports", sports);
 
   useEffect(() => {
     dispatch(getSports());

@@ -18,6 +18,8 @@ import { FlexBox } from "@/components/flexbox";
 import IconWrapper from "@/components/icon-wrapper/IconWrapper";
 import GroupSenior from "@/icons/GroupSenior";
 import { Paragraph } from "@/components/typography";
+import SportsBaseballIcon from '@mui/icons-material/SportsBaseball';
+
 
 // MUI-styled wrapper for the switch label and control
 const SwitchWrapper = styled(Box)({
@@ -123,7 +125,7 @@ export default function AddNewSportsPageView() {
           <Grid item xs={12}>
             <FlexBox alignItems="center" gap={2}>
               <IconWrapper>
-                <GroupSenior
+                <SportsBaseballIcon
                   sx={{
                     color: "primary.main",
                   }}

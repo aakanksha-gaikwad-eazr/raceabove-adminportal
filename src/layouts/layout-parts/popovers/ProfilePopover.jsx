@@ -71,7 +71,6 @@ export default function ProfilePopover() {
     navigate(path);
     setOpen(false);
   };
-  console.log("dasd",adminDetails)
 
   return (
     <Fragment>

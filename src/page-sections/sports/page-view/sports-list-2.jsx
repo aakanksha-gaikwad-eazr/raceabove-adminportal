@@ -40,6 +40,7 @@ import toast from "react-hot-toast";
 import EditSportsFormModal from "../EditSportFormModal";
 import DeleteEventModal from "@/components/delete-modal-event";
 import HeadingArea from "../HeadingArea";
+import { deleteSports } from "@/store/apps/sports";
 
 // STYLED COMPONENTS
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
@@ -51,19 +52,10 @@ const HeadTableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.grey[isDark(theme) ? 700 : 100]}`,
   "&:first-of-type": {
     paddingLeft: 24,
-    width: "4%",
-    minWidth: 180,
+    // minWidth: 180,
   },
   "&:last-of-type": {
     paddingRight: 24,
-    width: "10%",
-  },
-  "&:nth-of-type(8)": {
-    // Status column
-    width: "10%",
-  },
-  "&:not(:first-of-type):not(:last-of-type):not(:nth-of-type(8))": {
-    width: "10.7%",
   },
 }));
 
@@ -73,8 +65,9 @@ const BodyTableCell = styled(HeadTableCell)(({ theme, isDeleted }) => ({
   backgroundColor: "transparent",
   paddingBlock: 12,
   verticalAlign: "middle",
+  // ...(width && { width }),
   ...(isDeleted && {
-    opacity: 0.5,
+    opacity: 0.6,
     color: theme.palette.text.disabled,
   }),
 }));
@@ -97,34 +90,60 @@ const BodyTableRow = styled(TableRow, {
 
 const headCells = [
   {
+    id: "id",
+    numeric: true,
+    disablePadding: false,
+    label: "Id",
+    width:"7%",
+  },
+  {
     id: "name",
     numeric: true,
     disablePadding: false,
     label: "Name",
+    width:"10%"
   },
   {
     id: "updatedBy",
     numeric: true,
     disablePadding: false,
     label: "Updated By",
+    width:"20%"
   },
+  // {
+  //   id: "updatedByRole",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Updated By Role",
+  //   width:"20%"
+  // },
   {
-    id: "updatedByRole",
+    id: "createdBy",
     numeric: true,
     disablePadding: false,
-    label: "Updated By Role",
+    label: "Organizer",
+    width:"15%"
+  },
+  {
+    id: "createdAt",
+    numeric: true,
+    disablePadding: false,
+    label: "Date",
+    width:"17%"
   },
   {
     id: "status",
     numeric: false,
     disablePadding: false,
     label: "Status",
+    width:"10%"
   },
   {
     id: "actions",
     numeric: false,
     disablePadding: false,
     label: "Actions",
+    width:"5%"
   },
 ];
 
@@ -132,7 +151,7 @@ export default function SportsListPageView() {
   const [searchFilter, setSearchFilter] = useState("");
   const [selectedSport, setSelectedSport] = useState();
   const [loadingStates, setLoadingStates] = useState({});
-  const [selectTab, setSelectTab] = useState("all");
+  const [selectTab, setSelectTab] = useState("active");
 
   // Modal states
   const [openEditModal, setOpenEditModal] = useState(false);
@@ -154,7 +173,6 @@ export default function SportsListPageView() {
 
   const dispatch = useDispatch();
   const { sports } = useSelector((state) => state.sports);
-  console.log("sports", sports);
 
   useEffect(() => {
     dispatch(getSports());
@@ -173,12 +191,15 @@ export default function SportsListPageView() {
   ).filter((item) => {
     // Include deleted items but show them as disabled
     const isDeleted = item?.deletedAt !== null;
-    
+  
     // Filter by tab selection
     if (selectTab === "active" && (!item?.isActive || isDeleted)) {
       return false; 
     }
     if (selectTab === "inactive" && (item?.isActive || isDeleted)) {
+      return false; 
+    }
+    if (selectTab === "deleted" && (!isDeleted)) {
       return false; 
     }
     
@@ -205,15 +226,14 @@ export default function SportsListPageView() {
     }
   }, [sports, selectedSport]);
 
-  // Fixed handleStatusToggle function
   const handleStatusToggle = async (sportId, currentStatus, isDeleted) => {
-    // Prevent toggling for deleted items
     if (isDeleted) {
       toast.error("Cannot update status of deleted items");
       return;
     }
-
-    console.log("Toggle clicked:", sportId, currentStatus);
+      console.log("Toggle clicked - Sport ID:", sportId);
+  console.log("Current isActive status:", currentStatus);
+  console.log("New isActive status will be:", !currentStatus);
     setLoadingStates((prev) => ({ ...prev, [sportId]: true }));
 
     try {
@@ -236,10 +256,8 @@ export default function SportsListPageView() {
         console.log("Sports status updated successfully");
         toast.success("Sports Status updated successfully");
 
-        // Force refresh the sports list
         await dispatch(getSports());
 
-        // Update selected sport if it's the one being toggled
         if (selectedSport?.id === sportId) {
           setSelectedSport((prevSelected) => ({
             ...prevSelected,
@@ -258,9 +276,7 @@ export default function SportsListPageView() {
     }
   };
 
-  // Modal handlers
   const handleOpenEditModal = (sport) => {
-    // Prevent editing deleted items
     if (sport.deletedAt !== null) {
       toast.error("Cannot edit deleted items");
       return;
@@ -275,7 +291,6 @@ export default function SportsListPageView() {
   };
 
   const handleOpenDeleteModal = (sport) => {
-    // Prevent deleting already deleted items
     if (sport.deletedAt !== null) {
       toast.error("Item is already deleted");
       return;
@@ -289,11 +304,23 @@ export default function SportsListPageView() {
     setSportId(null);
   };
 
-  const handleDelete = () => {
-    console.log("Deleting sport with id:", sportId);
-    // dispatch(deleteSport(sportId));
+  const handleDelete = async () => {
+  console.log("Deleting sport with id:", sportId);
+  try {
+    const result = await dispatch(deleteSports(sportId));
+        if (result.meta?.requestStatus === 'fulfilled') {
+      await dispatch(getSports());
+      toast.success("Sport deleted successfully");
+    } else {
+      toast.error("Failed to delete sport");
+    }
+  } catch (error) {
+    console.error("Error deleting sport:", error);
+    toast.error("An error occurred while deleting");
+  } finally {
     handleCloseDeleteModal();
-  };
+  }
+};
 
   const handleActionClick = (e, action, sport) => {
     e.stopPropagation();
@@ -304,6 +331,22 @@ export default function SportsListPageView() {
     }
   };
 
+    const limitWords =(text, maxLength)=>{
+    if(!text) return "N/A"
+    return text.length > maxLength ? text.slice(0,maxLength) + "..." : text;
+  }
+
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  
+  return new Date(dateString).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+  // This will return: "18 Jul 2025"
+};
+
   return (
     <div className="pt-2 pb-4">
       <HeadingArea />
@@ -312,6 +355,7 @@ export default function SportsListPageView() {
           <Tab label="All" value="all" />
           <Tab label="Active" value="active" />
           <Tab label="Inactive" value="inactive" />
+          <Tab label="Deleted" value="deleted" />
         </TabList>
 
         <Grid container>
@@ -355,6 +399,7 @@ export default function SportsListPageView() {
                             sortDirection={
                               orderBy === headCell.id ? order : false
                             }
+                            width={headCell.width || 'auto'}
                           >
                             {headCell.id === "actions" ||
                             headCell.id === "status" ? (
@@ -384,7 +429,7 @@ export default function SportsListPageView() {
                           page * rowsPerPage,
                           page * rowsPerPage + rowsPerPage
                         )
-                        .map((sport) => {
+                        .map((sport,ind) => {
                           const isDeleted = sport.deletedAt !== null;
 
                           return (
@@ -396,6 +441,10 @@ export default function SportsListPageView() {
                               isDeleted={isDeleted}
                               onClick={() => setSelectedSport(sport)}
                             >
+                                <BodyTableCell align="left">
+                                                                  {page * rowsPerPage + ind + 1}
+
+                              </BodyTableCell>
                               <BodyTableCell align="center" isDeleted={isDeleted}>
                                 <Stack
                                   direction="row"
@@ -403,7 +452,7 @@ export default function SportsListPageView() {
                                   spacing={2}
                                 >
                                   <Avatar
-                                    src={sport?.icon}
+                                    src={sport?.icon || sports?.iconFile}
                                     sx={{
                                       borderRadius: "20%",
                                       backgroundColor: "grey.100",
@@ -416,13 +465,12 @@ export default function SportsListPageView() {
                                     <H6
                                       fontSize={13}
                                       color={
-                                        isDeleted
-                                          ? "text.disabled"
-                                          : "text.primary"
+                                       "text.primary"
                                       }
                                       fontWeight={500}
+                                      style={{textTransform:"capitalize"}}
                                     >
-                                      {sport.name ?? "N/A"}
+                                      {limitWords(sport.name,15)}
                                     </H6>
                                     {isDeleted && (
                                       <Chip
@@ -436,11 +484,18 @@ export default function SportsListPageView() {
                                   </Stack>
                                 </Stack>
                               </BodyTableCell>
-                              <BodyTableCell align="center" isDeleted={isDeleted}>
-                                {sport.updatedBy ?? "N/A"}
+                              <BodyTableCell align="center" style={{textTransform:"capitalize"}} >
+                              <div>  {limitWords(sport.updatedBy,25)}</div>
+                              <div>  {limitWords(sport.updatedByRole,25)}</div>
                               </BodyTableCell>
-                              <BodyTableCell align="center" isDeleted={isDeleted}>
+                              {/* <BodyTableCell align="center" style={{textTransform:"capitalize"}}>
                                 {sport.updatedByRole ?? "N/A"}
+                              </BodyTableCell> */}
+                              <BodyTableCell align="center" style={{textTransform:"capitalize"}} >
+                                {limitWords(sport.createdBy,25)}
+                              </BodyTableCell>
+                              <BodyTableCell align="center" style={{textTransform:"capitalize"}}>
+                                {formatDate(sport.createdAt)}
                               </BodyTableCell>
 
                               {/* STATUS COLUMN */}
@@ -470,27 +525,7 @@ export default function SportsListPageView() {
                                         }}
                                         size="small"
                                         color="success"
-                                        disabled={isDeleted}
                                       />
-                                      {/* <Chip
-                                        label={
-                                          isDeleted
-                                            ? "Deleted"
-                                            : sport?.isActive
-                                            ? "Active"
-                                            : "Inactive"
-                                        }
-                                        size="small"
-                                        color={
-                                          isDeleted
-                                            ? "error"
-                                            : sport?.isActive
-                                            ? "success"
-                                            : "default"
-                                        }
-                                        variant="outlined"
-                                        sx={{ opacity: isDeleted ? 0.5 : 1 }}
-                                      /> */}
                                     </>
                                   )}
                                 </Stack>
@@ -498,8 +533,8 @@ export default function SportsListPageView() {
 
                               {/* ACTIONS COLUMN */}
                               <BodyTableCell
-                                align="center"
-                                isDeleted={isDeleted}
+                                align="right"
+                                // isDeleted={isDeleted}
                               >
                                 <Stack
                                   direction="row"
@@ -520,7 +555,7 @@ export default function SportsListPageView() {
                                         onClick={(e) =>
                                           handleActionClick(e, "edit", sport)
                                         }
-                                        disabled={isDeleted}
+                                        // disabled={isDeleted}
                                       >
                                         <EditIcon fontSize="small" />
                                       </IconButton>
@@ -542,7 +577,7 @@ export default function SportsListPageView() {
                                             sport
                                           )
                                         }
-                                        disabled={isDeleted}
+                                        // disabled={isDeleted}
                                       >
                                         <DeleteIcon fontSize="small" />
                                       </IconButton>
@@ -579,14 +614,14 @@ export default function SportsListPageView() {
       <EditSportsFormModal
         open={openEditModal}
         handleClose={handleCloseEditModal}
-        data={{ id: sportId }}
+        sportId={{ id: sportId }}
       />
 
       <DeleteEventModal
         open={openDeleteModal}
         handleClose={handleCloseDeleteModal}
         title="Delete Confirmation"
-        message="Are you sure you want to Delete this sport?"
+        message="Are you sure you want to Delete this Sport?"
         actions={[
           {
             label: "Cancel",
