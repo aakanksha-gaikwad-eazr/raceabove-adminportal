@@ -17,6 +17,7 @@ import {
   Skeleton,
   Alert,
   Container,
+  CardMedia,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -255,24 +256,50 @@ export default function AddonDetails() {
 
               <Divider sx={{ my: 2 }} />
 
-              {/* Ticket Information Grid */}
-              <Grid container spacing={3}>
-                <Grid item xs={12} sm={6}>
-                  <Box>
+              {/* Description Section */}
+              <Box mb={3}>
+                <Typography
+                  variant="subtitle2"
+                  color="text.secondary"
+                  gutterBottom
+                >
+                  Description
+                </Typography>
+                <Typography variant="body2" style={{textTransform:"capitalize"}}>
+                  {AddonData?.description|| "N/A"}
+                </Typography>
+              </Box>
+
+              {/* Image Section */}
+              {AddonData?.image && (
+                <>
+                  <Divider sx={{ my: 2 }} />
+                  <Box mb={3}>
                     <Typography
                       variant="subtitle2"
                       color="text.secondary"
                       gutterBottom
                     >
-                      Description
+                      Product Image
                     </Typography>
-                    <Typography variant="body2" style={{textTransform:"capitalize"}}>
-                      {AddonData?.description|| "N/A"}
-                    </Typography>
+                    <Card variant="outlined" sx={{ maxWidth: 400, mt: 1 }}>
+                      <CardMedia
+                        component="img"
+                        height="250"
+                        image={AddonData.image}
+                        alt={AddonData?.name || "Product image"}
+                        sx={{
+                          objectFit: "cover",
+                          borderRadius: 1,
+                        }}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </Card>
                   </Box>
-                </Grid>
-
-              </Grid>
+                </>
+              )}
 
               {/* Review REASONS */}
               {AddonData.reviewReason && (
