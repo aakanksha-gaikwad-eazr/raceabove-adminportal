@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"; // MUI
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid2";
@@ -12,26 +12,26 @@ import TableHead from "@mui/material/TableHead";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
-import styled from "@mui/material/styles/styled"; // CUSTOM COMPONENTS
+import styled from "@mui/material/styles/styled";
 import { H6 } from "@/components/typography";
 import Scrollbar from "@/components/scrollbar";
-import { TableDataNotFound } from "@/components/table"; // CUSTOM PAGE SECTION COMPONENTS
+import { TableDataNotFound } from "@/components/table";
 import DeleteIcon from "@/icons/Delete";
 import EditIcon from "@/icons/Edit";
 import DeleteModal from "@/components/delete-modal/DeleteModal";
 import { useNavigate } from "react-router-dom";
 import SearchArea from "../SearchArea";
-import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable"; // CUSTOM UTILS METHOD
-import { isDark } from "@/utils/constants"; // CUSTOM DUMMY DATA
+import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable";
+import { isDark } from "@/utils/constants";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getCoupons,
-  reviewCoupons,
-} from "../../../store/apps/coupons";
+import { getCoupons, reviewCoupons } from "../../../store/apps/coupons";
 import HeadingAreaCoupon from "../HeadingAreaCoupon";
 import toast from "react-hot-toast";
 import { Button, Chip } from "@mui/material";
 import ApprovalModal from "@/components/approval-modal";
+import { limitWords } from "@/utils/wordLimiter";
+import { formatSingleDate } from "@/utils/dateFormatter";
+import { formatDate } from "@/utils/dateFormatter";
 
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
   fontSize: 14,
@@ -62,46 +62,74 @@ const BodyTableRow = styled(TableRow, {
 }));
 const headCells = [
   {
+    id: "id",
+    numeric: true,
+    disablePadding: false,
+    label: "Id",
+    width:"10%"
+  },
+  {
     id: "name",
     numeric: true,
     disablePadding: false,
     label: "Title",
+        width:"20"
   },
-  {
-    id: "position",
-    numeric: true,
-    disablePadding: false,
-    label: "Code",
-  },
-  {
-    id: "company",
-    numeric: true,
-    disablePadding: false,
-    label: "Discount Type",
-  },
-  {
-    id: "email",
-    numeric: true,
-    disablePadding: false,
-    label: "Discount Value",
-  },
-  {
-    id: "timestamp",
-    numeric: true,
-    disablePadding: false,
-    label: "TimeStamp",
-  },
+  // {
+  //   id: "position",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Code",
+  //       width:"8%"
+  // },
+  // {
+  //   id: "discounttype",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Discount Type",
+  //       width:"15%"
+  // },
+  // {
+  //   id: "discountvalue",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Discount Value",
+  //       width:"10%"
+  // },
+  // {
+  //   id: "timestamp",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Time Stamp",
+  //       width:"10%"
+  // },
   {
     id: "approvalStatus",
     numeric: true,
     disablePadding: false,
     label: "Approval Status",
+        width:"20%"
+  },
+  {
+    id: "createdBy",
+    numeric: true,
+    disablePadding: false,
+    label: "Organizer",
+        width:"20%"
+  },
+  {
+    id: "date",
+    numeric: true,
+    disablePadding: false,
+    label: "Date",
+    width:"20%"
   },
   {
     id: "actions",
     numeric: true,
     disablePadding: false,
     label: "Actions",
+    width:"10%"
   },
 ];
 
@@ -111,7 +139,6 @@ export default function Coupons2PageView() {
   const [selectedCoupons, setSelectedCoupons] = useState();
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [couponToReview, setCouponToReview] = useState(null);
-  
 
   const {
     page,
@@ -156,68 +183,95 @@ export default function Coupons2PageView() {
     }
   }, [coupons]);
 
-   const handleReviewClick = (coupons) => {
-    setCouponToReview(coupons);
-    setApprovalModalOpen(true);
+  const handleReviewClick = (coupons) => {
+        navigate(`/coupon-details/${coupons.id}`);
+
   };
-    const handleApprovalCancel = () => {
+  const handleApprovalCancel = () => {
     setApprovalModalOpen(false);
     setCouponToReview(null);
   };
-   const handleApprovalSubmit = async (formData) => {
-          if (couponToReview) {
-            try {
-              const reviewData = {
-                id: couponToReview.id,
-                data:{
-                  approvalStatus: String(formData.approvalStatus).toLowerCase().trim(),
-                  reviewReason: String(formData.reviewReason).trim(),
-                }
-               
-              };
-      
-              // Additional validation to ensure values are correct
-              if (!["approved", "rejected"].includes(reviewData?.data?.approvalStatus)) {
-                toast.error("Invalid approval status");
-                return;
-              }
-              if (!reviewData?.data?.reviewReason) {
-                toast.error("Review reason is required");
-                return;
-              }
-              const result = await dispatch(reviewCoupons(reviewData));
-              console.log("result", result)
-              if (result?.payload?.status === 200) {
-                dispatch(getCoupons());
-                
-                // Show success toast based on approval status
-                switch (reviewData?.data?.approvalStatus) {
-                  case "approved":
-                    toast.success("Coupons are approved successfully!");
-                    break;
-                  case "rejected":
-                    toast.success("Coupons are rejected successfully!");
-                    break;
-                  default:
-                    toast.success("Coupons are reviewed successfully!");
-                }
-                // Reset state
-                setApprovalModalOpen(false);
-                setCouponToReview(null);
-              } else {
-                // Handle API error response
-                const errorMessage = result.payload?.message || result.error?.message || "Failed to review Coupons";
-                toast.error(errorMessage);
-              }
-              
-            } catch (error) {
-              console.error("Error reviewing Coupons:", error);
-              const errorMessage = error.response?.data?.message || error.message || "Failed to review Coupons. Please try again.";
-              toast.error(errorMessage);
-            }
-          }
+  const handleApprovalSubmit = async (formData) => {
+    if (couponToReview) {
+      try {
+        const reviewData = {
+          id: couponToReview.id,
+          data: {
+            approvalStatus: String(formData.approvalStatus)
+              .toLowerCase()
+              .trim(),
+            reviewReason: String(formData.reviewReason).trim(),
+          },
         };
 
+        // Additional validation to ensure values are correct
+        if (
+          !["approved", "rejected"].includes(reviewData?.data?.approvalStatus)
+        ) {
+          toast.error("Invalid approval status");
+          return;
+        }
+        if (!reviewData?.data?.reviewReason) {
+          toast.error("Review reason is required");
+          return;
+        }
+        const result = await dispatch(reviewCoupons(reviewData));
+        console.log("result", result);
+        if (result?.payload?.status === 200) {
+          dispatch(getCoupons());
+
+          // Show success toast based on approval status
+          switch (reviewData?.data?.approvalStatus) {
+            case "approved":
+              toast.success("Coupons are approved successfully!");
+              break;
+            case "rejected":
+              toast.success("Coupons are rejected successfully!");
+              break;
+            default:
+              toast.success("Coupons are reviewed successfully!");
+          }
+          // Reset state
+          setApprovalModalOpen(false);
+          setCouponToReview(null);
+        } else {
+          // Handle API error response
+          const errorMessage =
+            result.payload?.message ||
+            result.error?.message ||
+            "Failed to review Coupons";
+          toast.error(errorMessage);
+        }
+      } catch (error) {
+        console.error("Error reviewing Coupons:", error);
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to review Coupons. Please try again.";
+        toast.error(errorMessage);
+      }
+    }
+  };
+
+    const isReviewed = (approvalStatus) => {
+    return approvalStatus === "approved" || approvalStatus === "rejected";
+  };
+
+   const handleRowClick = (event, couponId) => {
+    // Check if the click originated from a button, icon button, or chip
+    const clickedElement = event.target;
+    const isInteractiveElement = 
+      clickedElement.closest('button') || 
+      clickedElement.closest('[role="button"]') ||
+      clickedElement.closest('.MuiChip-root') ||
+      clickedElement.closest('.MuiIconButton-root') ||
+      clickedElement.closest('.MuiButton-root');
+    
+    if (isInteractiveElement) {
+      return;
+    }
+    navigate(`/coupon-details/${couponId}`);
+  };
   return (
     <div className="pt-2 pb-4">
       <HeadingAreaCoupon />
@@ -261,6 +315,7 @@ export default function Coupons2PageView() {
                           sortDirection={
                             orderBy === headCell.id ? order : false
                           }
+                          width={headCell.width}
                         >
                           <TableSortLabel
                             active={orderBy === headCell.id}
@@ -281,51 +336,38 @@ export default function Coupons2PageView() {
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
                       )
-                      .map((coupons) => (
+                      .map((coupons, ind) => (
                         <BodyTableRow
                           key={coupons.id}
                           active={selectedCoupons?.id === coupons.id ? 1 : 0}
-                          onClick={() => setSelectedCoupons(coupons)}
+                            onClick={(e) => {
+                                setSelectedCoupons(coupons);
+                                handleRowClick(e, coupons.id);
+                              }}
                         >
-                          <BodyTableCell align="center">
-                            <Stack
-                              direction="row"
-                              alignItems="center"
-                              spacing={1}
-                            >
-                              {/* <Avatar
-                                src={coupons.profilePhoto}
-                                sx={{
-                                  borderRadius: "20%",
-                                  backgroundColor: "grey.100",
-                                }}
-                              /> */}
-
-                              {/* <H6 fontSize={12} color="text.primary"> */}
-                              {coupons.title ?? "N/A"}
-                              {/* </H6> */}
-                            </Stack>
+                          <BodyTableCell align="left">
+                            {page * rowsPerPage + ind + 1}
                           </BodyTableCell>
-                          <BodyTableCell align="center">
+                          <BodyTableCell
+                            align="center"
+                            style={{ textTransform: "capitalize" }}
+                          >
                             <H6 fontSize={12} color="text.primary">
-                              {coupons.code ?? "N/A"}
+                              {limitWords(coupons.title, 20)}
                             </H6>
                           </BodyTableCell>
-                          <BodyTableCell align="center">
+                          {/* <BodyTableCell align="center">
+                            <H6 fontSize={12} color="text.primary">
+                              {limitWords(coupons.code, 20)}
+                            </H6>
+                          </BodyTableCell>
+                          <BodyTableCell
+                            align="center"
+                            style={{ textTransform: "capitalize" }}
+                          >
                             <Chip
-                              label={
-                                coupons.discountType
-                                  ? coupons.discountType
-                                      .charAt(0)
-                                      .toUpperCase() +
-                                    coupons.discountType.slice(1)
-                                  : "N/A"
-                              }
-                              color={
-                                coupons.discountType === "percentage"
-                                  ? "primary"
-                                  : "primary"
-                              }
+                              label={coupons.discountType ?? "N/A"}
+                              color={"primary"}
                               variant="outlined"
                               size="small"
                             />
@@ -338,35 +380,15 @@ export default function Coupons2PageView() {
                           <BodyTableCell align="center">
                             <div>
                               <div>
-                                {" "}
-                                Start:{" "}
-                                {new Date(
-                                  coupons.startTimeStamp
-                                ).toLocaleString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                                {formatSingleDate(coupons?.startTimeStamp)}
                               </div>
+                              to
                               <div>
-                                {" "}
-                                End:{" "}
-                                {new Date(coupons.endTimeStamp).toLocaleString(
-                                  "en-US",
-                                  {
-                                    month: "short",
-                                    day: "numeric",
-                                    year: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
+                                {formatSingleDate(coupons?.endTimeStamp)}
                               </div>
                             </div>
-                          </BodyTableCell>
-                          <BodyTableCell alignItems="center">
+                          </BodyTableCell> */}
+                          <BodyTableCell align="center">
                             {/* {addoncatgory.approvalStatus ?? "N/A"} */}
                             <Chip
                               label={
@@ -390,20 +412,26 @@ export default function Coupons2PageView() {
                               size="small"
                             />
                           </BodyTableCell>
-                   
-                 
-                        <BodyTableCell>
+                          <BodyTableCell align="center">
+                            {coupons?.createdBy ?? "N/A"}
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            {formatDate(coupons?.createdAt)}
+                          </BodyTableCell>
+
+                          <BodyTableCell align="right">
                             <Button
-                                  size="small"
-                                  variant="outlined"
-                                  disabled={coupons.approvalStatus === "approved" || coupons.approvalStatus === "rejected"}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleReviewClick(coupons);
-                                  }}
-                                >
-                                  Review
-                                </Button>
+                              size="small"
+                              variant="outlined"
+                           
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleReviewClick(coupons);
+                              }}
+                            >
+                                  {isReviewed(coupons.approvalStatus) ? "Re-review" : "Review"}
+                            </Button>
+                             
                           </BodyTableCell>
                         </BodyTableRow>
                       ))}
@@ -427,18 +455,18 @@ export default function Coupons2PageView() {
           </Card>
         </Grid>
       </Grid>
-   
-     {/* APPROVAL MODAL */}
-         <ApprovalModal
-           open={approvalModalOpen}
-           handleClose={handleApprovalCancel}
-           title="Review Coupons"
-           onSubmit={handleApprovalSubmit}
-           initialData={{
-             approvalStatus: couponToReview?.approvalStatus || "",
-             reviewReason: couponToReview?.reviewReason || ""
-           }}
-         />
+
+      {/* APPROVAL MODAL */}
+      <ApprovalModal
+        open={approvalModalOpen}
+        handleClose={handleApprovalCancel}
+        title="Review Coupons"
+        onSubmit={handleApprovalSubmit}
+        initialData={{
+          approvalStatus: couponToReview?.approvalStatus || "",
+          reviewReason: couponToReview?.reviewReason || "",
+        }}
+      />
     </div>
   );
 }

@@ -40,6 +40,8 @@ import toast from "react-hot-toast";
 import EditGearTypesFormModal from "../EditgeartypesFormModal";
 import DeleteEventModal from "@/components/delete-modal-event";
 import HeadingArea from "../HeadingArea";
+import { formatDate } from "@/utils/dateFormatter";
+import { deleteGearTypes } from "@/store/apps/geartypes";
 
 // STYLED COMPONENTS
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
@@ -51,8 +53,8 @@ const HeadTableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.grey[isDark(theme) ? 700 : 100]}`,
   "&:first-of-type": {
     paddingLeft: 24,
-    width: "4%",
-    minWidth: 180,
+    // width: "4%",
+    // minWidth: 180,
   },
   "&:last-of-type": {
     paddingRight: 24,
@@ -97,58 +99,55 @@ const BodyTableRow = styled(TableRow, {
 
 const headCells = [
   {
+    id: "id",
+    numeric: true,
+    disablePadding: false,
+    label: "Id",
+    width: "5%",
+  },
+  {
     id: "name",
     numeric: true,
     disablePadding: false,
     label: "Name",
+    width: "15%",
   },
-  // {
-  //   id: "position",
-  //   numeric: true,
-  //   disablePadding: false,
-  //   label: "Created By",
-  // },
-  // {
-  //   id: "company",
-  //   numeric: true,
-  //   disablePadding: false,
-  //   label: "Created By Role",
-  // },
+
   {
-    id: "email",
+    id: "updatedBy",
     numeric: true,
     disablePadding: false,
     label: "Updated By",
+    width: "15%",
   },
   {
-    id: "phone",
+    id: "updatedbyrole",
     numeric: true,
     disablePadding: false,
     label: "Updated By Role",
+    width: "35%",
   },
-  // {
-  //   id: "phone",
-  //   numeric: true,
-  //   disablePadding: false,
-  //   label: "Deleted By",
-  // },
-  // {
-  //   id: "phone",
-  //   numeric: true,
-  //   disablePadding: false,
-  //   label: "Deleted By Role",
-  // },
+  {
+    id: "createdAt",
+    numeric: true,
+    disablePadding: false,
+    label: "Date",
+    width: "5%",
+  },
+
   {
     id: "status",
     numeric: false,
     disablePadding: false,
     label: "Status",
+    width: "5%",
   },
   {
     id: "actions",
     numeric: false,
     disablePadding: false,
     label: "Actions",
+    width: "5%",
   },
 ];
 
@@ -178,7 +177,6 @@ export default function GearTypesList2PageView() {
 
   const dispatch = useDispatch();
   const { gearTypes } = useSelector((state) => state.geartypes);
-  console.log("gearTypes", gearTypes);
 
   useEffect(() => {
     dispatch(getGearTypes());
@@ -238,7 +236,6 @@ export default function GearTypesList2PageView() {
       return;
     }
 
-    console.log("Toggle clicked:", gearTypeId, currentStatus);
     setLoadingStates((prev) => ({ ...prev, [gearTypeId]: true }));
 
     try {
@@ -249,16 +246,11 @@ export default function GearTypesList2PageView() {
         },
       };
 
-      console.log("Dispatching updateGearTypes with:", updateData);
-
       const result = await dispatch(updateGearTypes(updateData));
-      console.log("result", result);
-
       if (
         result.payload?.data?.status == 200 ||
         result.meta?.requestStatus === "fulfilled"
       ) {
-        console.log("Gear type status updated successfully");
         toast.success("Status updated successfully");
 
         // Force refresh the gear types list
@@ -313,10 +305,38 @@ export default function GearTypesList2PageView() {
     setGearTypesId(null);
   };
 
-  const handleDelete = () => {
-    console.log("Deleting gear type with id:", gearTypesId);
-    // dispatch(deleteGearType(gearTypesId));
-    handleCloseDeleteModal();
+  const handleDelete = async () => {
+    try {
+      const result = await dispatch(deleteGearTypes(gearTypesId));
+      console.log("Delete result:", result);
+      if (
+        result.payload?.data?.status === 200 ||
+        result.meta?.requestStatus === "fulfilled"
+      ) {
+        console.log("Gear type deleted successfully");
+        toast.success("Gear type deleted successfully");
+
+        // Refresh the gear types list
+        await dispatch(getGearTypes()).unwrap();
+
+        // If the deleted item was selected, clear selection or select another item
+        if (selectedGeartype?.id === gearTypesId) {
+          const remainingGearTypes = gearTypes.filter(
+            (gear) => gear.id !== gearTypesId && gear.deletedAt === null
+          );
+          setSelectedGeartype(remainingGearTypes[0] || null);
+        }
+      } else {
+        console.error("Delete failed:", result);
+        toast.error("Failed to delete gear type");
+      }
+    } catch (error) {
+      console.error("Error deleting gear type:", error);
+      toast.error("An error occurred while deleting the gear type");
+    } finally {
+      // Always close the modal regardless of success or failure
+      handleCloseDeleteModal();
+    }
   };
 
   const handleActionClick = (e, action, geartype) => {
@@ -332,7 +352,11 @@ export default function GearTypesList2PageView() {
     <div className="pt-2 pb-4">
       <HeadingArea />
       <TabContext value={selectTab}>
-        <TabList variant="scrollable" onChange={handleChangeTab} sx={{ mb: 2, px: 3 }}>
+        <TabList
+          variant="scrollable"
+          onChange={handleChangeTab}
+          sx={{ mb: 2, px: 3 }}
+        >
           <Tab label="All" value="all" />
           <Tab label="Active" value="active" />
           <Tab label="Inactive" value="inactive" />
@@ -379,6 +403,7 @@ export default function GearTypesList2PageView() {
                             sortDirection={
                               orderBy === headCell.id ? order : false
                             }
+                            width={headCell.width}
                           >
                             {headCell.id === "actions" ||
                             headCell.id === "status" ? (
@@ -408,7 +433,7 @@ export default function GearTypesList2PageView() {
                           page * rowsPerPage,
                           page * rowsPerPage + rowsPerPage
                         )
-                        .map((geartype) => {
+                        .map((geartype, ind) => {
                           const isDeleted = geartype.deletedAt !== null;
 
                           return (
@@ -422,7 +447,14 @@ export default function GearTypesList2PageView() {
                                 !isDeleted && setSelectedGeartype(geartype)
                               }
                             >
-                              <BodyTableCell align="left" isDeleted={isDeleted}>
+                              <BodyTableCell align="left">
+                                {page * rowsPerPage + ind + 1}
+                              </BodyTableCell>
+                              <BodyTableCell
+                                align="center"
+                                isDeleted={isDeleted}
+                                style={{ textTransform: "capitalize" }}
+                              >
                                 <Stack
                                   direction="row"
                                   alignItems="center"
@@ -468,11 +500,25 @@ export default function GearTypesList2PageView() {
                               <BodyTableCell align="left" isDeleted={isDeleted}>
                                 {geartype.createdByRole ?? "N/A"}
                               </BodyTableCell> */}
-                              <BodyTableCell align="center" isDeleted={isDeleted}>
+                              <BodyTableCell
+                                align="center"
+                                isDeleted={isDeleted}
+                                style={{ textTransform: "capitalize" }}
+                              >
                                 {geartype.updatedBy ?? "N/A"}
                               </BodyTableCell>
-                              <BodyTableCell align="center" isDeleted={isDeleted}>
+                              <BodyTableCell
+                                align="center"
+                                isDeleted={isDeleted}
+                                style={{ textTransform: "capitalize" }}
+                              >
                                 {geartype.updatedByRole ?? "N/A"}
+                              </BodyTableCell>
+                              <BodyTableCell
+                                align="center"
+                                isDeleted={isDeleted}
+                              >
+                                {formatDate(geartype.createdAt)}
                               </BodyTableCell>
                               {/* <BodyTableCell align="left" isDeleted={isDeleted}>
                                 {geartype.deletedBy ?? "N/A"}

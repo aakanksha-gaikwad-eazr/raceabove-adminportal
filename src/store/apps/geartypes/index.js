@@ -105,36 +105,82 @@ export const deleteGearTypes = createAsyncThunk('appUsers/deleteGearTypes', asyn
   }
 })
 
-//update the sports
-export const updateGearTypes = createAsyncThunk('appUsers/updateGearTypes', async (req) => {
-  console.log("data:::", req)
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
+// //update the sports
+// export const updateGearTypes = createAsyncThunk('appUsers/updateGearTypes', async (req) => {
+//   console.log("data:::", req)
+//   try {
+//     const adminData = JSON.parse(localStorage.getItem('raceabove'))
+//     const accessToken = adminData.accessToken
 
-    if (!accessToken) {
-      throw new Error('Access token not found in localStorage')
-    }
+//     if (!accessToken) {
+//       throw new Error('Access token not found in localStorage')
+//     }
   
-    let url = `${ip}/v1/gear-types/${req.id}`
-    console.log(req?.data,"req?.data gear-types")
+//     let url = `${ip}/v1/gear-types/${req.id}`
+//     console.log(req?.data,"req?.data gear-types")
 
-    const response = await axiosInstance.patch(url,req?.data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${accessToken}`, 
-      } 
-    })
+//     const response = await axiosInstance.patch(url,req?.data, {
+//       headers: {
+//         'Content-Type': 'multipart/form-data',
+//         Authorization: `Bearer ${accessToken}`, 
+//       } 
+//     })
     
-    console.log("update gear-types data", response.data)
+//     console.log("update gear-types data", response.data)
 
-    return response?.data
+//     return response?.data
 
-  } catch (error) {
-    console.error("❌ API Request Failed:", error.response?.data || error.message);
-    throw new Error('Failed to update gear-types details')
+//   } catch (error) {
+//     console.error("❌ API Request Failed:", error.response?.data || error.message);
+//     throw new Error('Failed to update gear-types details')
+//   }
+// })
+
+//update the gear types
+export const updateGearTypes = createAsyncThunk(
+  'appUsers/updateGearTypes', 
+  async (req, { rejectWithValue }) => {
+    console.log("data:::", req)
+    try {
+      const adminData = JSON.parse(localStorage.getItem('raceabove'))
+      const accessToken = adminData.accessToken
+
+      if (!accessToken) {
+        throw new Error('Access token not found in localStorage')
+      }
+    
+      let url = `${ip}/v1/gear-types/${req.id}`
+      console.log(req?.data,"req?.data gear-types")
+
+      const response = await axiosInstance.patch(url, req?.data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${accessToken}`, 
+        } 
+      })
+      
+      console.log("update gear-types data", response.data)
+
+      // Return the response data with status information
+      return {
+        ...response.data,
+        status: response.status,
+        statusCode: response.status,
+        id: req.id, // Include the ID for easy identification
+      }
+
+    } catch (error) {
+      console.error("❌ API Request Failed:", error.response?.data || error.message);
+      
+      // Return rejected value with proper error information
+      return rejectWithValue({
+        message: error.response?.data?.message || 'Failed to update gear-types details',
+        status: error.response?.status || 500,
+        data: error.response?.data
+      })
+    }
   }
-})
+)
 
 export const appGearTypesSlice = createSlice({
   name: 'appGearTypes',

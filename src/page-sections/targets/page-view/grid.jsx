@@ -53,7 +53,7 @@ const HeadingWrapper = styled(FlexBetween)(({ theme }) => ({
 export default function TargetsGridPageView() {
   const [pageSize] = useState(8);
   const [pageIndex, setPageIndex] = useState(1);
-  const [selectTab, setSelectTab] = useState("all"); // Changed to "all" as default
+  const [selectTab, setSelectTab] = useState("active"); 
   const [searchValue, setSearchValue] = useState("");
   const [products, setProducts] = useState([]);
 

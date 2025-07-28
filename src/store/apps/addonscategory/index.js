@@ -59,7 +59,7 @@ export const reviewAddOnsCategory = createAsyncThunk('appAddOns/reviewAddOnsCate
 })
 
 //get single add-on category
-export const singleAddOnCategory = createAsyncThunk('appAddOns/singleAddOnCategory', async (id) => {
+export const getSingleAddOnCategory = createAsyncThunk('appAddOns/getSingleAddOnCategory', async (id) => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
     const accessToken = adminData.accessToken
@@ -100,7 +100,7 @@ export const appAddOnsSlice = createSlice({
     .addCase(getAddOnsCategory.fulfilled, (state, action) => {
       state.addOnsCategory = action.payload 
     })
-    .addCase(singleAddOnCategory.fulfilled, (state, action) => {
+    .addCase(getSingleAddOnCategory.fulfilled, (state, action) => {
       state.singleAddOnsCategory= action.payload
     })
     .addCase(reviewAddOnsCategory.fulfilled, (state, action) => {

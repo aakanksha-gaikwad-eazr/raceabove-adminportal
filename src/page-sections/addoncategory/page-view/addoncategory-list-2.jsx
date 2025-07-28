@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react"; // MUI
-
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid2";
 import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
-import Avatar from "@mui/material/Avatar";
 import TableRow from "@mui/material/TableRow";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -13,35 +11,25 @@ import TableHead from "@mui/material/TableHead";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
-import styled from "@mui/material/styles/styled"; // CUSTOM COMPONENTS
-
+import styled from "@mui/material/styles/styled";
 import { H6 } from "@/components/typography";
 import Scrollbar from "@/components/scrollbar";
-import { TableDataNotFound } from "@/components/table"; // CUSTOM PAGE SECTION COMPONENTS
-
+import { TableDataNotFound } from "@/components/table";
 import SearchArea from "../SearchArea";
-import UserDetails from "../UserDetails"; // CUSTOM DEFINED HOOK
-
-import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable"; // CUSTOM UTILS METHOD
-
-import { isDark } from "@/utils/constants"; // CUSTOM DUMMY DATA
-
-import { USER_LIST } from "@/__fakeData__/users"; // STYLED COMPONENTS
+import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable";
+import { isDark } from "@/utils/constants";
 import { useDispatch, useSelector } from "react-redux";
-import SearchFilter from "../../challenge/SearchFilter";
-import StatusFilter from "../../challenge/StatusFilter";
 import { getAddOnsCategory } from "@/store/apps/addonscategory";
 import HeadingArea from "../HeadingArea";
-import { Chip, Switch } from "@mui/material";
-import DeleteIcon from "@/icons/Delete";
-import EditIcon from "@/icons/Edit";
-import DeleteModal from "@/components/delete-modal/DeleteModal";
+import { Chip } from "@mui/material";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { reviewAddOnsCategory } from "@/store/apps/addonscategory";
 import ApprovalModal from "@/components/approval-modal";
 import { Paragraph } from "@/components/typography";
 import { Button } from "@mui/material";
+import { formatDate } from "@/utils/dateFormatter";
+import { limitWords } from "@/utils/wordLimiter";
 
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
   fontSize: 14,
@@ -72,34 +60,60 @@ const BodyTableRow = styled(TableRow, {
 }));
 const headCells = [
   {
+    id: "id",
+    numeric: true,
+    disablePadding: false,
+    label: "Id",
+    width: "5%",
+  },
+  {
     id: "name",
     numeric: true,
     disablePadding: false,
     label: "Name",
+    width: "10%",
   },
   {
     id: "description",
     numeric: true,
     disablePadding: false,
     label: "Description",
+    width: "20%",
   },
   {
     id: "approvalStatus",
     numeric: true,
     disablePadding: false,
     label: "Approval Status",
+    width: "20%",
   },
   {
     id: "reviewedby",
     numeric: false,
     disablePadding: false,
     label: "Reviewed By",
+    width: "15%",
+  },
+  {
+    id: "createdate",
+    numeric: false,
+    disablePadding: false,
+    label: "Date",
+    width: "5%",
+  },
+  {
+    id: "createdBy",
+    numeric: false,
+    disablePadding: false,
+    label: "Organizer",
+    width: "20%",
   },
   {
     id: "actions",
     numeric: true,
     disablePadding: false,
     label: "Actions",
+    width: "5%",
   },
 ];
 
@@ -125,7 +139,7 @@ export default function Addoncategory2PageView() {
   const [selectedAddonCategory, setSelectedAddonCategory] = useState();
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [addonCategoryToReview, setAddonCategoryToReview] = useState(null);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const filteredAddonCategories = stableSort(
     addOnsCategory,
@@ -136,9 +150,9 @@ export default function Addoncategory2PageView() {
     else return true;
   });
 
-  useEffect(()=>{
-    dispatch(getAddOnsCategory())
-  },[])
+  useEffect(() => {
+    dispatch(getAddOnsCategory());
+  }, []);
 
   useEffect(() => {
     if (selectedAddonCategory) {
@@ -152,67 +166,98 @@ export default function Addoncategory2PageView() {
   }, [addOnsCategory]);
 
   const handleReviewClick = (addoncatgory) => {
-    setAddonCategoryToReview(addoncatgory);
-    setApprovalModalOpen(true);
+        navigate(`/details-addoncategory/${addoncatgory.id}`);
+
+    // setAddonCategoryToReview(addoncatgory);
+    // setApprovalModalOpen(true);
   };
   const handleApprovalCancel = () => {
     setApprovalModalOpen(false);
     setAddonCategoryToReview(null);
   };
 
-     const handleApprovalSubmit = async (formData) => {
-        if (addonCategoryToReview) {
-          try {
-            const reviewData = {
-              id: addonCategoryToReview.id,
-              data:{
-                approvalStatus: String(formData.approvalStatus).toLowerCase().trim(),
-                reviewReason: String(formData.reviewReason).trim(),
-              }
-             
-            };
-    
-            // Additional validation to ensure values are correct
-            if (!["approved", "rejected"].includes(reviewData?.data?.approvalStatus)) {
-              toast.error("Invalid approval status");
-              return;
-            }
-            if (!reviewData?.data?.reviewReason) {
-              toast.error("Review reason is required");
-              return;
-            }
-            const result = await dispatch(reviewAddOnsCategory(reviewData));
-            console.log("result", result)
-            if (result?.payload?.status === 200) {
-              dispatch(getAddOnsCategory());
-              
-              // Show success toast based on approval status
-              switch (reviewData?.data?.approvalStatus) {
-                case "approved":
-                  toast.success("Product Categories are approved successfully!");
-                  break;
-                case "rejected":
-                  toast.success("Product Categories are rejected successfully!");
-                  break;
-                default:
-                  toast.success("Product Categories are reviewed successfully!");
-              }
-              // Reset state
-              setApprovalModalOpen(false);
-              setAddonCategoryToReview(null);
-            } else {
-              // Handle API error response
-              const errorMessage = result.payload?.message || result.error?.message || "Failed to review Product categories";
-              toast.error(errorMessage);
-            }
-            
-          } catch (error) {
-            console.error("Error reviewing Product Categories:", error);
-            const errorMessage = error.response?.data?.message || error.message || "Failed to review Product categories. Please try again.";
-            toast.error(errorMessage);
-          }
+  const handleApprovalSubmit = async (formData) => {
+    if (addonCategoryToReview) {
+      try {
+        const reviewData = {
+          id: addonCategoryToReview.id,
+          data: {
+            approvalStatus: String(formData.approvalStatus)
+              .toLowerCase()
+              .trim(),
+            reviewReason: String(formData.reviewReason).trim(),
+          },
+        };
+
+        // Additional validation to ensure values are correct
+        if (
+          !["approved", "rejected"].includes(reviewData?.data?.approvalStatus)
+        ) {
+          toast.error("Invalid approval status");
+          return;
         }
-      };
+        if (!reviewData?.data?.reviewReason) {
+          toast.error("Review reason is required");
+          return;
+        }
+        const result = await dispatch(reviewAddOnsCategory(reviewData));
+        console.log("result", result);
+        if (result?.payload?.status === 200) {
+          dispatch(getAddOnsCategory());
+
+          // Show success toast based on approval status
+          switch (reviewData?.data?.approvalStatus) {
+            case "approved":
+              toast.success("Product Categories are approved successfully!");
+              break;
+            case "rejected":
+              toast.success("Product Categories are rejected successfully!");
+              break;
+            default:
+              toast.success("Product Categories are reviewed successfully!");
+          }
+          // Reset state
+          setApprovalModalOpen(false);
+          setAddonCategoryToReview(null);
+        } else {
+          // Handle API error response
+          const errorMessage =
+            result.payload?.message ||
+            result.error?.message ||
+            "Failed to review Product categories";
+          toast.error(errorMessage);
+        }
+      } catch (error) {
+        console.error("Error reviewing Product Categories:", error);
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to review Product categories. Please try again.";
+        toast.error(errorMessage);
+      }
+    }
+  };
+
+  const handleRowClick = (event, addonCategoryId) => {
+    // Check if the click originated from a button, icon button, or chip
+    const clickedElement = event.target;
+    const isInteractiveElement =
+      clickedElement.closest("button") ||
+      clickedElement.closest('[role="button"]') ||
+      clickedElement.closest(".MuiChip-root") ||
+      clickedElement.closest(".MuiIconButton-root") ||
+      clickedElement.closest(".MuiButton-root");
+
+    if (isInteractiveElement) {
+      return;
+    }
+    navigate(`/details-addoncategory/${addonCategoryId}`);
+  };
+
+  const isReviewed = (approvalStatus) => {
+    return approvalStatus === "approved" || approvalStatus === "rejected";
+  };
+  console.log("filteredAddonCategories", filteredAddonCategories)
 
   return (
     <div className="pt-2 pb-4">
@@ -256,6 +301,7 @@ export default function Addoncategory2PageView() {
                           sortDirection={
                             orderBy === headCell.id ? order : false
                           }
+                          width={headCell.width}
                         >
                           <TableSortLabel
                             active={orderBy === headCell.id}
@@ -272,11 +318,12 @@ export default function Addoncategory2PageView() {
                   {/* TABLE BODY AND DATA */}
                   <TableBody>
                     {filteredAddonCategories
+                        .filter((addoncatgory) => addoncatgory.deletedAt === null)
                       .slice(
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
-                      ).filter(addoncatgory=>addoncatgory.deletedAt === null)
-                      .map((addoncatgory) => (
+                      )
+                      .map((addoncatgory, ind) => (
                         <BodyTableRow
                           key={addoncatgory.id}
                           active={
@@ -284,68 +331,73 @@ export default function Addoncategory2PageView() {
                               ? 1
                               : 0
                           }
-                          onClick={() => setSelectedAddonCategory(addoncatgory)}
+                          onClick={(e) => {
+                            setSelectedAddonCategory(addoncatgory);
+                            handleRowClick(e, addoncatgory.id);
+                          }}
                         >
-                          <BodyTableCell>
+                          <BodyTableCell align="left">
+                              {page * rowsPerPage + ind + 1}
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
                             <Stack
                               direction="row"
                               alignItems="center"
                               spacing={1}
                             >
-                         
                               <H6 fontSize={12} color="text.primary">
                                 {addoncatgory.name ?? "N/A"}
                               </H6>
                             </Stack>
                           </BodyTableCell>
-                          <BodyTableCell>
-                            {addoncatgory.description
-                              ? addoncatgory.description.length > 25
-                                ? `${addoncatgory.description.substring(0, 25)}...`
-                                : addoncatgory.description
-                              : "N/A"}
+                          <BodyTableCell align="center">
+                            {limitWords(addoncatgory?.description, 20)}
                           </BodyTableCell>
-                          <BodyTableCell alignItems="center">
+                          <BodyTableCell
+                            align="center"
+                            style={{ textTransform: "capitalize" }}
+                          >
                             {/* {addoncatgory.approvalStatus ?? "N/A"} */}
                             <Chip
-                              label={
-                                addoncatgory.approvalStatus
-                                  ? addoncatgory.approvalStatus
-                                      .charAt(0)
-                                      .toUpperCase() +
-                                    addoncatgory.approvalStatus.slice(1)
-                                  : "N/A"
-                              }
-                             color={
-                                  addoncatgory.approvalStatus === "approved"
-                                    ? "success"
-                                    : addoncatgory.approvalStatus === "pending"
+                              label={addoncatgory?.approvalStatus}
+                              color={
+                                addoncatgory.approvalStatus === "approved"
+                                  ? "success"
+                                  : addoncatgory.approvalStatus === "pending"
                                     ? "warning"
                                     : addoncatgory.approvalStatus === "rejected"
-                                    ? "error"
-                                    : "default"
-                                }
+                                      ? "error"
+                                      : "default"
+                              }
                               variant="outlined"
                               size="small"
                             />
                           </BodyTableCell>
-                         <BodyTableCell align="center">
-                                                   <Paragraph>{addoncatgory?.reviewedBy ?? "N/A"}</Paragraph>
-                                               </BodyTableCell>
-                          <BodyTableCell>
-                              <Button
-                                  size="small"
-                                  variant="outlined"
-                                  disabled={addoncatgory.approvalStatus === "approved" || addoncatgory.approvalStatus === "rejected"}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleReviewClick(addoncatgory);
-                                  }}
-                                >
-                                  Review
-                                </Button>
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {addoncatgory?.reviewedBy ?? "Not Reviewed yet"}
+                            </Paragraph>
                           </BodyTableCell>
-                  
+                          <BodyTableCell align="center">
+                            {formatDate(addoncatgory?.createdAt)}
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            {addoncatgory?.createdBy ?? "N/A"}
+                          </BodyTableCell>
+                          <BodyTableCell align="right">
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleReviewClick(addoncatgory);
+                              }}
+                            >
+                              {isReviewed(addoncatgory.approvalStatus)
+                                ? "Re-review"
+                                : "Review"}
+                            </Button>
+                          </BodyTableCell>
                         </BodyTableRow>
                       ))}
 
@@ -370,7 +422,7 @@ export default function Addoncategory2PageView() {
           </Card>
         </Grid>
       </Grid>
-     {/* APPROVAL MODAL */}
+      {/* APPROVAL MODAL */}
       <ApprovalModal
         open={approvalModalOpen}
         handleClose={handleApprovalCancel}
@@ -378,7 +430,7 @@ export default function Addoncategory2PageView() {
         onSubmit={handleApprovalSubmit}
         initialData={{
           approvalStatus: addonCategoryToReview?.approvalStatus || "",
-          reviewReason: addonCategoryToReview?.reviewReason || ""
+          reviewReason: addonCategoryToReview?.reviewReason || "",
         }}
       />
     </div>

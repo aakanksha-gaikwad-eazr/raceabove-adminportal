@@ -97,6 +97,9 @@ const AddNewCoupons = Loadable(
 const EditCoupons = Loadable(
   lazy(() => import("@/pages/dashboard/coupons/edit-coupons"))
 );
+const DetailsCoupons = Loadable(
+  lazy(() => import("@/pages/dashboard/coupons/details"))
+);
 const CouponsListView = Loadable(
   lazy(() => import("@/pages/dashboard/coupons/coupons-list-1"))
 );
@@ -228,6 +231,9 @@ const AddNewAddonCategory = Loadable(
 const EditAddonCategory = Loadable(
   lazy(() => import("@/pages/dashboard/addoncategory/edit-addonscategory"))
 );
+const DetailsAddonCategory = Loadable(
+  lazy(() => import("@/pages/dashboard/addoncategory/details"))
+);
 const AddonCategoryListView = Loadable(
   lazy(() => import("@/pages/dashboard/addoncategory/addonscategory-list-1"))
 );
@@ -246,6 +252,9 @@ const AddNewAddon = Loadable(
 );
 const EditAddon = Loadable(
   lazy(() => import("@/pages/dashboard/addon/edit-addon"))
+);
+const DetailsAddon = Loadable(
+  lazy(() => import("@/pages/dashboard/addon/details"))
 );
 const AddonListView = Loadable(
   lazy(() => import("@/pages/dashboard/addon/addon-list-1"))
@@ -632,6 +641,10 @@ export const DashboardRoutes = [
         path: "edit-coupons/:id",
         element: <EditCoupons />,
       },
+      {
+        path: "coupon-details/:id",
+        element: <DetailsCoupons />,
+      },
 
       {
         path: "coupons-list",
@@ -800,6 +813,10 @@ export const DashboardRoutes = [
         element: <EditAddonCategory />,
       },
       {
+        path: "details-addoncategory/:id",
+        element: <DetailsAddonCategory />,
+      },
+      {
         path: "addoncategory-list",
         element: <AddonCategoryListView />,
       },
@@ -820,6 +837,10 @@ export const DashboardRoutes = [
       {
         path: "edit-addon/:id",
         element: <EditAddon />,
+      },
+          {
+        path: "details-addon/:id",
+        element: <DetailsAddon />,
       },
       {
         path: "addon-list",

@@ -48,7 +48,6 @@ import ApprovalModal from "@/components/approval-modal";
 import { Paragraph } from "@/components/typography";
 import { Button } from "@mui/material";
 
-
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
   fontSize: 14,
   fontWeight: 600,
@@ -128,11 +127,11 @@ export default function Addon2PageView() {
 
   const dispatch = useDispatch();
 
-  const {allAddOns}  = useSelector((state) => state.addons);
+  const { allAddOns } = useSelector((state) => state.addons);
   const [selectedAddon, setSelectedAddon] = useState();
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [addonToReview, setAddonToReview] = useState(null);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const addOnsArray = Array.isArray(allAddOns) ? allAddOns : [];
 
@@ -144,7 +143,7 @@ export default function Addon2PageView() {
       return item?.name?.toLowerCase().includes(searchFilter?.toLowerCase());
     else return true;
   });
-    useEffect(() => {
+  useEffect(() => {
     dispatch(getAddOns());
   }, [dispatch]);
 
@@ -168,60 +167,86 @@ export default function Addon2PageView() {
     setAddonToReview(null);
   };
 
-     const handleApprovalSubmit = async (formData) => {
-        if (addonToReview) {
-          try {
-            const reviewData = {
-              id: addonToReview.id,
-              data:{
-                approvalStatus: String(formData.approvalStatus).toLowerCase().trim(),
-                reviewReason: String(formData.reviewReason).trim(),
-              }
-             
-            };
-    
-            // Additional validation to ensure values are correct
-            if (!["approved", "rejected"].includes(reviewData?.data?.approvalStatus)) {
-              toast.error("Invalid approval status");
-              return;
-            }
-            if (!reviewData?.data?.reviewReason) {
-              toast.error("Review reason is required");
-              return;
-            }
-            const result = await dispatch(reviewAddOns(reviewData));
-            console.log("result", result)
-            if (result?.payload?.status === 200) {
-              dispatch(getAddOns());
-              
-              // Show success toast based on approval status
-              switch (reviewData?.data?.approvalStatus) {
-                case "approved":
-                  toast.success("Product are approved successfully!");
-                  break;
-                case "rejected":
-                  toast.success("Product are rejected successfully!");
-                  break;
-                default:
-                  toast.success("Product are reviewed successfully!");
-              }
-              // Reset state
-              setApprovalModalOpen(false);
-              setAddonToReview(null);
-            } else {
-              // Handle API error response
-              const errorMessage = result.payload?.message || result.error?.message || "Failed to review Product";
-              toast.error(errorMessage);
-            }
-            
-          } catch (error) {
-            console.error("Error reviewing Product:", error);
-            const errorMessage = error.response?.data?.message || error.message || "Failed to review Product. Please try again.";
-            toast.error(errorMessage);
-          }
-        }
-      };
+  const handleApprovalSubmit = async (formData) => {
+    if (addonToReview) {
+      try {
+        const reviewData = {
+          id: addonToReview.id,
+          data: {
+            approvalStatus: String(formData.approvalStatus)
+              .toLowerCase()
+              .trim(),
+            reviewReason: String(formData.reviewReason).trim(),
+          },
+        };
 
+        // Additional validation to ensure values are correct
+        if (
+          !["approved", "rejected"].includes(reviewData?.data?.approvalStatus)
+        ) {
+          toast.error("Invalid approval status");
+          return;
+        }
+        if (!reviewData?.data?.reviewReason) {
+          toast.error("Review reason is required");
+          return;
+        }
+        const result = await dispatch(reviewAddOns(reviewData));
+        console.log("result", result);
+        if (result?.payload?.status === 200) {
+          dispatch(getAddOns());
+
+          // Show success toast based on approval status
+          switch (reviewData?.data?.approvalStatus) {
+            case "approved":
+              toast.success("Product are approved successfully!");
+              break;
+            case "rejected":
+              toast.success("Product are rejected successfully!");
+              break;
+            default:
+              toast.success("Product are reviewed successfully!");
+          }
+          // Reset state
+          setApprovalModalOpen(false);
+          setAddonToReview(null);
+        } else {
+          // Handle API error response
+          const errorMessage =
+            result.payload?.message ||
+            result.error?.message ||
+            "Failed to review Product";
+          toast.error(errorMessage);
+        }
+      } catch (error) {
+        console.error("Error reviewing Product:", error);
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to review Product. Please try again.";
+        toast.error(errorMessage);
+      }
+    }
+  };
+
+  const handleRowClick = (event, addonId) => {
+    const clickedElement = event.target;
+    const isInteractiveElement =
+      clickedElement.closest("button") ||
+      clickedElement.closest('[role="button"]') ||
+      clickedElement.closest(".MuiChip-root") ||
+      clickedElement.closest(".MuiIconButton-root") ||
+      clickedElement.closest(".MuiButton-root");
+
+    if (isInteractiveElement) {
+      return;
+    }
+    navigate(`/details-addon/${addonId}`);
+  };
+
+  console.log('allAddOns:', allAddOns);
+console.log('addOnsArray:', addOnsArray);
+console.log('filteredAddon:', filteredAddon);
 
   return (
     <div className="pt-2 pb-4">
@@ -281,19 +306,19 @@ export default function Addon2PageView() {
                   {/* TABLE BODY AND DATA */}
                   <TableBody>
                     {filteredAddon
+                        .filter((addon) => addon.deletedAt === null)
                       .slice(
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
-                      ).filter(addon=>addon.deletedAt === null)
+                      )
                       .map((addon) => (
                         <BodyTableRow
                           key={addon.id}
-                          active={
-                            selectedAddon?.id === addon.id
-                              ? 1
-                              : 0
-                          }
-                          onClick={() => setSelectedAddon(addon)}
+                          active={selectedAddon?.id === addon.id ? 1 : 0}
+                          onClick={(e) => {
+                            setSelectedAddon(addon);
+                            handleRowClick(e, addon.id);
+                          }}
                         >
                           <BodyTableCell>
                             <Stack
@@ -333,41 +358,43 @@ export default function Addon2PageView() {
                                   : "N/A"
                               }
                               color={
-                                  addon.approvalStatus === "approved"
-                                    ? "success"
-                                    : addon.approvalStatus === "pending"
+                                addon.approvalStatus === "approved"
+                                  ? "success"
+                                  : addon.approvalStatus === "pending"
                                     ? "warning"
                                     : addon.approvalStatus === "rejected"
-                                    ? "error"
-                                    : "default"
-                                }
+                                      ? "error"
+                                      : "default"
+                              }
                               variant="outlined"
                               size="small"
                             />
                           </BodyTableCell>
-                           <BodyTableCell align="center">
-                                                                             <Paragraph>{addon?.reviewedBy ?? "Not yet reviewed"}</Paragraph>
-                                                                         </BodyTableCell>
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {addon?.reviewedBy ?? "Not yet reviewed"}
+                            </Paragraph>
+                          </BodyTableCell>
                           <BodyTableCell>
                             <Button
-                                  size="small"
-                                  variant="outlined"
-                                  disabled={addon.approvalStatus === "approved" || addon.approvalStatus === "rejected"}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleReviewClick(addon);
-                                  }}
-                                >
-                                  Review
-                                </Button>
+                              size="small"
+                              variant="outlined"
+                              disabled={
+                                addon.approvalStatus === "approved" ||
+                                addon.approvalStatus === "rejected"
+                              }
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleReviewClick(addon);
+                              }}
+                            >
+                              Review
+                            </Button>
                           </BodyTableCell>
-                
                         </BodyTableRow>
                       ))}
 
-                    {filteredAddon.length === 0 && (
-                      <TableDataNotFound />
-                    )}
+                    {filteredAddon.length === 0 && <TableDataNotFound />}
                   </TableBody>
                 </Table>
               </Scrollbar>
@@ -387,7 +414,7 @@ export default function Addon2PageView() {
         </Grid>
       </Grid>
 
-   {/* APPROVAL MODAL */}
+      {/* APPROVAL MODAL */}
       <ApprovalModal
         open={approvalModalOpen}
         handleClose={handleApprovalCancel}
@@ -395,7 +422,7 @@ export default function Addon2PageView() {
         onSubmit={handleApprovalSubmit}
         initialData={{
           approvalStatus: addonToReview?.approvalStatus || "",
-          reviewReason: addonToReview?.reviewReason || ""
+          reviewReason: addonToReview?.reviewReason || "",
         }}
       />
     </div>
