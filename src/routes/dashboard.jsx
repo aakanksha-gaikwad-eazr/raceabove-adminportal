@@ -77,6 +77,9 @@ const AddNewOrganiser = Loadable(
 const EditOrganiser = Loadable(
   lazy(() => import("@/pages/dashboard/organizers/edit-organiser"))
 );
+const DetailsOrganiser = Loadable(
+  lazy(() => import("@/pages/dashboard/organizers/details"))
+);
 const OrganiserListView = Loadable(
   lazy(() => import("@/pages/dashboard/organizers/organizers-list-1"))
 );
@@ -615,6 +618,10 @@ export const DashboardRoutes = [
       {
         path: "edit-organiser",
         element: <EditOrganiser />,
+      },
+      {
+        path: "organiser-details/:id",
+        element: <DetailsOrganiser />,
       },
       {
         path: "organiser-list",

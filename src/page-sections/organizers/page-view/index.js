@@ -4,4 +4,4 @@ export { default as OrganizersGrid1PageView } from './organizers-grid-1';
 export { default as OrganizersGrid2PageView } from './organizers-grid-2';
 export { default as AddNewOrganizerPageView } from './add-new-organizers';
 export { default as EditOrganiserPageView } from './edit-organizer';
-export { default as OrganizerDetailsPageView } from './details';
+export { default as OrganizerDetails } from './details';
