@@ -33,9 +33,8 @@ import { getUsers } from "../../../store/apps/user";
 import SearchFilter from "../../challenge/SearchFilter";
 // import SearchFilter from "page-sections/challenge/SearchFilter";
 import StatusFilter from "../../challenge/StatusFilter";
-import { getAddOnsCategory } from "@/store/apps/addonscategory";
 import HeadingAreaCoupon from "../HeadingArea";
-import { Chip, Switch } from "@mui/material";
+import { Chip, Switch, Typography } from "@mui/material";
 import DeleteIcon from "@/icons/Delete";
 import EditIcon from "@/icons/Edit";
 import DeleteModal from "@/components/delete-modal/DeleteModal";
@@ -47,6 +46,8 @@ import { reviewAddOns } from "@/store/apps/addons";
 import ApprovalModal from "@/components/approval-modal";
 import { Paragraph } from "@/components/typography";
 import { Button } from "@mui/material";
+import { limitWords } from "@/utils/wordLimiter";
+import { formatDate } from "@/utils/dateFormatter";
 
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
   fontSize: 14,
@@ -76,6 +77,14 @@ const BodyTableRow = styled(TableRow, {
   }),
 }));
 const headCells = [
+   {
+    id: "id",
+    numeric: false,
+    disablePadding: true,
+    label: "Id",
+    width: "5%",
+   
+  },
   {
     id: "name",
     numeric: true,
@@ -99,6 +108,18 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Reviewed By",
+  },
+  {
+    id: "createdby",
+    numeric: false,
+    disablePadding: false,
+    label: "Organizer",
+  },
+  {
+    id: "createdAt",
+    numeric: false,
+    disablePadding: false,
+    label: "Date",
   },
   {
     id: "actions",
@@ -138,11 +159,21 @@ export default function Addon2PageView() {
   const filteredAddon = stableSort(
     addOnsArray,
     getComparator(order, orderBy)
-  ).filter((item) => {
+  ).filter((item) => {  
     if (searchFilter)
       return item?.name?.toLowerCase().includes(searchFilter?.toLowerCase());
     else return true;
   });
+
+  console.log('Debug Info:', {
+    allAddOns,
+    addOnsArray: addOnsArray.length,
+    searchFilter,
+    filteredBeforeDelete: stableSort(addOnsArray, getComparator(order, orderBy)).length,
+    filteredAfterSearch: filteredAddon.length,
+    finalFiltered: filteredAddon.filter((addon) => addon.deletedAt === null).length
+});
+console.log("filteredAddon",filteredAddon)
   useEffect(() => {
     dispatch(getAddOns());
   }, [dispatch]);
@@ -159,12 +190,17 @@ export default function Addon2PageView() {
   }, [addOnsArray]);
 
   const handleReviewClick = (addOns) => {
-    setAddonToReview(addOns);
-    setApprovalModalOpen(true);
+    // setAddonToReview(addOns);
+    // setApprovalModalOpen(true);
+    navigate(`/details-addon/${addOns?.id}`);
+
   };
   const handleApprovalCancel = () => {
     setApprovalModalOpen(false);
     setAddonToReview(null);
+  };
+    const isReviewed = (approvalStatus) => {
+    return approvalStatus === "approved" || approvalStatus === "rejected";
   };
 
   const handleApprovalSubmit = async (formData) => {
@@ -244,9 +280,13 @@ export default function Addon2PageView() {
     navigate(`/details-addon/${addonId}`);
   };
 
-  console.log('allAddOns:', allAddOns);
-console.log('addOnsArray:', addOnsArray);
-console.log('filteredAddon:', filteredAddon);
+
+console.log('deletedAt values:', addOnsArray.map(addon => ({ 
+  id: addon.id, 
+  name: addon.name, 
+  deletedAt: addon.deletedAt,
+  deletedAtType: typeof addon.deletedAt 
+})));
 
   return (
     <div className="pt-2 pb-4">
@@ -306,12 +346,12 @@ console.log('filteredAddon:', filteredAddon);
                   {/* TABLE BODY AND DATA */}
                   <TableBody>
                     {filteredAddon
-                        .filter((addon) => addon.deletedAt === null)
                       .slice(
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
                       )
-                      .map((addon) => (
+                      // .filter((addon) => addon.deletedAt === null)
+                      .map((addon,ind) => (
                         <BodyTableRow
                           key={addon.id}
                           active={selectedAddon?.id === addon.id ? 1 : 0}
@@ -320,7 +360,12 @@ console.log('filteredAddon:', filteredAddon);
                             handleRowClick(e, addon.id);
                           }}
                         >
-                          <BodyTableCell>
+                          <BodyTableCell align="center">
+                                                          <Typography variant="caption">
+                                                            {page * rowsPerPage + ind + 1}
+                                                          </Typography>
+                                                        </BodyTableCell>
+                          <BodyTableCell style={{textTransform:"capitalize"}}>
                             <Stack
                               direction="row"
                               alignItems="center"
@@ -334,17 +379,13 @@ console.log('filteredAddon:', filteredAddon);
                                 }}
                               />
 
-                              <H6 fontSize={12} color="text.primary">
+                              <H6 fontSize={12} color="text.primary" >
                                 {addon.name ?? "N/A"}
                               </H6>
                             </Stack>
                           </BodyTableCell>
-                          <BodyTableCell>
-                            {addon.description
-                              ? addon.description.length > 25
-                                ? `${addon.description.substring(0, 25)}...`
-                                : addon.description
-                              : "N/A"}
+                          <BodyTableCell style={{textTransform:"capitalize"}} >
+                              {limitWords(addon.description,25)}
                           </BodyTableCell>
                           <BodyTableCell alignItems="center">
                             {/* {addon.approvalStatus ?? "N/A"} */}
@@ -372,7 +413,17 @@ console.log('filteredAddon:', filteredAddon);
                           </BodyTableCell>
                           <BodyTableCell align="center">
                             <Paragraph>
-                              {addon?.reviewedBy ?? "Not yet reviewed"}
+                              {addon?.reviewedBy ?? "Not Reviewed yet"}
+                            </Paragraph>
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {addon?.createdBy ?? "N/A "}
+                            </Paragraph>
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {formatDate(addon?.createdAt)}
                             </Paragraph>
                           </BodyTableCell>
                           <BodyTableCell>
@@ -388,7 +439,8 @@ console.log('filteredAddon:', filteredAddon);
                                 handleReviewClick(addon);
                               }}
                             >
-                              Review
+                                                                {isReviewed(addon.approvalStatus) ? "Re-review" : "Review"}
+
                             </Button>
                           </BodyTableCell>
                         </BodyTableRow>
