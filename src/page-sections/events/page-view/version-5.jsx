@@ -26,7 +26,7 @@ import { isDark } from "@/utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import HeadingArea from "../HeadingArea";
 import toast from "react-hot-toast";
-import { Button, Chip, Switch } from "@mui/material";
+import { Button, Chip, Switch, Typography } from "@mui/material";
 import { warning } from "@/theme/colors";
 import Eye from "@/icons/Eye";
 // import EyeOff from "@/icons/EyeOff";
@@ -36,6 +36,7 @@ import { IconButton } from "@mui/material";
 import { getEvents } from "@/store/apps/events";
 import ApprovalModal from "@/components/approval-modal";
 import { reviewEvents } from "@/store/apps/events";
+import { limitWords } from "@/utils/wordLimiter";
 
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
   fontSize: 14,
@@ -66,52 +67,67 @@ const BodyTableRow = styled(TableRow, {
 }));
 const headCells = [
   {
+    id: "id",
+    numeric: true,
+    disablePadding: false,
+    label: "Id",
+    width:"4%"
+  },
+  {
     id: "name",
     numeric: true,
     disablePadding: false,
     label: "Title",
+    width:"20%"
   },
   {
     id: "date",
     numeric: true,
     disablePadding: false,
     label: "Date",
+      width:"15%"
   },
   {
     id: "location",
     numeric: true,
     disablePadding: false,
     label: "Location",
+      width:"15%"
   },
   {
     id: "price",
     numeric: true,
     disablePadding: false,
     label: "Price",
+      width:"10%"
   },
   {
     id: "timestamp",
     numeric: true,
     disablePadding: false,
     label: "TimeStamp",
+      width:"10%"
   },
   {
     id: "approvalStatus",
     numeric: true,
     disablePadding: false,
     label: "Approval Status",
+      width:"10%"
   },
   {
     id: "reviewedBy",
     numeric: true,
     disablePadding: false,
     label: "reviewedBy",
+      width:"10%"
   },
     {
     id: "actions",
     numeric: true,
     disablePadding: false,
     label: "Actions",
+      width:"6%"
   },
 ];
 
@@ -279,6 +295,7 @@ export default function EventsVersionFivePageView() {
                           sortDirection={
                             orderBy === headCell.id ? order : false
                           }
+                          width={headCell.width}
                         >
                           <TableSortLabel
                             active={orderBy === headCell.id}
@@ -299,13 +316,17 @@ export default function EventsVersionFivePageView() {
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
                       )
-                      .map((events) => (
+                      .map((events,ind) => (
                         <BodyTableRow
                           key={events.id}
                           // active={selectedEvents?.id === events.id ? 1 : 0}
                           // onClick={() => setSelectedEvents(events)}
                           onClick={()=>handleNavigationEventDetailsPage(events?.id)}
-                        >
+                        >   <BodyTableCell align="let">
+                                <Typography variant="caption">
+                                  {page * rowsPerPage + ind + 1}
+                                </Typography>
+                              </BodyTableCell>
                           <BodyTableCell align="center">
                             <Stack
                               direction="row"
@@ -319,8 +340,8 @@ export default function EventsVersionFivePageView() {
                                   backgroundColor: "grey.100",
                                 }}
                               />
-                              <H6 fontSize={12} color="text.primary">
-                                {events.title ?? "N/A"}
+                              <H6 fontSize={12} color="text.primary" style={{textTransform:"capitalize"}}>
+                                {limitWords(events.title,10)}
                               </H6>
                             </Stack>
                           </BodyTableCell>
@@ -330,7 +351,7 @@ export default function EventsVersionFivePageView() {
                             </H6>
                           </BodyTableCell>
                           <BodyTableCell align="center">
-                            {events?.location?.address}
+                            {limitWords(events?.location?.address,10)}
                             {/* <Chip
                               label={
                                 events.discountType
