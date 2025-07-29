@@ -68,22 +68,22 @@ const headCells = [
     id: "id",
     numeric: true,
     disablePadding: false,
-    label: "Id",
-    width: "5%",
+    label: "Sr No",
+    width: "8%",
   },
   {
     id: "description",
     numeric: true,
     disablePadding: false,
     label: "Description",
-     width: "10%",
+    width: "10%",
   },
   {
     id: "ticketType",
     numeric: true,
     disablePadding: false,
     label: "Ticket type",
-     width: "13%",
+    width: "13%",
   },
   // {
   //   id: "age",
@@ -103,34 +103,34 @@ const headCells = [
   //   disablePadding: false,
   //   label: "Quantity",
   // },
-
-  {
-    id: "approvalStatus",
-    numeric: true,
-    disablePadding: false,
-    label: "Approval Status",
-     width: "17%",
-  },
   {
     id: "organizer",
     numeric: false,
     disablePadding: false,
     label: "Organizer",
-     width: "14%",
+    width: "14%",
   },
   {
     id: "date",
     numeric: false,
     disablePadding: false,
     label: "Date",
-     width: "10%",
+    width: "10%",
   },
   {
     id: "reviewedby",
     numeric: false,
     disablePadding: false,
     label: "Reviewed By",
-     width: "15%",
+    width: "15%",
+  },
+
+  {
+    id: "approvalStatus",
+    numeric: true,
+    disablePadding: false,
+    label: "Approval Status",
+    width: "17%",
   },
 
   {
@@ -138,15 +138,17 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Actions",
-     width: "5%",
+    width: "5%",
   },
 ];
 
 export default function TicketTemplate2PageView() {
   const [searchFilter, setSearchFilter] = useState("");
-  const [selectedTicketTemplate, setSelectedTicketTemplate] = useState();
+  const [selectedTicketTemplate, setSelectedTicketTemplate] =
+    useState();
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
-  const [ticketTemplateToReview, setTicketTemplateToReview] = useState(null);
+  const [ticketTemplateToReview, setTicketTemplateToReview] =
+    useState(null);
 
   const {
     page,
@@ -164,7 +166,9 @@ export default function TicketTemplate2PageView() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { allTicketTemplate } = useSelector((state) => state.tickettemplate);
+  const { allTicketTemplate } = useSelector(
+    (state) => state.tickettemplate
+  );
 
   const filteredTicketTemplates = stableSort(
     allTicketTemplate,
@@ -184,7 +188,8 @@ export default function TicketTemplate2PageView() {
   useEffect(() => {
     if (selectedTicketTemplate) {
       const updatedTicketTemplate = allTicketTemplate.find(
-        (tickettemplate) => tickettemplate.id === selectedTicketTemplate.id
+        (tickettemplate) =>
+          tickettemplate.id === selectedTicketTemplate.id
       );
       if (updatedTicketTemplate)
         setSelectedTicketTemplate(updatedTicketTemplate);
@@ -195,7 +200,6 @@ export default function TicketTemplate2PageView() {
 
   const handleReviewClick = (tickettemplate) => {
     navigate(`/details-ticket-template/${tickettemplate.id}`);
-
   };
 
   const handleApprovalCancel = () => {
@@ -218,7 +222,9 @@ export default function TicketTemplate2PageView() {
 
         // Additional validation to ensure values are correct
         if (
-          !["approved", "rejected"].includes(reviewData?.data?.approvalStatus)
+          !["approved", "rejected"].includes(
+            reviewData?.data?.approvalStatus
+          )
         ) {
           toast.error("Invalid approval status");
           return;
@@ -227,7 +233,9 @@ export default function TicketTemplate2PageView() {
           toast.error("Review reason is required");
           return;
         }
-        const result = await dispatch(reviewTicketTemplate(reviewData));
+        const result = await dispatch(
+          reviewTicketTemplate(reviewData)
+        );
         console.log("result", result);
         if (result?.payload?.status === 200) {
           dispatch(getTicketTemplate());
@@ -267,22 +275,23 @@ export default function TicketTemplate2PageView() {
 
   const handleRowClick = (event, ticketTemplateId) => {
     const clickedElement = event.target;
-    const isInteractiveElement = 
-      clickedElement.closest('button') || 
+    const isInteractiveElement =
+      clickedElement.closest("button") ||
       clickedElement.closest('[role="button"]') ||
-      clickedElement.closest('.MuiChip-root') ||
-      clickedElement.closest('.MuiIconButton-root') ||
-      clickedElement.closest('.MuiButton-root');
-    
+      clickedElement.closest(".MuiChip-root") ||
+      clickedElement.closest(".MuiIconButton-root") ||
+      clickedElement.closest(".MuiButton-root");
+
     if (isInteractiveElement) {
       return;
     }
     navigate(`/details-ticket-template/${ticketTemplateId}`);
   };
 
-const isReviewed = (approvalStatus) => {
-return approvalStatus === "approved" || approvalStatus === "rejected";
-
+  const isReviewed = (approvalStatus) => {
+    return (
+      approvalStatus === "approved" || approvalStatus === "rejected"
+    );
   };
   return (
     <div className="pt-2 pb-4">
@@ -321,7 +330,11 @@ return approvalStatus === "approved" || approvalStatus === "rejected";
                       {headCells.map((headCell) => (
                         <HeadTableCell
                           key={headCell.id}
-                          padding={headCell.disablePadding ? "none" : "normal"}
+                          padding={
+                            headCell.disablePadding
+                              ? "none"
+                              : "normal"
+                          }
                           sortDirection={
                             orderBy === headCell.id ? order : false
                           }
@@ -329,8 +342,12 @@ return approvalStatus === "approved" || approvalStatus === "rejected";
                         >
                           <TableSortLabel
                             active={orderBy === headCell.id}
-                            onClick={(e) => handleRequestSort(e, headCell.id)}
-                            direction={orderBy === headCell.id ? order : "asc"}
+                            onClick={(e) =>
+                              handleRequestSort(e, headCell.id)
+                            }
+                            direction={
+                              orderBy === headCell.id ? order : "asc"
+                            }
                           >
                             {headCell.label}
                           </TableSortLabel>
@@ -347,29 +364,43 @@ return approvalStatus === "approved" || approvalStatus === "rejected";
                         page * rowsPerPage + rowsPerPage
                       )
                       .filter(
-                        (tickettemplate) => tickettemplate.deletedAt === null
+                        (tickettemplate) =>
+                          tickettemplate.deletedAt === null
                       )
                       .map((tickettemplate, ind) => (
                         <BodyTableRow
                           key={tickettemplate.id}
                           active={
-                            selectedTicketTemplate?.id === tickettemplate.id
+                            selectedTicketTemplate?.id ===
+                            tickettemplate.id
                               ? 1
                               : 0
                           }
-                           onClick={(e) => {
-                                setSelectedTicketTemplate(tickettemplate);
-                                handleRowClick(e, tickettemplate.id);
-                              }}
+                          onClick={(e) => {
+                            setSelectedTicketTemplate(tickettemplate);
+                            handleRowClick(e, tickettemplate.id);
+                          }}
                         >
                           <BodyTableCell>
                             {page * rowsPerPage + ind + 1}
                           </BodyTableCell>
-                          <BodyTableCell align="left" style={{textTransform:"capitalize"}}>
-                            {limitWords(tickettemplate.description, 15)}
+                          <BodyTableCell
+                            align="left"
+                            style={{ textTransform: "capitalize" }}
+                          >
+                            {limitWords(
+                              tickettemplate.description,
+                              15
+                            )}
                           </BodyTableCell>
-                          <BodyTableCell  align="center" style={{textTransform:"capitalize"}}>
-                            {limitWords(tickettemplate?.ticketType?.title, 15)}
+                          <BodyTableCell
+                            align="center"
+                            style={{ textTransform: "capitalize" }}
+                          >
+                            {limitWords(
+                              tickettemplate?.ticketType?.title,
+                              15
+                            )}
                           </BodyTableCell>
                           {/* <BodyTableCell>
                             {tickettemplate.minAge && tickettemplate.maxAge
@@ -387,19 +418,39 @@ return approvalStatus === "approved" || approvalStatus === "rejected";
                             {tickettemplate.quantity ?? "N/A"}
                           </BodyTableCell> */}
                           <BodyTableCell align="center">
+                            <Paragraph>
+                              {tickettemplate?.createdBy ?? "N/A"}
+                            </Paragraph>
+                          </BodyTableCell>
+
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {formatDate(tickettemplate?.createdAt)}
+                            </Paragraph>
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {tickettemplate?.reviewedBy ?? "N/A"}
+                            </Paragraph>
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
                             <Chip
                               label={
                                 tickettemplate.approvalStatus
                                   ? tickettemplate.approvalStatus
                                       .charAt(0)
                                       .toUpperCase() +
-                                    tickettemplate.approvalStatus.slice(1)
+                                    tickettemplate.approvalStatus.slice(
+                                      1
+                                    )
                                   : "N/A"
                               }
                               color={
-                                tickettemplate.approvalStatus === "approved"
+                                tickettemplate.approvalStatus ===
+                                "approved"
                                   ? "success"
-                                  : tickettemplate.approvalStatus === "pending"
+                                  : tickettemplate.approvalStatus ===
+                                      "pending"
                                     ? "warning"
                                     : tickettemplate.approvalStatus ===
                                         "rejected"
@@ -410,37 +461,27 @@ return approvalStatus === "approved" || approvalStatus === "rejected";
                               size="small"
                             />
                           </BodyTableCell>
-                          <BodyTableCell align="center">
-                            <Paragraph>
-                              {tickettemplate?.createdBy ?? "N/A"}
-                            </Paragraph>
-                          </BodyTableCell>
-                      
-                          <BodyTableCell align="center">
-                            <Paragraph>
-                              {formatDate(tickettemplate?.createdAt)}
-                            </Paragraph>
-                          </BodyTableCell>
-                              <BodyTableCell align="center">
-                            <Paragraph>
-                              {tickettemplate?.reviewedBy ?? "N/A"}
-                            </Paragraph>
-                          </BodyTableCell>
+
                           <BodyTableCell align="right">
                             <Button
                               size="small"
                               variant="outlined"
                               disabled={
-                                tickettemplate.approvalStatus === "approved" ||
-                                tickettemplate.approvalStatus === "rejected"
+                                tickettemplate.approvalStatus ===
+                                  "approved" ||
+                                tickettemplate.approvalStatus ===
+                                  "rejected"
                               }
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleReviewClick(tickettemplate);
                               }}
-                              
-                              >
-                              {isReviewed(tickettemplate.approvalStatus) ? "Re-review" : "Review"}
+                            >
+                              {isReviewed(
+                                tickettemplate.approvalStatus
+                              )
+                                ? "Re-review"
+                                : "Review"}
                             </Button>
                           </BodyTableCell>
                         </BodyTableRow>
@@ -474,7 +515,8 @@ return approvalStatus === "approved" || approvalStatus === "rejected";
         title="Review Ticket Template"
         onSubmit={handleApprovalSubmit}
         initialData={{
-          approvalStatus: ticketTemplateToReview?.approvalStatus || "",
+          approvalStatus:
+            ticketTemplateToReview?.approvalStatus || "",
           reviewReason: ticketTemplateToReview?.reviewReason || "",
         }}
       />
