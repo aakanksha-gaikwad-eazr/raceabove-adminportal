@@ -196,6 +196,22 @@ export default function EventsVersionFivePageView() {
     navigate(`/events/details/${eventId}`)
   };
 
+    const handleRowClick = (event, eventId) => {
+    // Check if the click originated from a button, icon button, or chip
+    const clickedElement = event.target;
+    const isInteractiveElement = 
+      clickedElement.closest('button') || 
+      clickedElement.closest('[role="button"]') ||
+      clickedElement.closest('.MuiChip-root') ||
+      clickedElement.closest('.MuiIconButton-root') ||
+      clickedElement.closest('.MuiButton-root');
+    
+    if (isInteractiveElement) {
+      return;
+    }
+    navigate(`/events/details/${eventId}`);
+  };
+
 
   const handleApprovalSubmit = async (formData) => {
         if (eventToReview) {
@@ -250,6 +266,11 @@ export default function EventsVersionFivePageView() {
           }
         }
       };
+
+      
+  const isReviewed = (approvalStatus) => {
+    return approvalStatus === "approved" || approvalStatus === "rejected";
+  };
 
 
   return (
@@ -321,7 +342,11 @@ export default function EventsVersionFivePageView() {
                           key={events.id}
                           // active={selectedEvents?.id === events.id ? 1 : 0}
                           // onClick={() => setSelectedEvents(events)}
-                          onClick={()=>handleNavigationEventDetailsPage(events?.id)}
+                          // onClick={()=>handleNavigationEventDetailsPage(events?.id)}
+                           onClick={(e) => {
+                                setSelectedEvents(events);
+                                handleRowClick(e, events.id);
+                              }}
                         >   <BodyTableCell align="let">
                                 <Typography variant="caption">
                                   {page * rowsPerPage + ind + 1}
@@ -414,7 +439,8 @@ export default function EventsVersionFivePageView() {
                                                               handleReviewClick(events);
                                                             }}
                                                           >
-                                                            Review
+                                                                                              {isReviewed(events.approvalStatus) ? "Re-review" : "Review"}
+
                                                           </Button>
                                                     </BodyTableCell>
                         </BodyTableRow>

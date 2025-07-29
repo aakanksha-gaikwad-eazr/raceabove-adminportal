@@ -38,8 +38,9 @@ import { useContext, useEffect, useState } from "react";
 import { getEventsById } from "../../../store/apps/events";
 import { toast } from "react-hot-toast";
 import { PROJECT_FILES } from "@/__fakeData__/projects";
-import { CardHeader } from "@mui/material";
+import { CardContent, CardHeader, Stack, Typography } from "@mui/material";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import { formatDate } from "@/utils/dateFormatter";
 
 
 const StyledAvatar = styled(Avatar)({
@@ -190,7 +191,7 @@ export default function EventsDetailsPageView() {
             <Grid size={12}>
               <Card>
                 <Div>
-                  <FlexBetween mb={2}>
+                  <FlexBetween mb={2} style={{textTransform:"capitalize"}}>
                     <H6 fontSize={18}>{eventsData?.title?.toUpperCase()}</H6>
                     <StatusChip 
                       label={eventsData?.approvalStatus || "Pending"} 
@@ -215,7 +216,7 @@ export default function EventsDetailsPageView() {
                   </div>
 
                   {/* Event Description */}
-                  <Box mb={2}>
+                  <Box mb={2}  style={{textTransform:"capitalize"}}>
                     <Paragraph
                       fontSize={16}
                       lineHeight={1.6}
@@ -456,6 +457,90 @@ export default function EventsDetailsPageView() {
                   </Paragraph>
                 </Div>
               </Card>
+            </Grid>
+
+            {/* META DATA*/}
+            <Grid size={12}>
+                  {/* Metadata Card */}
+          <Card variant="outlined">
+            <CardContent sx={{ p: 3 }}>
+              <Typography variant="subtitle2" fontWeight={500} gutterBottom>
+                Information
+              </Typography>
+
+              <Grid container spacing={3} sx={{ mt: 0.5 }}>
+                <Grid item xs={12} sm={6}>
+                  <Stack spacing={2}>
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">
+                        Created By
+                      </Typography>
+                      <Typography variant="body2" style={{textTransform:"capitalize"}}>
+                        {eventsData.createdBy || "Unknown"}
+                        {eventsData.createdByRole && (
+                          <Typography
+                            component="span"
+                            variant="caption"
+                            color="text.secondary" 
+                            style={{textTransform:"capitalize"}}
+                          >
+                            {" "}
+                            • {eventsData.createdByRole}
+                          </Typography>
+                        )}
+                      </Typography>
+                    </Box>
+
+                    <Box>
+                      <Typography variant="caption" color="text.secondary">
+                        Created On
+                      </Typography>
+                      <Typography variant="body2">
+                        {formatDate(eventsData.createdAt)}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <Stack spacing={2}>
+                    {eventsData.updatedBy && (
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">
+                          Updated By
+                        </Typography>
+                        <Typography variant="body2" style={{textTransform:"capitalize"}}>
+                          {eventsData.updatedBy}
+                          {eventsData.updatedByRole && (
+                            <Typography
+                              component="span"
+                              variant="caption"
+                              color="text.secondary"
+                              style={{textTransform:"capitalize"}}
+                            >
+                              {" "}
+                              • {eventsData.updatedByRole}
+                            </Typography>
+                          )}
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {eventsData?.updatedAt && (
+                      <Box>
+                        <Typography variant="caption" color="text.secondary">
+                          Updated On
+                        </Typography>
+                        <Typography variant="body2">
+                          {formatDate(eventsData?.updatedAt)}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Stack>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
             </Grid>
           </Grid>
         </Grid>
