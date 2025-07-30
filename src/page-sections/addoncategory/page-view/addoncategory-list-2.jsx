@@ -63,14 +63,14 @@ const headCells = [
     id: "id",
     numeric: true,
     disablePadding: false,
-    label: "Id",
-    width: "5%",
+    label: "Sr No",
+    width: "8%",
   },
   {
     id: "name",
     numeric: true,
     disablePadding: false,
-    label: "Name",
+    label: "Title",
     width: "10%",
   },
   {

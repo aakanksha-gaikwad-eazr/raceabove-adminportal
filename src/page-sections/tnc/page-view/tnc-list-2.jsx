@@ -68,9 +68,9 @@ const headCells = [
     id: "id",
     numeric: false,
     disablePadding: true,
-    label: "Id",
-    width: "5%",
-    align: "center"
+    label: "Sr N",
+    width: "8%",
+    align: "center",
   },
   {
     id: "content",
@@ -78,15 +78,16 @@ const headCells = [
     disablePadding: false,
     label: "Content",
     width: "25%",
-    align: "center"
+    align: "center",
   },
+
   {
-    id: "approvalStatus",
+    id: "organizer",
     numeric: false,
     disablePadding: false,
-    label: "Approval Status",
+    label: "Organizer",
     width: "15%",
-    align: "center"
+    align: "center",
   },
   {
     id: "date",
@@ -94,15 +95,7 @@ const headCells = [
     disablePadding: false,
     label: "Date",
     width: "12%",
-    align: "center"
-  },
-  {
-    id: "organizer",
-    numeric: false,
-    disablePadding: false,
-    label: "Organizer",
-    width: "15%",
-    align: "center"
+    align: "center",
   },
   {
     id: "reviewedby",
@@ -110,15 +103,24 @@ const headCells = [
     disablePadding: false,
     label: "Reviewed By",
     width: "15%",
-    align: "center"
+    align: "center",
   },
+  {
+    id: "approvalStatus",
+    numeric: false,
+    disablePadding: false,
+    label: "Approval Status",
+    width: "15%",
+    align: "center",
+  },
+
   {
     id: "actions",
     numeric: false,
     disablePadding: false,
     label: "Actions",
     width: "10%",
-    align: "center"
+    align: "center",
   },
 ];
 
@@ -163,18 +165,18 @@ const SkeletonSearchArea = () => (
 // Date formatter function
 const formatDate = (dateString) => {
   if (!dateString) return "N/A";
-  
+
   try {
     const date = new Date(dateString);
-    
+
     // Format: Dec 25, 2024
-    const options = { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric'
+    const options = {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     };
-    
-    return date.toLocaleDateString('en-US', options);
+
+    return date.toLocaleDateString("en-US", options);
   } catch (error) {
     return "Invalid Date";
   }
@@ -206,15 +208,16 @@ export default function Tnc2PageView() {
   const { allTnc } = useSelector((state) => state.tnc);
   console.log("allTnc", allTnc);
 
-  const filteredTnc = stableSort(allTnc, getComparator(order, orderBy)).filter(
-    (item) => {
-      if (searchFilter)
-        return item?.content
-          ?.toLowerCase()
-          .includes(searchFilter?.toLowerCase());
-      else return true;
-    }
-  );
+  const filteredTnc = stableSort(
+    allTnc,
+    getComparator(order, orderBy)
+  ).filter((item) => {
+    if (searchFilter)
+      return item?.content
+        ?.toLowerCase()
+        .includes(searchFilter?.toLowerCase());
+    else return true;
+  });
 
   useEffect(() => {
     const fetchTnc = async () => {
@@ -236,7 +239,9 @@ export default function Tnc2PageView() {
 
   useEffect(() => {
     if (selectedTnc) {
-      const updatedTnc = allTnc.find((tnc) => tnc.id === selectedTnc.id);
+      const updatedTnc = allTnc.find(
+        (tnc) => tnc.id === selectedTnc.id
+      );
       if (updatedTnc) setSelectedTnc(updatedTnc);
     } else {
       setSelectedTnc(allTnc[0]);
@@ -247,10 +252,6 @@ export default function Tnc2PageView() {
     // setTncToReview(tnc);
     // setApprovalModalOpen(true);
     navigate(`/tnc-details/${tnc.id}`);
-
-
-
-
   };
 
   const handleApprovalCancel = () => {
@@ -274,7 +275,9 @@ export default function Tnc2PageView() {
 
         // Additional validation to ensure values are correct
         if (
-          !["approved", "rejected"].includes(reviewData?.data?.approvalStatus)
+          !["approved", "rejected"].includes(
+            reviewData?.data?.approvalStatus
+          )
         ) {
           toast.error("Invalid approval status");
           return;
@@ -283,10 +286,10 @@ export default function Tnc2PageView() {
           toast.error("Review reason is required");
           return;
         }
-        
+
         const result = await dispatch(reviewTnc(reviewData));
         console.log("result", result);
-        
+
         // Check for successful status codes (200, 201, or success in payload)
         const isSuccessful =
           result?.status === 200 ||
@@ -302,15 +305,21 @@ export default function Tnc2PageView() {
           // Show success toast based on approval status
           switch (reviewData?.data?.approvalStatus) {
             case "approved":
-              toast.success("Terms and conditions approved successfully!");
+              toast.success(
+                "Terms and conditions approved successfully!"
+              );
               break;
             case "rejected":
-              toast.success("Terms and conditions rejected successfully!");
+              toast.success(
+                "Terms and conditions rejected successfully!"
+              );
               break;
             default:
-              toast.success("Terms and conditions reviewed successfully!");
+              toast.success(
+                "Terms and conditions reviewed successfully!"
+              );
           }
-          
+
           // Reset state
           setApprovalModalOpen(false);
           setTncToReview(null);
@@ -348,7 +357,7 @@ export default function Tnc2PageView() {
         cursor: "pointer",
         textTransform: "capitalize",
         textAlign: "left",
-        px: 1
+        px: 1,
       }}
       title={content}
     >
@@ -357,19 +366,21 @@ export default function Tnc2PageView() {
   );
 
   const isReviewed = (approvalStatus) => {
-    return approvalStatus === "approved" || approvalStatus === "rejected";
+    return (
+      approvalStatus === "approved" || approvalStatus === "rejected"
+    );
   };
 
   const handleRowClick = (event, tncId) => {
     // Check if the click originated from a button, icon button, or chip
     const clickedElement = event.target;
-    const isInteractiveElement = 
-      clickedElement.closest('button') || 
+    const isInteractiveElement =
+      clickedElement.closest("button") ||
       clickedElement.closest('[role="button"]') ||
-      clickedElement.closest('.MuiChip-root') ||
-      clickedElement.closest('.MuiIconButton-root') ||
-      clickedElement.closest('.MuiButton-root');
-    
+      clickedElement.closest(".MuiChip-root") ||
+      clickedElement.closest(".MuiIconButton-root") ||
+      clickedElement.closest(".MuiButton-root");
+
     if (isInteractiveElement) {
       return;
     }
@@ -418,7 +429,11 @@ export default function Tnc2PageView() {
                         <HeadTableCell
                           key={headCell.id}
                           align={headCell.align || "center"}
-                          padding={headCell.disablePadding ? "none" : "normal"}
+                          padding={
+                            headCell.disablePadding
+                              ? "none"
+                              : "normal"
+                          }
                           sortDirection={
                             orderBy === headCell.id ? order : false
                           }
@@ -426,8 +441,12 @@ export default function Tnc2PageView() {
                         >
                           <TableSortLabel
                             active={orderBy === headCell.id}
-                            onClick={(e) => handleRequestSort(e, headCell.id)}
-                            direction={orderBy === headCell.id ? order : "asc"}
+                            onClick={(e) =>
+                              handleRequestSort(e, headCell.id)
+                            }
+                            direction={
+                              orderBy === headCell.id ? order : "asc"
+                            }
                           >
                             {headCell.label}
                           </TableSortLabel>
@@ -440,9 +459,13 @@ export default function Tnc2PageView() {
                   <TableBody>
                     {isLoading
                       ? // Show skeleton rows while loading
-                        Array.from({ length: rowsPerPage }).map((_, index) => (
-                          <SkeletonTableRow key={`skeleton-${index}`} />
-                        ))
+                        Array.from({ length: rowsPerPage }).map(
+                          (_, index) => (
+                            <SkeletonTableRow
+                              key={`skeleton-${index}`}
+                            />
+                          )
+                        )
                       : filteredTnc
                           .filter((tnc) => tnc.deletedAt === null)
                           .slice(
@@ -452,7 +475,9 @@ export default function Tnc2PageView() {
                           .map((tnc, ind) => (
                             <BodyTableRow
                               key={tnc.id}
-                              active={selectedTnc?.id === tnc.id ? 1 : 0}
+                              active={
+                                selectedTnc?.id === tnc.id ? 1 : 0
+                              }
                               onClick={(e) => {
                                 setSelectedTnc(tnc);
                                 handleRowClick(e, tnc.id);
@@ -472,6 +497,32 @@ export default function Tnc2PageView() {
                               </BodyTableCell>
 
                               <BodyTableCell align="center">
+                                <Typography
+                                  variant="caption"
+                                  sx={{ fontWeight: 400 }}
+                                >
+                                  {tnc?.createdBy || "N/A"}
+                                </Typography>
+                              </BodyTableCell>
+                              <BodyTableCell align="center">
+                                <Typography
+                                  variant="caption"
+                                  sx={{ fontWeight: 400 }}
+                                >
+                                  {formatDate(tnc?.createdAt)}
+                                </Typography>
+                              </BodyTableCell>
+
+                              <BodyTableCell align="center">
+                                <Typography
+                                  variant="caption"
+                                  sx={{ fontWeight: 400 }}
+                                >
+                                  {tnc?.reviewedBy || "Not Reviewed"}
+                                </Typography>
+                              </BodyTableCell>
+
+                              <BodyTableCell align="center">
                                 <Chip
                                   label={
                                     tnc.approvalStatus
@@ -484,33 +535,17 @@ export default function Tnc2PageView() {
                                   color={
                                     tnc.approvalStatus === "approved"
                                       ? "success"
-                                      : tnc.approvalStatus === "pending"
-                                      ? "warning"
-                                      : tnc.approvalStatus === "rejected"
-                                      ? "error"
-                                      : "default"
+                                      : tnc.approvalStatus ===
+                                          "pending"
+                                        ? "warning"
+                                        : tnc.approvalStatus ===
+                                            "rejected"
+                                          ? "error"
+                                          : "default"
                                   }
                                   variant="outlined"
                                   size="small"
                                 />
-                              </BodyTableCell>
-
-                              <BodyTableCell align="center">
-                                <Typography variant="caption" sx={{ fontWeight: 400 }}>
-                                  {formatDate(tnc?.createdAt)}
-                                </Typography>
-                              </BodyTableCell>
-
-                              <BodyTableCell align="center">
-                                <Typography variant="caption" sx={{ fontWeight: 400 }}>
-                                  {tnc?.createdBy || "N/A"}
-                                </Typography>
-                              </BodyTableCell>
-
-                              <BodyTableCell align="center">
-                                <Typography variant="caption" sx={{ fontWeight: 400 }}>
-                                  {tnc?.reviewedBy || "Not Reviewed"}
-                                </Typography>
                               </BodyTableCell>
 
                               <BodyTableCell align="center">
@@ -522,7 +557,9 @@ export default function Tnc2PageView() {
                                     handleReviewClick(tnc);
                                   }}
                                 >
-                                  {isReviewed(tnc.approvalStatus) ? "Re-review" : "Review"}
+                                  {isReviewed(tnc.approvalStatus)
+                                    ? "Re-review"
+                                    : "Review"}
                                 </Button>
                               </BodyTableCell>
                             </BodyTableRow>
@@ -541,7 +578,13 @@ export default function Tnc2PageView() {
               page={page}
               component="div"
               rowsPerPage={rowsPerPage}
-              count={isLoading ? 0 : filteredTnc.filter(tnc => tnc.deletedAt === null).length}
+              count={
+                isLoading
+                  ? 0
+                  : filteredTnc.filter(
+                      (tnc) => tnc.deletedAt === null
+                    ).length
+              }
               onPageChange={handleChangePage}
               rowsPerPageOptions={[5, 10, 25]}
               onRowsPerPageChange={handleChangeRowsPerPage}
@@ -549,7 +592,7 @@ export default function Tnc2PageView() {
           </Card>
         </Grid>
       </Grid>
-      
+
       {/* APPROVAL MODAL */}
       <ApprovalModal
         open={approvalModalOpen}
@@ -558,7 +601,7 @@ export default function Tnc2PageView() {
         onSubmit={handleApprovalSubmit}
         initialData={{
           approvalStatus: tncToReview?.approvalStatus || "",
-          reviewReason: tncToReview?.reviewReason || ""
+          reviewReason: tncToReview?.reviewReason || "",
         }}
       />
     </div>

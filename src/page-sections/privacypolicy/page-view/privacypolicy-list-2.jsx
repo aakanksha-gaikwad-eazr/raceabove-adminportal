@@ -68,9 +68,9 @@ const headCells = [
     id: "id",
     numeric: false,
     disablePadding: true,
-    label: "Id",
-    width: "5%",
-    align: "center"
+    label: "Sr No",
+    width: "8%",
+    align: "center",
   },
   {
     id: "content",
@@ -78,23 +78,7 @@ const headCells = [
     disablePadding: false,
     label: "Content",
     width: "25%",
-    align: "center"
-  },
-  {
-    id: "approvalStatus",
-    numeric: false,
-    disablePadding: false,
-    label: "Approval Status",
-    width: "15%",
-    align: "center"
-  },
-  {
-    id: "Date",
-    numeric: false,
-    disablePadding: false,
-    label: "Date",
-    width: "12%",
-    align: "center"
+    align: "center",
   },
   {
     id: "organizer",
@@ -102,7 +86,15 @@ const headCells = [
     disablePadding: false,
     label: "Organizer",
     width: "15%",
-    align: "center"
+    align: "center",
+  },
+  {
+    id: "Date",
+    numeric: false,
+    disablePadding: false,
+    label: "Date",
+    width: "12%",
+    align: "center",
   },
   {
     id: "reviewedby",
@@ -110,15 +102,25 @@ const headCells = [
     disablePadding: false,
     label: "Reviewed By",
     width: "15%",
-    align: "center"
+    align: "center",
   },
+
+  {
+    id: "approvalStatus",
+    numeric: false,
+    disablePadding: false,
+    label: "Approval Status",
+    width: "15%",
+    align: "center",
+  },
+
   {
     id: "actions",
     numeric: false,
     disablePadding: false,
     label: "Actions",
     width: "10%",
-    align: "center"
+    align: "center",
   },
 ];
 
@@ -163,18 +165,18 @@ const SkeletonSearchArea = () => (
 // Date formatter function
 const formatDate = (dateString) => {
   if (!dateString) return "N/A";
-  
+
   try {
     const date = new Date(dateString);
-    
+
     // Format: Dec 25, 2024
-    const options = { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric'
+    const options = {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     };
-    
-    return date.toLocaleDateString('en-US', options);
+
+    return date.toLocaleDateString("en-US", options);
   } catch (error) {
     return "Invalid Date";
   }
@@ -182,7 +184,8 @@ const formatDate = (dateString) => {
 
 export default function PrivacyPolicy2PageView() {
   const [searchFilter, setSearchFilter] = useState("");
-  const [selectedPrivacyPolicy, setSelectedPrivacyPolicy] = useState();
+  const [selectedPrivacyPolicy, setSelectedPrivacyPolicy] =
+    useState();
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [ppToReview, setPPToReview] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -203,17 +206,20 @@ export default function PrivacyPolicy2PageView() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const {privacypolicies} = useSelector((state) => state.privacypolicy);
-
-  const filteredPrivacyPolicy = stableSort(privacypolicies, getComparator(order, orderBy)).filter(
-    (item) => {
-      if (searchFilter)
-        return item?.content
-          ?.toLowerCase()
-          .includes(searchFilter?.toLowerCase());
-      else return true;
-    }
+  const { privacypolicies } = useSelector(
+    (state) => state.privacypolicy
   );
+
+  const filteredPrivacyPolicy = stableSort(
+    privacypolicies,
+    getComparator(order, orderBy)
+  ).filter((item) => {
+    if (searchFilter)
+      return item?.content
+        ?.toLowerCase()
+        .includes(searchFilter?.toLowerCase());
+    else return true;
+  });
 
   useEffect(() => {
     const fetchPrivacyPolicies = async () => {
@@ -235,8 +241,11 @@ export default function PrivacyPolicy2PageView() {
 
   useEffect(() => {
     if (selectedPrivacyPolicy) {
-      const updatedPrivacyPolicy = privacypolicies.find((pp) => pp.id === selectedPrivacyPolicy.id);
-      if (updatedPrivacyPolicy) setSelectedPrivacyPolicy(updatedPrivacyPolicy);
+      const updatedPrivacyPolicy = privacypolicies.find(
+        (pp) => pp.id === selectedPrivacyPolicy.id
+      );
+      if (updatedPrivacyPolicy)
+        setSelectedPrivacyPolicy(updatedPrivacyPolicy);
     } else {
       setSelectedPrivacyPolicy(privacypolicies[0]);
     }
@@ -246,8 +255,6 @@ export default function PrivacyPolicy2PageView() {
     // setPPToReview(pp);
     // setApprovalModalOpen(true);
     navigate(`/privacy-policy-details/${pp?.id}`);
-
-
   };
 
   const handleApprovalCancel = () => {
@@ -271,7 +278,9 @@ export default function PrivacyPolicy2PageView() {
 
         // Additional validation to ensure values are correct
         if (
-          !["approved", "rejected"].includes(reviewData?.data?.approvalStatus)
+          !["approved", "rejected"].includes(
+            reviewData?.data?.approvalStatus
+          )
         ) {
           toast.error("Invalid approval status");
           return;
@@ -280,10 +289,12 @@ export default function PrivacyPolicy2PageView() {
           toast.error("Review reason is required");
           return;
         }
-        
-        const result = await dispatch(reviewPrivacyPolicies(reviewData));
+
+        const result = await dispatch(
+          reviewPrivacyPolicies(reviewData)
+        );
         console.log("result", result);
-        
+
         // Check for successful status codes (200, 201, or success in payload)
         const isSuccessful =
           result?.status === 200 ||
@@ -307,7 +318,7 @@ export default function PrivacyPolicy2PageView() {
             default:
               toast.success("Privacy Policy reviewed successfully!");
           }
-          
+
           // Reset state
           setApprovalModalOpen(false);
           setPPToReview(null);
@@ -344,7 +355,7 @@ export default function PrivacyPolicy2PageView() {
         cursor: "pointer",
         textTransform: "capitalize",
         textAlign: "left",
-        px: 1
+        px: 1,
       }}
       title={content}
     >
@@ -356,13 +367,13 @@ export default function PrivacyPolicy2PageView() {
   const handleRowClick = (event, ppId) => {
     // Check if the click originated from a button, icon button, or chip
     const clickedElement = event.target;
-    const isInteractiveElement = 
-      clickedElement.closest('button') || 
+    const isInteractiveElement =
+      clickedElement.closest("button") ||
       clickedElement.closest('[role="button"]') ||
-      clickedElement.closest('.MuiChip-root') ||
-      clickedElement.closest('.MuiIconButton-root') ||
-      clickedElement.closest('.MuiButton-root');
-    
+      clickedElement.closest(".MuiChip-root") ||
+      clickedElement.closest(".MuiIconButton-root") ||
+      clickedElement.closest(".MuiButton-root");
+
     if (isInteractiveElement) {
       return;
     }
@@ -370,7 +381,9 @@ export default function PrivacyPolicy2PageView() {
   };
 
   const isReviewed = (approvalStatus) => {
-    return approvalStatus === "approved" || approvalStatus === "rejected";
+    return (
+      approvalStatus === "approved" || approvalStatus === "rejected"
+    );
   };
 
   return (
@@ -415,7 +428,11 @@ export default function PrivacyPolicy2PageView() {
                         <HeadTableCell
                           key={headCell.id}
                           align={headCell.align || "center"}
-                          padding={headCell.disablePadding ? "none" : "normal"}
+                          padding={
+                            headCell.disablePadding
+                              ? "none"
+                              : "normal"
+                          }
                           sortDirection={
                             orderBy === headCell.id ? order : false
                           }
@@ -423,8 +440,12 @@ export default function PrivacyPolicy2PageView() {
                         >
                           <TableSortLabel
                             active={orderBy === headCell.id}
-                            onClick={(e) => handleRequestSort(e, headCell.id)}
-                            direction={orderBy === headCell.id ? order : "asc"}
+                            onClick={(e) =>
+                              handleRequestSort(e, headCell.id)
+                            }
+                            direction={
+                              orderBy === headCell.id ? order : "asc"
+                            }
                           >
                             {headCell.label}
                           </TableSortLabel>
@@ -437,9 +458,13 @@ export default function PrivacyPolicy2PageView() {
                   <TableBody>
                     {isLoading
                       ? // Show skeleton rows while loading
-                        Array.from({ length: rowsPerPage }).map((_, index) => (
-                          <SkeletonTableRow key={`skeleton-${index}`} />
-                        ))
+                        Array.from({ length: rowsPerPage }).map(
+                          (_, index) => (
+                            <SkeletonTableRow
+                              key={`skeleton-${index}`}
+                            />
+                          )
+                        )
                       : filteredPrivacyPolicy
                           .filter((pp) => pp.deletedAt === null)
                           .slice(
@@ -449,7 +474,11 @@ export default function PrivacyPolicy2PageView() {
                           .map((pp, ind) => (
                             <BodyTableRow
                               key={pp.id}
-                              active={selectedPrivacyPolicy?.id === pp.id ? 1 : 0}
+                              active={
+                                selectedPrivacyPolicy?.id === pp.id
+                                  ? 1
+                                  : 0
+                              }
                               onClick={(e) => {
                                 setSelectedPrivacyPolicy(pp);
                                 handleRowClick(e, pp.id);
@@ -467,6 +496,30 @@ export default function PrivacyPolicy2PageView() {
                                   maxLines={2}
                                 />
                               </BodyTableCell>
+                              <BodyTableCell align="center">
+                                <Typography
+                                  variant="caption"
+                                  sx={{ fontWeight: 400 }}
+                                >
+                                  {pp?.createdBy || "N/A"}
+                                </Typography>
+                              </BodyTableCell>
+                              <BodyTableCell align="center">
+                                <Typography
+                                  variant="caption"
+                                  sx={{ fontWeight: 400 }}
+                                >
+                                  {formatDate(pp?.createdAt)}
+                                </Typography>
+                              </BodyTableCell>
+                              <BodyTableCell align="center">
+                                <Typography
+                                  variant="caption"
+                                  sx={{ fontWeight: 400 }}
+                                >
+                                  {pp?.reviewedBy || "Not Reviewed"}
+                                </Typography>
+                              </BodyTableCell>
 
                               <BodyTableCell align="center">
                                 <Chip
@@ -481,33 +534,17 @@ export default function PrivacyPolicy2PageView() {
                                   color={
                                     pp.approvalStatus === "approved"
                                       ? "success"
-                                      : pp.approvalStatus === "pending"
-                                      ? "warning"
-                                      : pp.approvalStatus === "rejected"
-                                      ? "error"
-                                      : "default"
+                                      : pp.approvalStatus ===
+                                          "pending"
+                                        ? "warning"
+                                        : pp.approvalStatus ===
+                                            "rejected"
+                                          ? "error"
+                                          : "default"
                                   }
                                   variant="outlined"
                                   size="small"
                                 />
-                              </BodyTableCell>
-
-                              <BodyTableCell align="center">
-                                <Typography variant="caption" sx={{ fontWeight: 400 }}>
-                                  {formatDate(pp?.createdAt)}
-                                </Typography>
-                              </BodyTableCell>
-
-                              <BodyTableCell align="center">
-                                <Typography variant="caption" sx={{ fontWeight: 400 }}>
-                                  {pp?.createdBy || "N/A"}
-                                </Typography>
-                              </BodyTableCell>
-
-                              <BodyTableCell align="center">
-                                <Typography variant="caption" sx={{ fontWeight: 400 }}>
-                                  {pp?.reviewedBy || "Not Reviewed"}
-                                </Typography>
                               </BodyTableCell>
 
                               <BodyTableCell align="center">
@@ -519,15 +556,18 @@ export default function PrivacyPolicy2PageView() {
                                     handleReviewClick(pp);
                                   }}
                                 >
-                                  {isReviewed(pp.approvalStatus) ? "Re-review" : "Review"}
+                                  {isReviewed(pp.approvalStatus)
+                                    ? "Re-review"
+                                    : "Review"}
                                 </Button>
                               </BodyTableCell>
                             </BodyTableRow>
                           ))}
 
-                    {!isLoading && filteredPrivacyPolicy.length === 0 && (
-                      <TableDataNotFound />
-                    )}
+                    {!isLoading &&
+                      filteredPrivacyPolicy.length === 0 && (
+                        <TableDataNotFound />
+                      )}
                   </TableBody>
                 </Table>
               </Scrollbar>
@@ -538,7 +578,13 @@ export default function PrivacyPolicy2PageView() {
               page={page}
               component="div"
               rowsPerPage={rowsPerPage}
-              count={isLoading ? 0 : filteredPrivacyPolicy.filter(pp => pp.deletedAt === null).length}
+              count={
+                isLoading
+                  ? 0
+                  : filteredPrivacyPolicy.filter(
+                      (pp) => pp.deletedAt === null
+                    ).length
+              }
               onPageChange={handleChangePage}
               rowsPerPageOptions={[5, 10, 25]}
               onRowsPerPageChange={handleChangeRowsPerPage}
@@ -546,7 +592,7 @@ export default function PrivacyPolicy2PageView() {
           </Card>
         </Grid>
       </Grid>
-    
+
       {/* APPROVAL MODAL */}
       <ApprovalModal
         open={approvalModalOpen}
@@ -555,7 +601,7 @@ export default function PrivacyPolicy2PageView() {
         onSubmit={handleApprovalSubmit}
         initialData={{
           approvalStatus: ppToReview?.approvalStatus || "",
-          reviewReason: ppToReview?.reviewReason || ""
+          reviewReason: ppToReview?.reviewReason || "",
         }}
       />
     </div>

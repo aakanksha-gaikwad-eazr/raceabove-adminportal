@@ -95,23 +95,23 @@ const headCells = [
     id: "id",
     numeric: true,
     disablePadding: false,
-    label: "Id",
-    width:"7%",
+    label: "Sr No",
+    width: "8%",
   },
   {
     id: "name",
     numeric: true,
     disablePadding: false,
     label: "Name",
-    width:"10%"
+    width: "12%",
   },
-  {
-    id: "updatedBy",
-    numeric: true,
-    disablePadding: false,
-    label: "Updated By",
-    width:"20%"
-  },
+  // {
+  //   id: "updatedBy",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Updated By",
+  //   width: "20%",
+  // },
   // {
   //   id: "updatedByRole",
   //   numeric: true,
@@ -120,32 +120,33 @@ const headCells = [
   //   width:"20%"
   // },
   {
-    id: "createdBy",
-    numeric: true,
-    disablePadding: false,
-    label: "Organizer",
-    width:"15%"
-  },
-  {
     id: "createdAt",
     numeric: true,
     disablePadding: false,
     label: "Date",
-    width:"17%"
+    width: "17%",
   },
+  {
+    id: "createdBy",
+    numeric: true,
+    disablePadding: false,
+    label: "Created By",
+    width: "15%",
+  },
+
   {
     id: "status",
     numeric: false,
     disablePadding: false,
     label: "Status",
-    width:"10%"
+    width: "10%",
   },
   {
     id: "actions",
     numeric: false,
     disablePadding: false,
     label: "Actions",
-    width:"5%"
+    width: "5%",
   },
 ];
 
@@ -193,23 +194,25 @@ export default function SportsListPageView() {
   ).filter((item) => {
     // Include deleted items but show them as disabled
     const isDeleted = item?.deletedAt !== null;
-  
+
     // Filter by tab selection
     if (selectTab === "active" && (!item?.isActive || isDeleted)) {
-      return false; 
+      return false;
     }
     if (selectTab === "inactive" && (item?.isActive || isDeleted)) {
-      return false; 
+      return false;
     }
-    if (selectTab === "deleted" && (!isDeleted)) {
-      return false; 
+    if (selectTab === "deleted" && !isDeleted) {
+      return false;
     }
-    
+
     // For "all" tab, show both active, inactive, and deleted items
-    
+
     // Apply search filter
     if (searchFilter) {
-      return item?.name?.toLowerCase().includes(searchFilter?.toLowerCase());
+      return item?.name
+        ?.toLowerCase()
+        .includes(searchFilter?.toLowerCase());
     }
 
     return true;
@@ -228,14 +231,18 @@ export default function SportsListPageView() {
     }
   }, [sports, selectedSport]);
 
-  const handleStatusToggle = async (sportId, currentStatus, isDeleted) => {
+  const handleStatusToggle = async (
+    sportId,
+    currentStatus,
+    isDeleted
+  ) => {
     if (isDeleted) {
       toast.error("Cannot update status of deleted items");
       return;
     }
-      console.log("Toggle clicked - Sport ID:", sportId);
-  console.log("Current isActive status:", currentStatus);
-  console.log("New isActive status will be:", !currentStatus);
+    console.log("Toggle clicked - Sport ID:", sportId);
+    console.log("Current isActive status:", currentStatus);
+    console.log("New isActive status will be:", !currentStatus);
     setLoadingStates((prev) => ({ ...prev, [sportId]: true }));
 
     try {
@@ -307,22 +314,22 @@ export default function SportsListPageView() {
   };
 
   const handleDelete = async () => {
-  console.log("Deleting sport with id:", sportId);
-  try {
-    const result = await dispatch(deleteSports(sportId));
-        if (result.meta?.requestStatus === 'fulfilled') {
-      await dispatch(getSports());
-      toast.success("Sport deleted successfully");
-    } else {
-      toast.error("Failed to delete sport");
+    console.log("Deleting sport with id:", sportId);
+    try {
+      const result = await dispatch(deleteSports(sportId));
+      if (result.meta?.requestStatus === "fulfilled") {
+        await dispatch(getSports());
+        toast.success("Sport deleted successfully");
+      } else {
+        toast.error("Failed to delete sport");
+      }
+    } catch (error) {
+      console.error("Error deleting sport:", error);
+      toast.error("An error occurred while deleting");
+    } finally {
+      handleCloseDeleteModal();
     }
-  } catch (error) {
-    console.error("Error deleting sport:", error);
-    toast.error("An error occurred while deleting");
-  } finally {
-    handleCloseDeleteModal();
-  }
-};
+  };
 
   const handleActionClick = (e, action, sport) => {
     e.stopPropagation();
@@ -337,7 +344,11 @@ export default function SportsListPageView() {
     <div className="pt-2 pb-4">
       <HeadingArea />
       <TabContext value={selectTab}>
-        <TabList variant="scrollable" onChange={handleChangeTab} sx={{ mb: 2, px: 3 }}>
+        <TabList
+          variant="scrollable"
+          onChange={handleChangeTab}
+          sx={{ mb: 2, px: 3 }}
+        >
           <Tab label="All" value="all" />
           <Tab label="Active" value="active" />
           <Tab label="Inactive" value="inactive" />
@@ -380,12 +391,14 @@ export default function SportsListPageView() {
                             key={headCell.id}
                             align="center"
                             padding={
-                              headCell.disablePadding ? "none" : "normal"
+                              headCell.disablePadding
+                                ? "none"
+                                : "normal"
                             }
                             sortDirection={
                               orderBy === headCell.id ? order : false
                             }
-                            width={headCell.width || 'auto'}
+                            width={headCell.width || "auto"}
                           >
                             {headCell.id === "actions" ||
                             headCell.id === "status" ? (
@@ -397,7 +410,9 @@ export default function SportsListPageView() {
                                   handleRequestSort(e, headCell.id)
                                 }
                                 direction={
-                                  orderBy === headCell.id ? order : "asc"
+                                  orderBy === headCell.id
+                                    ? order
+                                    : "asc"
                                 }
                               >
                                 {headCell.label}
@@ -415,7 +430,7 @@ export default function SportsListPageView() {
                           page * rowsPerPage,
                           page * rowsPerPage + rowsPerPage
                         )
-                        .map((sport,ind) => {
+                        .map((sport, ind) => {
                           const isDeleted = sport.deletedAt !== null;
 
                           return (
@@ -427,36 +442,42 @@ export default function SportsListPageView() {
                               isDeleted={isDeleted}
                               onClick={() => setSelectedSport(sport)}
                             >
-                                <BodyTableCell align="left">
-                                                                  {page * rowsPerPage + ind + 1}
-
+                              <BodyTableCell align="left">
+                                {page * rowsPerPage + ind + 1}
                               </BodyTableCell>
-                              <BodyTableCell align="center" isDeleted={isDeleted}>
+                              <BodyTableCell
+                                align="center"
+                                isDeleted={isDeleted}
+                              >
                                 <Stack
                                   direction="row"
                                   alignItems="center"
                                   spacing={2}
                                 >
                                   <Avatar
-                                    src={sport?.icon || sports?.iconFile}
+                                    src={
+                                      sport?.icon || sports?.iconFile
+                                    }
                                     sx={{
                                       borderRadius: "20%",
                                       backgroundColor: "grey.100",
                                       width: 32,
                                       height: 32,
-                                      ...(isDeleted && { opacity: 0.5 }),
+                                      ...(isDeleted && {
+                                        opacity: 0.5,
+                                      }),
                                     }}
                                   />
                                   <Stack>
                                     <H6
                                       fontSize={13}
-                                      color={
-                                       "text.primary"
-                                      }
+                                      color={"text.primary"}
                                       fontWeight={500}
-                                      style={{textTransform:"capitalize"}}
+                                      style={{
+                                        textTransform: "capitalize",
+                                      }}
                                     >
-                                      {limitWords(sport.name,15)}
+                                      {limitWords(sport.name, 15)}
                                     </H6>
                                     {isDeleted && (
                                       <Chip
@@ -464,24 +485,37 @@ export default function SportsListPageView() {
                                         size="small"
                                         color="error"
                                         variant="outlined"
-                                        sx={{ height: 20, fontSize: 11 }}
+                                        sx={{
+                                          height: 20,
+                                          fontSize: 11,
+                                        }}
                                       />
                                     )}
                                   </Stack>
                                 </Stack>
                               </BodyTableCell>
-                              <BodyTableCell align="center" style={{textTransform:"capitalize"}} >
+                              {/* <BodyTableCell align="center" style={{textTransform:"capitalize"}} >
                               <div>  {limitWords(sport.updatedBy,25)}</div>
                               <div>  {limitWords(sport.updatedByRole,25)}</div>
-                              </BodyTableCell>
+                              </BodyTableCell> */}
                               {/* <BodyTableCell align="center" style={{textTransform:"capitalize"}}>
                                 {sport.updatedByRole ?? "N/A"}
                               </BodyTableCell> */}
-                              <BodyTableCell align="center" style={{textTransform:"capitalize"}} >
-                                {limitWords(sport.createdBy,25)}
-                              </BodyTableCell>
-                              <BodyTableCell align="center" style={{textTransform:"capitalize"}}>
+                              <BodyTableCell
+                                align="center"
+                                style={{
+                                  textTransform: "capitalize",
+                                }}
+                              >
                                 {formatDate(sport.createdAt)}
+                              </BodyTableCell>
+                              <BodyTableCell
+                                align="center"
+                                style={{
+                                  textTransform: "capitalize",
+                                }}
+                              >
+                                {limitWords(sport.createdBy, 25)}
                               </BodyTableCell>
 
                               {/* STATUS COLUMN */}
@@ -500,7 +534,9 @@ export default function SportsListPageView() {
                                   ) : (
                                     <>
                                       <Switch
-                                        checked={sport?.isActive || false}
+                                        checked={
+                                          sport?.isActive || false
+                                        }
                                         onChange={(e) => {
                                           e.stopPropagation();
                                           handleStatusToggle(
@@ -539,7 +575,11 @@ export default function SportsListPageView() {
                                         size="small"
                                         color="primary"
                                         onClick={(e) =>
-                                          handleActionClick(e, "edit", sport)
+                                          handleActionClick(
+                                            e,
+                                            "edit",
+                                            sport
+                                          )
                                         }
                                         // disabled={isDeleted}
                                       >
@@ -547,9 +587,11 @@ export default function SportsListPageView() {
                                       </IconButton>
                                     </span>
                                   </Tooltip>
-                                  <Tooltip 
+                                  <Tooltip
                                     title={
-                                      isDeleted ? "Already deleted" : "Delete"
+                                      isDeleted
+                                        ? "Already deleted"
+                                        : "Delete"
                                     }
                                   >
                                     <span>
@@ -575,7 +617,9 @@ export default function SportsListPageView() {
                           );
                         })}
 
-                      {filteredSports.length === 0 && <TableDataNotFound />}
+                      {filteredSports.length === 0 && (
+                        <TableDataNotFound />
+                      )}
                     </TableBody>
                   </Table>
                 </Scrollbar>
@@ -611,9 +655,15 @@ export default function SportsListPageView() {
         actions={[
           {
             label: "Cancel",
-            props: { onClick: handleCloseDeleteModal, variant: "outlined" },
+            props: {
+              onClick: handleCloseDeleteModal,
+              variant: "outlined",
+            },
           },
-          { label: "Delete", props: { onClick: handleDelete, color: "error" } },
+          {
+            label: "Delete",
+            props: { onClick: handleDelete, color: "error" },
+          },
         ]}
       />
     </div>
