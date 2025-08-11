@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid2";
-import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
-import Avatar from "@mui/material/Avatar";
 import TableRow from "@mui/material/TableRow";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -16,21 +14,23 @@ import styled from "@mui/material/styles/styled";
 import { H6 } from "@/components/typography";
 import Scrollbar from "@/components/scrollbar";
 import { TableDataNotFound } from "@/components/table";
-import DeleteIcon from "@/icons/Delete";
-import EditIcon from "@/icons/Edit";
-import DeleteModal from "@/components/delete-modal/DeleteModal";
 import { useNavigate } from "react-router-dom";
 import SearchArea from "../SearchArea";
-import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable";
+import useMuiTable, {
+  getComparator,
+  stableSort,
+} from "@/hooks/useMuiTable";
 import { isDark } from "@/utils/constants";
 import { useDispatch, useSelector } from "react-redux";
-import { getCoupons, reviewCoupons } from "../../../store/apps/coupons";
+import {
+  getCoupons,
+  reviewCoupons,
+} from "../../../store/apps/coupons";
 import HeadingAreaCoupon from "../HeadingAreaCoupon";
 import toast from "react-hot-toast";
 import { Button, Chip } from "@mui/material";
 import ApprovalModal from "@/components/approval-modal";
 import { limitWords } from "@/utils/wordLimiter";
-import { formatSingleDate } from "@/utils/dateFormatter";
 import { formatDate } from "@/utils/dateFormatter";
 
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
@@ -65,71 +65,58 @@ const headCells = [
     id: "id",
     numeric: true,
     disablePadding: false,
-    label: "Id",
-    width:"10%"
+    label: "Sr No",
+    width: "10%",
   },
   {
     id: "name",
     numeric: true,
     disablePadding: false,
     label: "Title",
-        width:"20"
+    width: "20",
   },
-  // {
-  //   id: "position",
-  //   numeric: true,
-  //   disablePadding: false,
-  //   label: "Code",
-  //       width:"8%"
-  // },
-  // {
-  //   id: "discounttype",
-  //   numeric: true,
-  //   disablePadding: false,
-  //   label: "Discount Type",
-  //       width:"15%"
-  // },
-  // {
-  //   id: "discountvalue",
-  //   numeric: true,
-  //   disablePadding: false,
-  //   label: "Discount Value",
-  //       width:"10%"
-  // },
-  // {
-  //   id: "timestamp",
-  //   numeric: true,
-  //   disablePadding: false,
-  //   label: "Time Stamp",
-  //       width:"10%"
-  // },
   {
-    id: "approvalStatus",
+    id: "discountType",
     numeric: true,
     disablePadding: false,
-    label: "Approval Status",
-        width:"20%"
+    label: "Type",
+    width: "10",
   },
   {
     id: "createdBy",
     numeric: true,
     disablePadding: false,
     label: "Organizer",
-        width:"20%"
+    width: "15%",
   },
   {
     id: "date",
     numeric: true,
     disablePadding: false,
     label: "Date",
-    width:"20%"
+    width: "12%",
   },
+  {
+    id: "updatedBy",
+    numeric: true,
+    disablePadding: false,
+    label: "Reviewed By",
+    width: "14%",
+  },
+  {
+    id: "approvalStatus",
+    numeric: true,
+    disablePadding: false,
+    label: "Approval Status",
+    width: "15%",
+  },
+
   {
     id: "actions",
     numeric: true,
     disablePadding: false,
     label: "Actions",
-    width:"10%"
+    width: "10%",
   },
 ];
 
@@ -164,7 +151,9 @@ export default function Coupons2PageView() {
     getComparator(order, orderBy)
   ).filter((item) => {
     if (searchFilter)
-      return item?.title?.toLowerCase().includes(searchFilter?.toLowerCase());
+      return item?.title
+        ?.toLowerCase()
+        .includes(searchFilter?.toLowerCase());
     else return true;
   });
 
@@ -184,8 +173,7 @@ export default function Coupons2PageView() {
   }, [coupons]);
 
   const handleReviewClick = (coupons) => {
-        navigate(`/coupon-details/${coupons.id}`);
-
+    navigate(`/coupon-details/${coupons.id}`);
   };
   const handleApprovalCancel = () => {
     setApprovalModalOpen(false);
@@ -204,9 +192,10 @@ export default function Coupons2PageView() {
           },
         };
 
-        // Additional validation to ensure values are correct
         if (
-          !["approved", "rejected"].includes(reviewData?.data?.approvalStatus)
+          !["approved", "rejected"].includes(
+            reviewData?.data?.approvalStatus
+          )
         ) {
           toast.error("Invalid approval status");
           return;
@@ -253,20 +242,22 @@ export default function Coupons2PageView() {
     }
   };
 
-    const isReviewed = (approvalStatus) => {
-    return approvalStatus === "approved" || approvalStatus === "rejected";
+  const isReviewed = (approvalStatus) => {
+    return (
+      approvalStatus === "approved" || approvalStatus === "rejected"
+    );
   };
 
-   const handleRowClick = (event, couponId) => {
+  const handleRowClick = (event, couponId) => {
     // Check if the click originated from a button, icon button, or chip
     const clickedElement = event.target;
-    const isInteractiveElement = 
-      clickedElement.closest('button') || 
+    const isInteractiveElement =
+      clickedElement.closest("button") ||
       clickedElement.closest('[role="button"]') ||
-      clickedElement.closest('.MuiChip-root') ||
-      clickedElement.closest('.MuiIconButton-root') ||
-      clickedElement.closest('.MuiButton-root');
-    
+      clickedElement.closest(".MuiChip-root") ||
+      clickedElement.closest(".MuiIconButton-root") ||
+      clickedElement.closest(".MuiButton-root");
+
     if (isInteractiveElement) {
       return;
     }
@@ -311,7 +302,11 @@ export default function Coupons2PageView() {
                         <HeadTableCell
                           key={headCell.id}
                           align="center"
-                          padding={headCell.disablePadding ? "none" : "normal"}
+                          padding={
+                            headCell.disablePadding
+                              ? "none"
+                              : "normal"
+                          }
                           sortDirection={
                             orderBy === headCell.id ? order : false
                           }
@@ -319,8 +314,12 @@ export default function Coupons2PageView() {
                         >
                           <TableSortLabel
                             active={orderBy === headCell.id}
-                            onClick={(e) => handleRequestSort(e, headCell.id)}
-                            direction={orderBy === headCell.id ? order : "asc"}
+                            onClick={(e) =>
+                              handleRequestSort(e, headCell.id)
+                            }
+                            direction={
+                              orderBy === headCell.id ? order : "asc"
+                            }
                           >
                             {headCell.label}
                           </TableSortLabel>
@@ -339,55 +338,48 @@ export default function Coupons2PageView() {
                       .map((coupons, ind) => (
                         <BodyTableRow
                           key={coupons.id}
-                          active={selectedCoupons?.id === coupons.id ? 1 : 0}
-                            onClick={(e) => {
-                                setSelectedCoupons(coupons);
-                                handleRowClick(e, coupons.id);
-                              }}
+                          active={
+                            selectedCoupons?.id === coupons.id ? 1 : 0
+                          }
+                          onClick={(e) => {
+                            setSelectedCoupons(coupons);
+                            handleRowClick(e, coupons.id);
+                          }}
                         >
                           <BodyTableCell align="left">
                             {page * rowsPerPage + ind + 1}
                           </BodyTableCell>
+
                           <BodyTableCell
-                            align="center"
+                            align="left"
                             style={{ textTransform: "capitalize" }}
                           >
-                            <H6 fontSize={12} color="text.primary">
+                            <H6 fontSize={13} color="text.primary">
                               {limitWords(coupons.title, 20)}
                             </H6>
                           </BodyTableCell>
-                          {/* <BodyTableCell align="center">
-                            <H6 fontSize={12} color="text.primary">
-                              {limitWords(coupons.code, 20)}
-                            </H6>
+                          <BodyTableCell
+                            align="center"
+                            textTransform="capitalize"
+                          >
+                            {coupons?.discountType}
+                          </BodyTableCell>
+
+                          <BodyTableCell align="center">
+                            {coupons?.createdBy ?? "N/A"}
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            {formatDate(coupons?.createdAt)}
                           </BodyTableCell>
                           <BodyTableCell
                             align="center"
-                            style={{ textTransform: "capitalize" }}
+                            style={{
+                              textTransform: "capitalize",
+                            }}
                           >
-                            <Chip
-                              label={coupons.discountType ?? "N/A"}
-                              color={"primary"}
-                              variant="outlined"
-                              size="small"
-                            />
+                            {coupons.updatedBy ?? "N/A"}
                           </BodyTableCell>
-                          <BodyTableCell align="center">
-                            {coupons.discountType === "percentage"
-                              ? `${Math.floor(coupons.discountValue)}%`
-                              : `₹${Math.floor(coupons.discountValue)}`}
-                          </BodyTableCell>
-                          <BodyTableCell align="center">
-                            <div>
-                              <div>
-                                {formatSingleDate(coupons?.startTimeStamp)}
-                              </div>
-                              to
-                              <div>
-                                {formatSingleDate(coupons?.endTimeStamp)}
-                              </div>
-                            </div>
-                          </BodyTableCell> */}
+
                           <BodyTableCell align="center">
                             {/* {addoncatgory.approvalStatus ?? "N/A"} */}
                             <Chip
@@ -402,9 +394,11 @@ export default function Coupons2PageView() {
                               color={
                                 coupons.approvalStatus === "approved"
                                   ? "success"
-                                  : coupons.approvalStatus === "pending"
+                                  : coupons.approvalStatus ===
+                                      "pending"
                                     ? "warning"
-                                    : coupons.approvalStatus === "rejected"
+                                    : coupons.approvalStatus ===
+                                        "rejected"
                                       ? "error"
                                       : "default"
                               }
@@ -412,31 +406,27 @@ export default function Coupons2PageView() {
                               size="small"
                             />
                           </BodyTableCell>
-                          <BodyTableCell align="center">
-                            {coupons?.createdBy ?? "N/A"}
-                          </BodyTableCell>
-                          <BodyTableCell align="center">
-                            {formatDate(coupons?.createdAt)}
-                          </BodyTableCell>
 
-                          <BodyTableCell align="right">
+                          <BodyTableCell align="center">
                             <Button
                               size="small"
                               variant="outlined"
-                           
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleReviewClick(coupons);
                               }}
                             >
-                                  {isReviewed(coupons.approvalStatus) ? "Re-review" : "Review"}
+                              {isReviewed(coupons.approvalStatus)
+                                ? "Re-review"
+                                : "Review"}
                             </Button>
-                             
                           </BodyTableCell>
                         </BodyTableRow>
                       ))}
 
-                    {filteredCoupons.length === 0 && <TableDataNotFound />}
+                    {filteredCoupons.length === 0 && (
+                      <TableDataNotFound />
+                    )}
                   </TableBody>
                 </Table>
               </Scrollbar>

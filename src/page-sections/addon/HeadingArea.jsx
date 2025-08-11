@@ -25,15 +25,20 @@ export default function HeadingArea({
   changeTab
 }) {
   const navigate = useNavigate();
-  return <FlexBetween flexWrap="wrap" gap={1} mb={"2rem"}>
+  return (
+    <FlexBetween flexWrap="wrap" gap={1} mb={"2rem"}>
       <FlexBox alignItems="center">
         <IconWrapper>
-          <ShoppingBagIcon sx={{
-          color: 'primary.main'
-        }} />
+          <ShoppingBagIcon
+            sx={{
+              color: "primary.main",
+            }}
+          />
         </IconWrapper>
 
-        <Paragraph fontSize={16} style={{fontWeight:"bold"}} >Products</Paragraph>
+        <Paragraph fontSize={20} style={{ fontWeight: "bold" }}>
+          Products
+        </Paragraph>
       </FlexBox>
 
       {/* <TabContext value={value}>
@@ -45,9 +50,10 @@ export default function HeadingArea({
           <Tab disableRipple label="Subscriber" value="subscriber" />
         </TabListWrapper>
       </TabContext> */}
-{/* 
+      {/* 
       <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/add-addoncategory')}>
         Add New Product
       </Button> */}
-    </FlexBetween>;
+    </FlexBetween>
+  );
 }

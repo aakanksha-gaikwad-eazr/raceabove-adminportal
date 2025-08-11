@@ -124,7 +124,7 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Date",
-    width: "17%",
+    width: "15%",
   },
   {
     id: "createdBy",
@@ -380,9 +380,13 @@ export default function SportsListPageView() {
               </Box>
 
               {/* TABLE HEAD & BODY ROWS */}
-              <TableContainer>
+              <TableContainer
+                sx={{
+                  overflowX: { xs: "auto", md: "unset" },
+                }}
+              >
                 <Scrollbar autoHide={false}>
-                  <Table>
+                  <Table sx={{ tableLayout: "fixed", minWidth: 800 }}>
                     {/* TABLE HEADER */}
                     <TableHead>
                       <TableRow>

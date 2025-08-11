@@ -22,7 +22,10 @@ import { TableDataNotFound } from "@/components/table"; // CUSTOM PAGE SECTION C
 import SearchArea from "../SearchArea";
 import UserDetails from "../AddonDetails"; // CUSTOM DEFINED HOOK
 
-import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable"; // CUSTOM UTILS METHOD
+import useMuiTable, {
+  getComparator,
+  stableSort,
+} from "@/hooks/useMuiTable"; // CUSTOM UTILS METHOD
 
 import { isDark } from "@/utils/constants"; // CUSTOM DUMMY DATA
 
@@ -77,55 +80,71 @@ const BodyTableRow = styled(TableRow, {
   }),
 }));
 const headCells = [
-   {
+  {
     id: "id",
     numeric: false,
     disablePadding: true,
-    label: "Id",
-    width: "5%",
-   
+    label: "Sr No",
+    width: "10%",
   },
   {
     id: "name",
     numeric: true,
     disablePadding: false,
-    label: "Name",
+    label: "Title",
+    width: "18%",
   },
   {
     id: "description",
     numeric: true,
     disablePadding: false,
     label: "Description",
+    width: "8%",
   },
+
   {
-    id: "approvalStatus",
+    id: "category.name",
     numeric: true,
     disablePadding: false,
-    label: "Approval Status",
-  },
-  {
-    id: "reviewedby",
-    numeric: false,
-    disablePadding: false,
-    label: "Reviewed By",
+    label: "Category",
+    width: "4%",
   },
   {
     id: "createdby",
     numeric: false,
     disablePadding: false,
     label: "Organizer",
+    width: "6%",
   },
   {
     id: "createdAt",
     numeric: false,
     disablePadding: false,
     label: "Date",
+    width: "7%",
   },
+
+  {
+    id: "reviewedby",
+    numeric: false,
+    disablePadding: false,
+    label: "Reviewed By",
+    width: "3%",
+  },
+  {
+    id: "approvalStatus",
+    numeric: true,
+    disablePadding: false,
+    label: "Approval Status",
+    width: "5%",
+  },
+
   {
     id: "actions",
     numeric: true,
     disablePadding: false,
     label: "Actions",
+    width: "3%",
   },
 ];
 
@@ -159,21 +178,28 @@ export default function Addon2PageView() {
   const filteredAddon = stableSort(
     addOnsArray,
     getComparator(order, orderBy)
-  ).filter((item) => {  
+  ).filter((item) => {
     if (searchFilter)
-      return item?.name?.toLowerCase().includes(searchFilter?.toLowerCase());
+      return item?.name
+        ?.toLowerCase()
+        .includes(searchFilter?.toLowerCase());
     else return true;
   });
 
-  console.log('Debug Info:', {
+  console.log("Debug Info:", {
     allAddOns,
     addOnsArray: addOnsArray.length,
     searchFilter,
-    filteredBeforeDelete: stableSort(addOnsArray, getComparator(order, orderBy)).length,
+    filteredBeforeDelete: stableSort(
+      addOnsArray,
+      getComparator(order, orderBy)
+    ).length,
     filteredAfterSearch: filteredAddon.length,
-    finalFiltered: filteredAddon.filter((addon) => addon.deletedAt === null).length
-});
-console.log("filteredAddon",filteredAddon)
+    finalFiltered: filteredAddon.filter(
+      (addon) => addon.deletedAt === null
+    ).length,
+  });
+  console.log("filteredAddon", filteredAddon);
   useEffect(() => {
     dispatch(getAddOns());
   }, [dispatch]);
@@ -193,14 +219,15 @@ console.log("filteredAddon",filteredAddon)
     // setAddonToReview(addOns);
     // setApprovalModalOpen(true);
     navigate(`/details-addon/${addOns?.id}`);
-
   };
   const handleApprovalCancel = () => {
     setApprovalModalOpen(false);
     setAddonToReview(null);
   };
-    const isReviewed = (approvalStatus) => {
-    return approvalStatus === "approved" || approvalStatus === "rejected";
+  const isReviewed = (approvalStatus) => {
+    return (
+      approvalStatus === "approved" || approvalStatus === "rejected"
+    );
   };
 
   const handleApprovalSubmit = async (formData) => {
@@ -218,7 +245,9 @@ console.log("filteredAddon",filteredAddon)
 
         // Additional validation to ensure values are correct
         if (
-          !["approved", "rejected"].includes(reviewData?.data?.approvalStatus)
+          !["approved", "rejected"].includes(
+            reviewData?.data?.approvalStatus
+          )
         ) {
           toast.error("Invalid approval status");
           return;
@@ -280,13 +309,15 @@ console.log("filteredAddon",filteredAddon)
     navigate(`/details-addon/${addonId}`);
   };
 
-
-console.log('deletedAt values:', addOnsArray.map(addon => ({ 
-  id: addon.id, 
-  name: addon.name, 
-  deletedAt: addon.deletedAt,
-  deletedAtType: typeof addon.deletedAt 
-})));
+  console.log(
+    "deletedAt values:",
+    addOnsArray.map((addon) => ({
+      id: addon.id,
+      name: addon.name,
+      deletedAt: addon.deletedAt,
+      deletedAtType: typeof addon.deletedAt,
+    }))
+  );
 
   return (
     <div className="pt-2 pb-4">
@@ -326,15 +357,23 @@ console.log('deletedAt values:', addOnsArray.map(addon => ({
                       {headCells.map((headCell) => (
                         <HeadTableCell
                           key={headCell.id}
-                          padding={headCell.disablePadding ? "none" : "normal"}
+                          padding={
+                            headCell.disablePadding
+                              ? "none"
+                              : "normal"
+                          }
                           sortDirection={
                             orderBy === headCell.id ? order : false
                           }
                         >
                           <TableSortLabel
                             active={orderBy === headCell.id}
-                            onClick={(e) => handleRequestSort(e, headCell.id)}
-                            direction={orderBy === headCell.id ? order : "asc"}
+                            onClick={(e) =>
+                              handleRequestSort(e, headCell.id)
+                            }
+                            direction={
+                              orderBy === headCell.id ? order : "asc"
+                            }
                           >
                             {headCell.label}
                           </TableSortLabel>
@@ -351,21 +390,25 @@ console.log('deletedAt values:', addOnsArray.map(addon => ({
                         page * rowsPerPage + rowsPerPage
                       )
                       // .filter((addon) => addon.deletedAt === null)
-                      .map((addon,ind) => (
+                      .map((addon, ind) => (
                         <BodyTableRow
                           key={addon.id}
-                          active={selectedAddon?.id === addon.id ? 1 : 0}
+                          active={
+                            selectedAddon?.id === addon.id ? 1 : 0
+                          }
                           onClick={(e) => {
                             setSelectedAddon(addon);
                             handleRowClick(e, addon.id);
                           }}
                         >
-                          <BodyTableCell align="center">
-                                                          <Typography variant="caption">
-                                                            {page * rowsPerPage + ind + 1}
-                                                          </Typography>
-                                                        </BodyTableCell>
-                          <BodyTableCell style={{textTransform:"capitalize"}}>
+                          <BodyTableCell align="left">
+                            <Typography variant="caption">
+                              {page * rowsPerPage + ind + 1}
+                            </Typography>
+                          </BodyTableCell>
+                          <BodyTableCell
+                            style={{ textTransform: "capitalize" }}
+                          >
                             <Stack
                               direction="row"
                               alignItems="center"
@@ -379,15 +422,39 @@ console.log('deletedAt values:', addOnsArray.map(addon => ({
                                 }}
                               />
 
-                              <H6 fontSize={12} color="text.primary" >
+                              <H6 fontSize={12} color="text.primary">
                                 {addon.name ?? "N/A"}
                               </H6>
                             </Stack>
                           </BodyTableCell>
-                          <BodyTableCell style={{textTransform:"capitalize"}} >
-                              {limitWords(addon.description,25)}
+                          <BodyTableCell
+                            style={{ textTransform: "capitalize" }}
+                          >
+                            {limitWords(addon.description, 25)}
                           </BodyTableCell>
-                          <BodyTableCell alignItems="center">
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {addon?.category?.name ?? "N/A "}
+                            </Paragraph>
+                          </BodyTableCell>
+
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {addon?.createdBy ?? "N/A "}
+                            </Paragraph>
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {formatDate(addon?.createdAt)}
+                            </Paragraph>
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {addon?.reviewedBy ??
+                                "Not Reviewed yet"}
+                            </Paragraph>
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
                             {/* {addon.approvalStatus ?? "N/A"} */}
                             <Chip
                               label={
@@ -403,7 +470,8 @@ console.log('deletedAt values:', addOnsArray.map(addon => ({
                                   ? "success"
                                   : addon.approvalStatus === "pending"
                                     ? "warning"
-                                    : addon.approvalStatus === "rejected"
+                                    : addon.approvalStatus ===
+                                        "rejected"
                                       ? "error"
                                       : "default"
                               }
@@ -411,22 +479,8 @@ console.log('deletedAt values:', addOnsArray.map(addon => ({
                               size="small"
                             />
                           </BodyTableCell>
+
                           <BodyTableCell align="center">
-                            <Paragraph>
-                              {addon?.reviewedBy ?? "Not Reviewed yet"}
-                            </Paragraph>
-                          </BodyTableCell>
-                          <BodyTableCell align="center">
-                            <Paragraph>
-                              {addon?.createdBy ?? "N/A "}
-                            </Paragraph>
-                          </BodyTableCell>
-                          <BodyTableCell align="center">
-                            <Paragraph>
-                              {formatDate(addon?.createdAt)}
-                            </Paragraph>
-                          </BodyTableCell>
-                          <BodyTableCell>
                             <Button
                               size="small"
                               variant="outlined"
@@ -439,14 +493,17 @@ console.log('deletedAt values:', addOnsArray.map(addon => ({
                                 handleReviewClick(addon);
                               }}
                             >
-                                                                {isReviewed(addon.approvalStatus) ? "Re-review" : "Review"}
-
+                              {isReviewed(addon.approvalStatus)
+                                ? "Re-review"
+                                : "Review"}
                             </Button>
                           </BodyTableCell>
                         </BodyTableRow>
                       ))}
 
-                    {filteredAddon.length === 0 && <TableDataNotFound />}
+                    {filteredAddon.length === 0 && (
+                      <TableDataNotFound />
+                    )}
                   </TableBody>
                 </Table>
               </Scrollbar>
