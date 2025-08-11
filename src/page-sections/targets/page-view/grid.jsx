@@ -137,11 +137,15 @@ export default function TargetsGridPageView() {
             <IconWrapper>
               <TargetIcon color="primary" />
             </IconWrapper>
-            <H6 fontSize={16}>Targets</H6>
+            <H6 fontSize={20}>Targets</H6>
           </FlexBox>
         </HeadingWrapper>
 
-        <TabList variant="scrollable" onChange={handleChangeTab} sx={{ mb: 2 }}>
+        <TabList
+          variant="scrollable"
+          onChange={handleChangeTab}
+          sx={{ mb: 2 }}
+        >
           <Tab label="All" value="all" />
           <Tab label="Active" value="active" />
         </TabList>
@@ -189,7 +193,10 @@ export default function TargetsGridPageView() {
         actions={[
           {
             label: "Cancel",
-            props: { onClick: handleDeleteTargetClose, variant: "outlined" },
+            props: {
+              onClick: handleDeleteTargetClose,
+              variant: "outlined",
+            },
           },
           {
             label: "Delete",

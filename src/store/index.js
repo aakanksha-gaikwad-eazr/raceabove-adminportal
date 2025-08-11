@@ -19,6 +19,7 @@ import tickettemplate from './apps/tickettemplate'
 import tnc from './apps/tnc'
 import privacypolicy from './apps/privacypolicy'
 import faq from './apps/faq'
+import employee from "./apps/employee";
 
 export const store = configureStore({
   reducer: {
@@ -39,12 +40,11 @@ export const store = configureStore({
     tnc,
     privacypolicy,
     faq,
-
+    employee,
   },
-  middleware: getDefaultMiddleware =>
+  middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false 
-      
-    })                     
-})
+      serializableCheck: false,
+    }),
+});
   

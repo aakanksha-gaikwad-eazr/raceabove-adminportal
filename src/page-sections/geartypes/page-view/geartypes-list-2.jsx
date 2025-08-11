@@ -102,15 +102,22 @@ const headCells = [
     id: "id",
     numeric: true,
     disablePadding: false,
-    label: "Id",
-    width: "5%",
+    label: "Sr No",
+    width: "8%",
   },
   {
     id: "name",
     numeric: true,
     disablePadding: false,
     label: "Name",
-    width: "15%",
+    width: "22%",
+  },
+  {
+    id: "createdAt",
+    numeric: true,
+    disablePadding: false,
+    label: "Date",
+    width: "5%",
   },
 
   {
@@ -119,20 +126,6 @@ const headCells = [
     disablePadding: false,
     label: "Updated By",
     width: "15%",
-  },
-  {
-    id: "updatedbyrole",
-    numeric: true,
-    disablePadding: false,
-    label: "Updated By Role",
-    width: "35%",
-  },
-  {
-    id: "createdAt",
-    numeric: true,
-    disablePadding: false,
-    label: "Date",
-    width: "5%",
   },
 
   {
@@ -209,7 +202,9 @@ export default function GearTypesList2PageView() {
 
     // Filter by search term
     if (searchFilter) {
-      return item?.name?.toLowerCase().includes(searchFilter?.toLowerCase());
+      return item?.name
+        ?.toLowerCase()
+        .includes(searchFilter?.toLowerCase());
     }
 
     return true;
@@ -223,13 +218,19 @@ export default function GearTypesList2PageView() {
       if (updatedGeartype) setSelectedGeartype(updatedGeartype);
     } else {
       // Only select non-deleted items by default
-      const firstNonDeleted = gearTypes.find((gear) => gear.deletedAt === null);
+      const firstNonDeleted = gearTypes.find(
+        (gear) => gear.deletedAt === null
+      );
       setSelectedGeartype(firstNonDeleted || gearTypes[0]);
     }
   }, [gearTypes]);
 
   // Fixed handleStatusToggle function
-  const handleStatusToggle = async (gearTypeId, currentStatus, isDeleted) => {
+  const handleStatusToggle = async (
+    gearTypeId,
+    currentStatus,
+    isDeleted
+  ) => {
     // Prevent toggling for deleted items
     if (isDeleted) {
       toast.error("Cannot update status of deleted items");
@@ -322,7 +323,8 @@ export default function GearTypesList2PageView() {
         // If the deleted item was selected, clear selection or select another item
         if (selectedGeartype?.id === gearTypesId) {
           const remainingGearTypes = gearTypes.filter(
-            (gear) => gear.id !== gearTypesId && gear.deletedAt === null
+            (gear) =>
+              gear.id !== gearTypesId && gear.deletedAt === null
           );
           setSelectedGeartype(remainingGearTypes[0] || null);
         }
@@ -387,9 +389,13 @@ export default function GearTypesList2PageView() {
               </Box>
 
               {/* TABLE HEAD & BODY ROWS */}
-              <TableContainer>
+              <TableContainer
+                sx={{
+                  overflowX: { xs: "auto", md: "unset" },
+                }}
+              >
                 <Scrollbar autoHide={false}>
-                  <Table>
+                  <Table sx={{ tableLayout: "fixed", minWidth: 800 }}>
                     {/* TABLE HEADER */}
                     <TableHead>
                       <TableRow>
@@ -398,7 +404,9 @@ export default function GearTypesList2PageView() {
                             key={headCell.id}
                             align="center"
                             padding={
-                              headCell.disablePadding ? "none" : "normal"
+                              headCell.disablePadding
+                                ? "none"
+                                : "normal"
                             }
                             sortDirection={
                               orderBy === headCell.id ? order : false
@@ -415,7 +423,9 @@ export default function GearTypesList2PageView() {
                                   handleRequestSort(e, headCell.id)
                                 }
                                 direction={
-                                  orderBy === headCell.id ? order : "asc"
+                                  orderBy === headCell.id
+                                    ? order
+                                    : "asc"
                                 }
                               >
                                 {headCell.label}
@@ -434,17 +444,21 @@ export default function GearTypesList2PageView() {
                           page * rowsPerPage + rowsPerPage
                         )
                         .map((geartype, ind) => {
-                          const isDeleted = geartype.deletedAt !== null;
+                          const isDeleted =
+                            geartype.deletedAt !== null;
 
                           return (
                             <BodyTableRow
                               key={geartype.id}
                               active={
-                                selectedGeartype?.id === geartype.id ? 1 : 0
+                                selectedGeartype?.id === geartype.id
+                                  ? 1
+                                  : 0
                               }
                               isDeleted={isDeleted}
                               onClick={() =>
-                                !isDeleted && setSelectedGeartype(geartype)
+                                !isDeleted &&
+                                setSelectedGeartype(geartype)
                               }
                             >
                               <BodyTableCell align="left">
@@ -453,7 +467,9 @@ export default function GearTypesList2PageView() {
                               <BodyTableCell
                                 align="center"
                                 isDeleted={isDeleted}
-                                style={{ textTransform: "capitalize" }}
+                                style={{
+                                  textTransform: "capitalize",
+                                }}
                               >
                                 <Stack
                                   direction="row"
@@ -467,7 +483,9 @@ export default function GearTypesList2PageView() {
                                       backgroundColor: "grey.100",
                                       width: 32,
                                       height: 32,
-                                      ...(isDeleted && { opacity: 0.5 }),
+                                      ...(isDeleted && {
+                                        opacity: 0.5,
+                                      }),
                                     }}
                                   />
                                   <Stack>
@@ -488,11 +506,20 @@ export default function GearTypesList2PageView() {
                                         size="small"
                                         color="error"
                                         variant="outlined"
-                                        sx={{ height: 20, fontSize: 11 }}
+                                        sx={{
+                                          height: 20,
+                                          fontSize: 11,
+                                        }}
                                       />
                                     )}
                                   </Stack>
                                 </Stack>
+                              </BodyTableCell>
+                              <BodyTableCell
+                                align="center"
+                                isDeleted={isDeleted}
+                              >
+                                {formatDate(geartype.createdAt)}
                               </BodyTableCell>
                               {/* <BodyTableCell align="left" isDeleted={isDeleted}>
                                 {geartype.createdBy ?? "N/A"}
@@ -503,23 +530,13 @@ export default function GearTypesList2PageView() {
                               <BodyTableCell
                                 align="center"
                                 isDeleted={isDeleted}
-                                style={{ textTransform: "capitalize" }}
+                                style={{
+                                  textTransform: "capitalize",
+                                }}
                               >
                                 {geartype.updatedBy ?? "N/A"}
                               </BodyTableCell>
-                              <BodyTableCell
-                                align="center"
-                                isDeleted={isDeleted}
-                                style={{ textTransform: "capitalize" }}
-                              >
-                                {geartype.updatedByRole ?? "N/A"}
-                              </BodyTableCell>
-                              <BodyTableCell
-                                align="center"
-                                isDeleted={isDeleted}
-                              >
-                                {formatDate(geartype.createdAt)}
-                              </BodyTableCell>
+
                               {/* <BodyTableCell align="left" isDeleted={isDeleted}>
                                 {geartype.deletedBy ?? "N/A"}
                               </BodyTableCell>
@@ -543,7 +560,9 @@ export default function GearTypesList2PageView() {
                                   ) : (
                                     <>
                                       <Switch
-                                        checked={geartype?.isActive || false}
+                                        checked={
+                                          geartype?.isActive || false
+                                        }
                                         onChange={(e) => {
                                           e.stopPropagation();
                                           handleStatusToggle(
@@ -599,7 +618,11 @@ export default function GearTypesList2PageView() {
                                         size="small"
                                         color="primary"
                                         onClick={(e) =>
-                                          handleActionClick(e, "edit", geartype)
+                                          handleActionClick(
+                                            e,
+                                            "edit",
+                                            geartype
+                                          )
                                         }
                                         disabled={isDeleted}
                                       >
@@ -609,7 +632,9 @@ export default function GearTypesList2PageView() {
                                   </Tooltip>
                                   <Tooltip
                                     title={
-                                      isDeleted ? "Already deleted" : "Delete"
+                                      isDeleted
+                                        ? "Already deleted"
+                                        : "Delete"
                                     }
                                   >
                                     <span>
@@ -635,7 +660,9 @@ export default function GearTypesList2PageView() {
                           );
                         })}
 
-                      {filteredGearTypes.length === 0 && <TableDataNotFound />}
+                      {filteredGearTypes.length === 0 && (
+                        <TableDataNotFound />
+                      )}
                     </TableBody>
                   </Table>
                 </Scrollbar>
@@ -671,9 +698,15 @@ export default function GearTypesList2PageView() {
         actions={[
           {
             label: "Cancel",
-            props: { onClick: handleCloseDeleteModal, variant: "outlined" },
+            props: {
+              onClick: handleCloseDeleteModal,
+              variant: "outlined",
+            },
           },
-          { label: "Delete", props: { onClick: handleDelete, color: "error" } },
+          {
+            label: "Delete",
+            props: { onClick: handleDelete, color: "error" },
+          },
         ]}
       />
     </div>

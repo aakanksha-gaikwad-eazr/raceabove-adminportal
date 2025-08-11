@@ -48,6 +48,20 @@ const UserDetails = Loadable(
   lazy(() => import("@/pages/dashboard/users/details"))
 );
 
+//  employee
+
+const EmployeeListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/employee/employee-list-2"))
+);
+
+const AddNewEmployee = Loadable(
+  lazy(() => import("@/pages/dashboard/employee/add-new-employee"))
+);
+
+const EditEmployee = Loadable(
+  lazy(() => import("@/pages/dashboard/employee/edit-employee"))
+);
+
 //admin
 
 const AddNewAdmin = Loadable(
@@ -582,6 +596,37 @@ export const DashboardRoutes = [
         element: <UserDetails />,
       },
 
+      // employee
+
+      {
+        path: "add-employee",
+        element: <AddNewEmployee />,
+      },
+      {
+        path: "edit-employee",
+        element: <EditEmployee />,
+      },
+      // {
+      //   path: "user-list",
+      //   element: <UserListView />,
+      // },
+      // {
+      //   path: "user-grid",
+      //   element: <UserGridView />,
+      // },
+      {
+        path: "employee-list-2",
+        element: <EmployeeListView2 />,
+      },
+      // {
+      //   path: "user-grid-2",
+      //   element: <UserGridView2 />,
+      // },
+      // {
+      //   path: "user-details",
+      //   element: <UserDetails />,
+      // },
+
       //admin
 
       {
@@ -639,7 +684,7 @@ export const DashboardRoutes = [
         path: "organiser-grid-2",
         element: <OrganiserGridView2 />,
       },
-// coupons
+      // coupons
       {
         path: "add-coupons",
         element: <AddNewCoupons />,
@@ -670,7 +715,7 @@ export const DashboardRoutes = [
         element: <CouponsGridView2 />,
       },
 
-// tnc
+      // tnc
       {
         path: "add-tnc",
         element: <AddNewTnc />,
@@ -701,7 +746,7 @@ export const DashboardRoutes = [
         element: <TncGridView2 />,
       },
 
-// faq
+      // faq
       {
         path: "add-faq",
         element: <AddNewFaq />,
@@ -719,8 +764,7 @@ export const DashboardRoutes = [
         element: <FaqListView2 />,
       },
 
-
-// privacypolicy
+      // privacypolicy
       {
         path: "add-privacy-policy",
         element: <AddNewPrivacyPolicy />,
@@ -729,7 +773,7 @@ export const DashboardRoutes = [
         path: "edit-privacy-policy/:id",
         element: <EditPrivacyPolicy />,
       },
-    {
+      {
         path: "privacy-policy-details/:id",
         element: <DetailsPrivacyPolicy />,
       },
@@ -759,7 +803,7 @@ export const DashboardRoutes = [
         path: "edit-ticket-type/:id",
         element: <EditTicketType />,
       },
-            {
+      {
         path: "details-ticket-type/:id",
         element: <DetailsTicketType />,
       },
@@ -809,8 +853,8 @@ export const DashboardRoutes = [
         path: "ticket-template-grid-2",
         element: <TicketTemplateGridView2 />,
       },
-      
-// addon category
+
+      // addon category
       {
         path: "add-addoncategory",
         element: <AddNewAddonCategory />,
@@ -836,7 +880,7 @@ export const DashboardRoutes = [
         path: "addoncategory-list-2",
         element: <AddonCategoryListView2 />,
       },
-// addon 
+      // addon
       {
         path: "add-addon",
         element: <AddNewAddon />,
@@ -845,7 +889,7 @@ export const DashboardRoutes = [
         path: "edit-addon/:id",
         element: <EditAddon />,
       },
-          {
+      {
         path: "details-addon/:id",
         element: <DetailsAddon />,
       },
@@ -1082,7 +1126,6 @@ export const DashboardRoutes = [
       {
         path: "events",
         children: [
-
           {
             path: "event-list",
             element: <EventsV5 />,
@@ -1091,7 +1134,7 @@ export const DashboardRoutes = [
             path: "event-grid",
             element: <EventsV4 />,
           },
-          { 
+          {
             path: "details/:id",
             element: <EventsDetails />,
           },
@@ -1139,7 +1182,6 @@ export const DashboardRoutes = [
           },
         ],
       },
-
     ],
   },
 ];

@@ -68,7 +68,7 @@ const headCells = [
     id: "id",
     numeric: false,
     disablePadding: true,
-    label: "Sr N",
+    label: "Sr No",
     width: "8%",
     align: "center",
   },
@@ -102,7 +102,7 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Reviewed By",
-    width: "15%",
+    width: "20%",
     align: "center",
   },
   {
@@ -110,7 +110,7 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Approval Status",
-    width: "15%",
+    width: "18%",
     align: "center",
   },
 
@@ -419,9 +419,13 @@ export default function Tnc2PageView() {
             )}
 
             {/* TABLE HEAD & BODY ROWS */}
-            <TableContainer>
+            <TableContainer
+              sx={{
+                overflowX: { xs: "auto", md: "unset" },
+              }}
+            >
               <Scrollbar autoHide={false}>
-                <Table sx={{ tableLayout: "fixed" }}>
+                <Table sx={{ tableLayout: "fixed", minWidth: 800 }}>
                   {/* TABLE HEADER */}
                   <TableHead>
                     <TableRow>

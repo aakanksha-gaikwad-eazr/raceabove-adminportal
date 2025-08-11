@@ -69,68 +69,51 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Sr No",
-    width: "8%",
+    width: "10%",
   },
   {
     id: "description",
     numeric: true,
     disablePadding: false,
     label: "Description",
-    width: "10%",
+    width: "15%",
   },
   {
     id: "ticketType",
     numeric: true,
     disablePadding: false,
     label: "Ticket type",
-    width: "13%",
+    width: "12%",
   },
-  // {
-  //   id: "age",
-  //   numeric: true,
-  //   disablePadding: false,
-  //   label: "Age",
-  // },
-  // {
-  //   id: "price",
-  //   numeric: true,
-  //   disablePadding: false,
-  //   label: "Price",
-  // },
-  // {
-  //   id: "quantity",
-  //   numeric: true,
-  //   disablePadding: false,
-  //   label: "Quantity",
-  // },
+
   {
     id: "organizer",
     numeric: false,
     disablePadding: false,
     label: "Organizer",
-    width: "14%",
+    width: "12%",
   },
   {
     id: "date",
     numeric: false,
     disablePadding: false,
     label: "Date",
-    width: "10%",
+    width: "12%",
   },
   {
     id: "reviewedby",
     numeric: false,
     disablePadding: false,
     label: "Reviewed By",
-    width: "15%",
+    width: "12%",
   },
 
   {
     id: "approvalStatus",
     numeric: true,
     disablePadding: false,
-    label: "Approval Status",
-    width: "17%",
+    label: "Status",
+    width: "10%",
   },
 
   {
@@ -138,7 +121,7 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Actions",
-    width: "5%",
+    width: "9%",
   },
 ];
 
@@ -311,7 +294,13 @@ export default function TicketTemplate2PageView() {
             }}
           >
             {/* SEARCH BOX AREA */}
-            <Box px={3}>
+            <Box
+              px={3}
+              sx={{
+                maxWidth: "100%",
+                overflowX: "hidden", // prevent full-page scroll
+              }}
+            >
               <SearchArea
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
@@ -321,9 +310,18 @@ export default function TicketTemplate2PageView() {
             </Box>
 
             {/* TABLE HEAD & BODY ROWS */}
-            <TableContainer>
+            <TableContainer
+              sx={{
+                overflowX: { xs: "auto", md: "unset" },
+              }}
+            >
               <Scrollbar autoHide={false}>
-                <Table>
+                <Table
+                  sx={{
+                    tableLayout: "fixed",
+                    minWidth: { xs: 800, md: 1000 }, // responsive
+                  }}
+                >
                   {/* TABLE HEADER */}
                   <TableHead>
                     <TableRow>
@@ -388,13 +386,19 @@ export default function TicketTemplate2PageView() {
                             align="left"
                             style={{ textTransform: "capitalize" }}
                           >
-                            {limitWords(
-                              tickettemplate.description,
-                              15
-                            )}
+                            <H6
+                              fontSize={13}
+                              color="text.primary"
+                              style={{ textTransform: "capitalize" }}
+                            >
+                              {limitWords(
+                                tickettemplate.description,
+                                15
+                              )}
+                            </H6>
                           </BodyTableCell>
                           <BodyTableCell
-                            align="center"
+                            align="left"
                             style={{ textTransform: "capitalize" }}
                           >
                             {limitWords(
@@ -402,21 +406,7 @@ export default function TicketTemplate2PageView() {
                               15
                             )}
                           </BodyTableCell>
-                          {/* <BodyTableCell>
-                            {tickettemplate.minAge && tickettemplate.maxAge
-                              ? `${tickettemplate.minAge} - ${tickettemplate.maxAge} years`
-                              : tickettemplate.minAge
-                                ? `${tickettemplate.minAge}+ years`
-                                : tickettemplate.maxAge
-                                  ? `Up to ${tickettemplate.maxAge} years`
-                                  : "N/A"}
-                          </BodyTableCell>
-                          <BodyTableCell>
-                            {tickettemplate.price ?? "N/A"}
-                          </BodyTableCell>
-                          <BodyTableCell>
-                            {tickettemplate.quantity ?? "N/A"}
-                          </BodyTableCell> */}
+
                           <BodyTableCell align="center">
                             <Paragraph>
                               {tickettemplate?.createdBy ?? "N/A"}
@@ -462,16 +452,10 @@ export default function TicketTemplate2PageView() {
                             />
                           </BodyTableCell>
 
-                          <BodyTableCell align="right">
+                          <BodyTableCell align="center">
                             <Button
                               size="small"
                               variant="outlined"
-                              disabled={
-                                tickettemplate.approvalStatus ===
-                                  "approved" ||
-                                tickettemplate.approvalStatus ===
-                                  "rejected"
-                              }
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleReviewClick(tickettemplate);

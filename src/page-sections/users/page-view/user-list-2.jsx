@@ -16,7 +16,6 @@ import TablePagination from "@mui/material/TablePagination";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 import Switch from "@mui/material/Switch";
 import CircularProgress from "@mui/material/CircularProgress";
 import Chip from "@mui/material/Chip";

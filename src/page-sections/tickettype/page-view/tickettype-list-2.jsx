@@ -69,57 +69,58 @@ const headCells = [
     id: "id",
     numeric: true,
     disablePadding: false,
-    label: "Id",
-    width: "5%"
+    label: "Sr No",
+    width: "10%",
   },
   {
     id: "title",
     numeric: true,
     disablePadding: false,
     label: "Title",
-    width: "12%"
+    width: "18%",
   },
   {
     id: "description",
     numeric: true,
     disablePadding: false,
     label: "Description",
-    width: "18%"
-  },
-  {
-    id: "approvalStatus",
-    numeric: true,
-    disablePadding: false,
-    label: "Approval Status",
-    width: "19%"
+    width: "15%",
   },
   {
     id: "organizer",
     numeric: false,
     disablePadding: false,
     label: "Organizer",
-    width: "17%"
+    width: "14%",
   },
   {
     id: "date",
     numeric: false,
     disablePadding: false,
     label: "Date",
-    width: "12%"
+    width: "10%",
   },
   {
     id: "reviewedby",
     numeric: false,
     disablePadding: false,
     label: "Reviewed By",
-    width: "18%"
+    width: "16%",
   },
+  {
+    id: "approvalStatus",
+    numeric: true,
+    disablePadding: false,
+    label: "Approval Status",
+    width: "18%",
+  },
+
   {
     id: "actions",
     numeric: true,
     disablePadding: false,
     label: "Actions",
-    width: "10%"
+    width: "10%",
   },
 ];
 
@@ -153,7 +154,9 @@ export default function TicketType2PageView() {
     getComparator(order, orderBy)
   ).filter((item) => {
     if (searchFilter)
-      return item?.title?.toLowerCase().includes(searchFilter?.toLowerCase());
+      return item?.title
+        ?.toLowerCase()
+        .includes(searchFilter?.toLowerCase());
     else return true;
   });
 
@@ -166,7 +169,8 @@ export default function TicketType2PageView() {
       const updatedTicketType = tickettypes.find(
         (tickettypes) => tickettypes.id === selectedTicketType.id
       );
-      if (updatedTicketType) setSelectedTicketTypes(updatedTicketType);
+      if (updatedTicketType)
+        setSelectedTicketTypes(updatedTicketType);
     } else {
       setSelectedTicketTypes(tickettypes[0]);
     }
@@ -197,7 +201,9 @@ export default function TicketType2PageView() {
 
         // Additional validation to ensure values are correct
         if (
-          !["approved", "rejected"].includes(reviewData?.data?.approvalStatus)
+          !["approved", "rejected"].includes(
+            reviewData?.data?.approvalStatus
+          )
         ) {
           toast.error("Invalid approval status");
           return;
@@ -260,7 +266,9 @@ export default function TicketType2PageView() {
   };
 
   const isReviewed = (approvalStatus) => {
-    return approvalStatus === "approved" || approvalStatus === "rejected";
+    return (
+      approvalStatus === "approved" || approvalStatus === "rejected"
+    );
   };
   return (
     <div className="pt-2 pb-4">
@@ -299,7 +307,11 @@ export default function TicketType2PageView() {
                       {headCells.map((headCell) => (
                         <HeadTableCell
                           key={headCell.id}
-                          padding={headCell.disablePadding ? "none" : "normal"}
+                          padding={
+                            headCell.disablePadding
+                              ? "none"
+                              : "normal"
+                          }
                           sortDirection={
                             orderBy === headCell.id ? order : false
                           }
@@ -307,8 +319,12 @@ export default function TicketType2PageView() {
                         >
                           <TableSortLabel
                             active={orderBy === headCell.id}
-                            onClick={(e) => handleRequestSort(e, headCell.id)}
-                            direction={orderBy === headCell.id ? order : "asc"}
+                            onClick={(e) =>
+                              handleRequestSort(e, headCell.id)
+                            }
+                            direction={
+                              orderBy === headCell.id ? order : "asc"
+                            }
                           >
                             {headCell.label}
                           </TableSortLabel>
@@ -324,40 +340,60 @@ export default function TicketType2PageView() {
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
                       )
-                      .filter((tickettype) => tickettype.deletedAt === null)
-                      .map((tickettype,ind) => (
+                      .filter(
+                        (tickettype) => tickettype.deletedAt === null
+                      )
+                      .map((tickettype, ind) => (
                         <BodyTableRow
                           key={tickettype.id}
                           active={
-                            selectedTicketType?.id === tickettype.id ? 1 : 0
+                            selectedTicketType?.id === tickettype.id
+                              ? 1
+                              : 0
                           }
                           onClick={(e) => {
                             setSelectedTicketTypes(tickettype);
                             handleRowClick(e, tickettype.id);
                           }}
                         >
-                           <BodyTableCell align="left">
-                             {page * rowsPerPage + ind + 1}
+                          <BodyTableCell align="left">
+                            {page * rowsPerPage + ind + 1}
                           </BodyTableCell>
-                          <BodyTableCell align="center">
+                          <BodyTableCell align="left">
                             {/* <Stack
                               direction="row"
                               alignItems="center"
                               spacing={1}
                             > */}
-                              <H6
-                                fontSize={12}
-                                color="text.primary"
-                                style={{ textTransform: "capitalize" }}
-                              >
-                                {limitWords(tickettype.title,15)}
-                              </H6>
+                            <H6
+                              fontSize={13}
+                              color="text.primary"
+                              style={{ textTransform: "capitalize" }}
+                            >
+                              {limitWords(tickettype.title, 15)}
+                            </H6>
                             {/* </Stack> */}
                           </BodyTableCell>
-                          <BodyTableCell align="center"
+                          <BodyTableCell
+                            align="left"
                             style={{ textTransform: "capitalize" }}
                           >
-                            {limitWords(tickettype.description,20)}
+                            {limitWords(tickettype.description, 20)}
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {tickettype?.createdBy}
+                            </Paragraph>
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {formatDate(tickettype?.createdAt)}
+                            </Paragraph>
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {tickettype?.reviewedBy ?? "N/A"}
+                            </Paragraph>
                           </BodyTableCell>
                           <BodyTableCell align="center">
                             <Chip
@@ -370,11 +406,14 @@ export default function TicketType2PageView() {
                                   : "N/A"
                               }
                               color={
-                                tickettype.approvalStatus === "approved"
+                                tickettype.approvalStatus ===
+                                "approved"
                                   ? "success"
-                                  : tickettype.approvalStatus === "pending"
+                                  : tickettype.approvalStatus ===
+                                      "pending"
                                     ? "warning"
-                                    : tickettype.approvalStatus === "rejected"
+                                    : tickettype.approvalStatus ===
+                                        "rejected"
                                       ? "error"
                                       : "default"
                               }
@@ -382,21 +421,7 @@ export default function TicketType2PageView() {
                               size="small"
                             />
                           </BodyTableCell>
-                          <BodyTableCell align="center">
-                            <Paragraph>
-                              {tickettype?.createdBy}
-                            </Paragraph>
-                          </BodyTableCell>  
-                          <BodyTableCell align="center">
-                            <Paragraph>
-                              {formatDate(tickettype?.createdAt)}
-                            </Paragraph>
-                          </BodyTableCell>
-                          <BodyTableCell align="center">
-                            <Paragraph>
-                              {tickettype?.reviewedBy ?? "N/A"}
-                            </Paragraph>
-                          </BodyTableCell>
+
                           <BodyTableCell align="right">
                             <Button
                               size="small"
@@ -414,7 +439,9 @@ export default function TicketType2PageView() {
                         </BodyTableRow>
                       ))}
 
-                    {filteredTicketTypes.length === 0 && <TableDataNotFound />}
+                    {filteredTicketTypes.length === 0 && (
+                      <TableDataNotFound />
+                    )}
                   </TableBody>
                 </Table>
               </Scrollbar>

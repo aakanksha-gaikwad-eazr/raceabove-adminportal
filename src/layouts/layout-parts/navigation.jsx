@@ -16,11 +16,7 @@ export const navigations = [
     icon: duotone.BadgeDollar,
     path: "/finance-2",
   },
-  // {
-  //   name: "Bookings",
-  //   icon: duotone.Bookings,
-  //   path: "/bookings/version-3",
-  // },
+
   {
     name: "Users",
     icon: duotone.UserList,
@@ -36,7 +32,7 @@ export const navigations = [
     icon: duotone.Calender,
     path: "/events/event-list",
   },
-    {
+  {
     name: "Challenges",
     icon: duotone.StartHalf,
     path: "/challenges/version-3",
@@ -51,18 +47,18 @@ export const navigations = [
     icon: duotone.Invoice,
     path: "/coupons-list-2",
   },
-    {
+  {
     name: "GearTypes",
     icon: duotone.DiagramProject,
     path: "/geartypes-list-2",
   },
-    {
+  {
     name: "Targets",
     icon: duotone.DataTable,
     path: "/targets-grid",
   },
 
-     {
+  {
     name: "Product",
     icon: duotone.Ecommerce,
     path: "/addon-list-2",
@@ -73,7 +69,7 @@ export const navigations = [
     path: "/addoncategory-list-2",
   },
 
-{
+  {
     name: "Ticket Type",
     icon: duotone.Accounts,
     path: "/ticket-type-list-2",
@@ -104,5 +100,18 @@ export const navigations = [
     icon: duotone.Calender,
     path: "/faq-list-2",
   },
- 
+  {
+    type: "label",
+    label: "Setting",
+  },
+  {
+    name: "Employee",
+    icon: duotone.Invoice,
+    path: "/employee-list-2",
+  },
+  {
+    name: "Platform Setting",
+    icon: duotone.Invoice,
+    path: "/coupons-list-2",
+  },
 ];

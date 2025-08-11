@@ -498,9 +498,13 @@ export default function Faq2PageView() {
             )}
 
             {/* TABLE HEAD & BODY ROWS */}
-            <TableContainer>
+            <TableContainer
+              sx={{
+                overflowX: { xs: "auto", md: "unset" },
+              }}
+            >
               <Scrollbar autoHide={false}>
-                <Table sx={{ tableLayout: "fixed" }}>
+                <Table sx={{ tableLayout: "fixed", minWidth: 800 }}>
                   {/* TABLE HEADER */}
                   <TableHead>
                     <TableRow>

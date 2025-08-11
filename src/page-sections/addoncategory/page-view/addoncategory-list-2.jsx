@@ -64,14 +64,14 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Sr No",
-    width: "8%",
+    width: "10%",
   },
   {
     id: "name",
     numeric: true,
     disablePadding: false,
     label: "Title",
-    width: "10%",
+    width: "17%",
   },
   {
     id: "description",
@@ -80,12 +80,13 @@ const headCells = [
     label: "Description",
     width: "20%",
   },
+
   {
-    id: "approvalStatus",
-    numeric: true,
+    id: "createdBy",
+    numeric: false,
     disablePadding: false,
-    label: "Approval Status",
-    width: "20%",
+    label: "Organizer",
+    width: "14%",
   },
   {
     id: "reviewedby",
@@ -102,12 +103,13 @@ const headCells = [
     width: "5%",
   },
   {
-    id: "createdBy",
-    numeric: false,
+    id: "approvalStatus",
+    numeric: true,
     disablePadding: false,
-    label: "Organizer",
+    label: "Approval Status",
     width: "20%",
   },
+
   {
     id: "actions",
     numeric: true,
@@ -135,10 +137,14 @@ export default function Addoncategory2PageView() {
 
   const dispatch = useDispatch();
 
-  const { addOnsCategory } = useSelector((state) => state.addonscategory);
-  const [selectedAddonCategory, setSelectedAddonCategory] = useState();
+  const { addOnsCategory } = useSelector(
+    (state) => state.addonscategory
+  );
+  const [selectedAddonCategory, setSelectedAddonCategory] =
+    useState();
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
-  const [addonCategoryToReview, setAddonCategoryToReview] = useState(null);
+  const [addonCategoryToReview, setAddonCategoryToReview] =
+    useState(null);
   const navigate = useNavigate();
 
   const filteredAddonCategories = stableSort(
@@ -146,7 +152,9 @@ export default function Addoncategory2PageView() {
     getComparator(order, orderBy)
   ).filter((item) => {
     if (searchFilter)
-      return item?.name?.toLowerCase().includes(searchFilter?.toLowerCase());
+      return item?.name
+        ?.toLowerCase()
+        .includes(searchFilter?.toLowerCase());
     else return true;
   });
 
@@ -157,16 +165,18 @@ export default function Addoncategory2PageView() {
   useEffect(() => {
     if (selectedAddonCategory) {
       const updatedAddonCatgory = addOnsCategory.find(
-        (addOnsCategory) => addOnsCategory.id === selectedAddonCategory.id
+        (addOnsCategory) =>
+          addOnsCategory.id === selectedAddonCategory.id
       );
-      if (updatedAddonCatgory) setSelectedAddonCategory(updatedAddonCatgory);
+      if (updatedAddonCatgory)
+        setSelectedAddonCategory(updatedAddonCatgory);
     } else {
       setSelectedAddonCategory(addOnsCategory[0]);
     }
   }, [addOnsCategory]);
 
   const handleReviewClick = (addoncatgory) => {
-        navigate(`/details-addoncategory/${addoncatgory.id}`);
+    navigate(`/details-addoncategory/${addoncatgory.id}`);
 
     // setAddonCategoryToReview(addoncatgory);
     // setApprovalModalOpen(true);
@@ -191,7 +201,9 @@ export default function Addoncategory2PageView() {
 
         // Additional validation to ensure values are correct
         if (
-          !["approved", "rejected"].includes(reviewData?.data?.approvalStatus)
+          !["approved", "rejected"].includes(
+            reviewData?.data?.approvalStatus
+          )
         ) {
           toast.error("Invalid approval status");
           return;
@@ -200,7 +212,9 @@ export default function Addoncategory2PageView() {
           toast.error("Review reason is required");
           return;
         }
-        const result = await dispatch(reviewAddOnsCategory(reviewData));
+        const result = await dispatch(
+          reviewAddOnsCategory(reviewData)
+        );
         console.log("result", result);
         if (result?.payload?.status === 200) {
           dispatch(getAddOnsCategory());
@@ -208,13 +222,19 @@ export default function Addoncategory2PageView() {
           // Show success toast based on approval status
           switch (reviewData?.data?.approvalStatus) {
             case "approved":
-              toast.success("Product Categories are approved successfully!");
+              toast.success(
+                "Product Categories are approved successfully!"
+              );
               break;
             case "rejected":
-              toast.success("Product Categories are rejected successfully!");
+              toast.success(
+                "Product Categories are rejected successfully!"
+              );
               break;
             default:
-              toast.success("Product Categories are reviewed successfully!");
+              toast.success(
+                "Product Categories are reviewed successfully!"
+              );
           }
           // Reset state
           setApprovalModalOpen(false);
@@ -255,9 +275,11 @@ export default function Addoncategory2PageView() {
   };
 
   const isReviewed = (approvalStatus) => {
-    return approvalStatus === "approved" || approvalStatus === "rejected";
+    return (
+      approvalStatus === "approved" || approvalStatus === "rejected"
+    );
   };
-  console.log("filteredAddonCategories", filteredAddonCategories)
+  console.log("filteredAddonCategories", filteredAddonCategories);
 
   return (
     <div className="pt-2 pb-4">
@@ -297,7 +319,11 @@ export default function Addoncategory2PageView() {
                       {headCells.map((headCell) => (
                         <HeadTableCell
                           key={headCell.id}
-                          padding={headCell.disablePadding ? "none" : "normal"}
+                          padding={
+                            headCell.disablePadding
+                              ? "none"
+                              : "normal"
+                          }
                           sortDirection={
                             orderBy === headCell.id ? order : false
                           }
@@ -305,8 +331,12 @@ export default function Addoncategory2PageView() {
                         >
                           <TableSortLabel
                             active={orderBy === headCell.id}
-                            onClick={(e) => handleRequestSort(e, headCell.id)}
-                            direction={orderBy === headCell.id ? order : "asc"}
+                            onClick={(e) =>
+                              handleRequestSort(e, headCell.id)
+                            }
+                            direction={
+                              orderBy === headCell.id ? order : "asc"
+                            }
                           >
                             {headCell.label}
                           </TableSortLabel>
@@ -318,7 +348,10 @@ export default function Addoncategory2PageView() {
                   {/* TABLE BODY AND DATA */}
                   <TableBody>
                     {filteredAddonCategories
-                        .filter((addoncatgory) => addoncatgory.deletedAt === null)
+                      .filter(
+                        (addoncatgory) =>
+                          addoncatgory.deletedAt === null
+                      )
                       .slice(
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
@@ -327,7 +360,8 @@ export default function Addoncategory2PageView() {
                         <BodyTableRow
                           key={addoncatgory.id}
                           active={
-                            selectedAddonCategory?.id === addoncatgory.id
+                            selectedAddonCategory?.id ===
+                            addoncatgory.id
                               ? 1
                               : 0
                           }
@@ -337,21 +371,37 @@ export default function Addoncategory2PageView() {
                           }}
                         >
                           <BodyTableCell align="left">
-                              {page * rowsPerPage + ind + 1}
+                            {page * rowsPerPage + ind + 1}
                           </BodyTableCell>
-                          <BodyTableCell align="center">
+                          <BodyTableCell align="left">
                             <Stack
                               direction="row"
                               alignItems="center"
                               spacing={1}
                             >
-                              <H6 fontSize={12} color="text.primary">
+                              <H6 fontSize={13} color="text.primary">
                                 {addoncatgory.name ?? "N/A"}
                               </H6>
                             </Stack>
                           </BodyTableCell>
+                          <BodyTableCell align="left">
+                            {limitWords(
+                              addoncatgory?.description,
+                              20
+                            )}
+                          </BodyTableCell>
                           <BodyTableCell align="center">
-                            {limitWords(addoncatgory?.description, 20)}
+                            {addoncatgory?.createdBy ?? "N/A"}
+                          </BodyTableCell>
+
+                          <BodyTableCell align="center">
+                            <Paragraph>
+                              {addoncatgory?.reviewedBy ??
+                                "Not Reviewed yet"}
+                            </Paragraph>
+                          </BodyTableCell>
+                          <BodyTableCell align="center">
+                            {formatDate(addoncatgory?.createdAt)}
                           </BodyTableCell>
                           <BodyTableCell
                             align="center"
@@ -361,11 +411,14 @@ export default function Addoncategory2PageView() {
                             <Chip
                               label={addoncatgory?.approvalStatus}
                               color={
-                                addoncatgory.approvalStatus === "approved"
+                                addoncatgory.approvalStatus ===
+                                "approved"
                                   ? "success"
-                                  : addoncatgory.approvalStatus === "pending"
+                                  : addoncatgory.approvalStatus ===
+                                      "pending"
                                     ? "warning"
-                                    : addoncatgory.approvalStatus === "rejected"
+                                    : addoncatgory.approvalStatus ===
+                                        "rejected"
                                       ? "error"
                                       : "default"
                               }
@@ -373,17 +426,7 @@ export default function Addoncategory2PageView() {
                               size="small"
                             />
                           </BodyTableCell>
-                          <BodyTableCell align="center">
-                            <Paragraph>
-                              {addoncatgory?.reviewedBy ?? "Not Reviewed yet"}
-                            </Paragraph>
-                          </BodyTableCell>
-                          <BodyTableCell align="center">
-                            {formatDate(addoncatgory?.createdAt)}
-                          </BodyTableCell>
-                          <BodyTableCell align="center">
-                            {addoncatgory?.createdBy ?? "N/A"}
-                          </BodyTableCell>
+
                           <BodyTableCell align="right">
                             <Button
                               size="small"
