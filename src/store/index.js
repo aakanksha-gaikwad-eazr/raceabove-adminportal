@@ -20,6 +20,7 @@ import tnc from './apps/tnc'
 import privacypolicy from './apps/privacypolicy'
 import faq from './apps/faq'
 import employee from "./apps/employee";
+import Notification from "./apps/notification";
 
 export const store = configureStore({
   reducer: {
@@ -41,6 +42,7 @@ export const store = configureStore({
     privacypolicy,
     faq,
     employee,
+    Notification,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

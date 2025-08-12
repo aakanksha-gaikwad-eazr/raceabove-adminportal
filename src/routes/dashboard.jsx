@@ -303,6 +303,16 @@ const SportsGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/sports/sports-grid-2"))
 );
 
+// notification
+
+const NotificationListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/notification/notification-list-2"))
+);
+
+const AddNewNotification = Loadable(
+  lazy(() => import("@/pages/dashboard/notification/add-new-notification"))
+);
+
 // Gear types
 const AddNewGearTypes = Loadable(
   lazy(() => import("@/pages/dashboard/geartypes/add-new-geartypes"))
@@ -925,6 +935,17 @@ export const DashboardRoutes = [
       {
         path: "sports-grid-2",
         element: <SportsGridView2 />,
+      },
+
+      // notifications
+
+      {
+        path: "notification",
+        element: <NotificationListView2 />,
+      },
+      {
+        path: "add-notification",
+        element: <AddNewNotification />,
       },
 
       {
