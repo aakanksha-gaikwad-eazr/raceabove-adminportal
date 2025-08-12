@@ -106,12 +106,12 @@ export const navigations = [
   },
   {
     name: "Employee",
-    icon: duotone.Invoice,
+    icon: duotone.Accounts,
     path: "/employee-list-2",
   },
   {
     name: "Platform Setting",
-    icon: duotone.Invoice,
-    path: "/coupons-list-2",
+    icon: duotone.DataTable,
+    path: "/",
   },
 ];

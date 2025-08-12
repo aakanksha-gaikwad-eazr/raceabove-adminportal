@@ -53,9 +53,9 @@ const [tabValue, setTabValue] = useState('1');
             <Documents />
           </TabPanel> */}
 
-          {/* <TabPanel value="5">
-            <Connections />
-          </TabPanel> */}
+          <TabPanel value="5">
+            <Connections allDataOfSingleUser={allDataOfSingleUser} />
+          </TabPanel>
 
           <TabPanel value="6">
             <Activity allDataOfSingleUser={allDataOfSingleUser} />

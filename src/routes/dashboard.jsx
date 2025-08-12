@@ -48,21 +48,22 @@ const UserDetails = Loadable(
   lazy(() => import("@/pages/dashboard/users/details"))
 );
 
+//adlready exist as admins
 //  employee
 
-const EmployeeListView2 = Loadable(
-  lazy(() => import("@/pages/dashboard/employee/employee-list-2"))
-);
+// const EmployeeListView2 = Loadable(
+//   lazy(() => import("@/pages/dashboard/employee/employee-list-2"))
+// );
 
-const AddNewEmployee = Loadable(
-  lazy(() => import("@/pages/dashboard/employee/add-new-employee"))
-);
+// const AddNewEmployee = Loadable(
+//   lazy(() => import("@/pages/dashboard/employee/add-new-employee"))
+// );
 
-const EditEmployee = Loadable(
-  lazy(() => import("@/pages/dashboard/employee/edit-employee"))
-);
+// const EditEmployee = Loadable(
+//   lazy(() => import("@/pages/dashboard/employee/edit-employee"))
+// );
 
-//admin
+//admin are employee
 
 const AddNewAdmin = Loadable(
   lazy(() => import("@/pages/dashboard/admin/add-new-admin"))
@@ -592,20 +593,20 @@ export const DashboardRoutes = [
         element: <UserGridView2 />,
       },
       {
-        path: "user-details",
+        path: "user-details/:id",
         element: <UserDetails />,
       },
 
       // employee
 
-      {
-        path: "add-employee",
-        element: <AddNewEmployee />,
-      },
-      {
-        path: "edit-employee",
-        element: <EditEmployee />,
-      },
+      // {
+      //   path: "add-employee",
+      //   element: <AddNewEmployee />,
+      // },
+      // {
+      //   path: "edit-employee",
+      //   element: <EditEmployee />,
+      // },
       // {
       //   path: "user-list",
       //   element: <UserListView />,
@@ -614,10 +615,10 @@ export const DashboardRoutes = [
       //   path: "user-grid",
       //   element: <UserGridView />,
       // },
-      {
-        path: "employee-list-2",
-        element: <EmployeeListView2 />,
-      },
+      // {
+      //   path: "employee-list-2",
+      //   element: <EmployeeListView2 />,
+      // },
       // {
       //   path: "user-grid-2",
       //   element: <UserGridView2 />,
@@ -630,27 +631,27 @@ export const DashboardRoutes = [
       //admin
 
       {
-        path: "add-admin",
+        path: "add-employee",
         element: <AddNewAdmin />,
       },
       {
-        path: "edit-admin/:id",
+        path: "edit-employee/:id",
         element: <EditAdmin />,
       },
       {
-        path: "admin-list",
+        path: "employee-list",
         element: <AdminListView />,
       },
       {
-        path: "admin-grid",
+        path: "employee-grid",
         element: <AdminGridView />,
       },
       {
-        path: "admin-list-2",
+        path: "employee-list-2",
         element: <AdminListView2 />,
       },
       {
-        path: "admin-grid-2",
+        path: "employee-grid-2",
         element: <AdminGridView2 />,
       },
 
