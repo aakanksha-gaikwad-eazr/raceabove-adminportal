@@ -80,6 +80,11 @@ export const navigations = [
     path: "/ticket-template-list-2",
   },
   {
+    name: "Notifications",
+    icon: duotone.Apps,
+    path: "/notification",
+  },
+  {
     name: "Sports",
     icon: duotone.Apps,
     path: "/sports-list-2",
