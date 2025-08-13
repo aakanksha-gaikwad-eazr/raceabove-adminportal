@@ -69,11 +69,11 @@ export const navigations = [
     path: "/addoncategory-list-2",
   },
 
-  {
-    name: "Ticket Type",
-    icon: duotone.Accounts,
-    path: "/ticket-type-list-2",
-  },
+  // {
+  //   name: "Ticket Type",
+  //   icon: duotone.Accounts,
+  //   path: "/ticket-type-list-2",
+  // },
   {
     name: "Ticket Template",
     icon: duotone.Pages,

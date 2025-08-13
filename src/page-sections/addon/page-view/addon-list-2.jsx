@@ -94,13 +94,13 @@ const headCells = [
     label: "Title",
     width: "18%",
   },
-  {
-    id: "description",
-    numeric: true,
-    disablePadding: false,
-    label: "Description",
-    width: "8%",
-  },
+  // {
+  //   id: "description",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Description",
+  //   width: "8%",
+  // },
 
   {
     id: "category.name",
@@ -110,7 +110,7 @@ const headCells = [
     width: "4%",
   },
   {
-    id: "createdby",
+    id: "organizer",
     numeric: false,
     disablePadding: false,
     label: "Organizer",
@@ -388,7 +388,7 @@ export default function Addon2PageView() {
                       .slice(
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
-                      )
+                      ) 
                       // .filter((addon) => addon.deletedAt === null)
                       .map((addon, ind) => (
                         <BodyTableRow
@@ -427,11 +427,11 @@ export default function Addon2PageView() {
                               </H6>
                             </Stack>
                           </BodyTableCell>
-                          <BodyTableCell
+                          {/* <BodyTableCell
                             style={{ textTransform: "capitalize" }}
                           >
                             {limitWords(addon.description, 25)}
-                          </BodyTableCell>
+                          </BodyTableCell> */}
                           <BodyTableCell align="center">
                             <Paragraph>
                               {addon?.category?.name ?? "N/A "}
@@ -440,7 +440,7 @@ export default function Addon2PageView() {
 
                           <BodyTableCell align="center">
                             <Paragraph>
-                              {addon?.createdBy ?? "N/A "}
+                              {limitWords(addon?.createdBy,10)}
                             </Paragraph>
                           </BodyTableCell>
                           <BodyTableCell align="center">
@@ -450,8 +450,7 @@ export default function Addon2PageView() {
                           </BodyTableCell>
                           <BodyTableCell align="center">
                             <Paragraph>
-                              {addon?.reviewedBy ??
-                                "Not Reviewed yet"}
+                              {limitWords(addon?.reviewedBy,10)}
                             </Paragraph>
                           </BodyTableCell>
                           <BodyTableCell align="center">
@@ -484,10 +483,7 @@ export default function Addon2PageView() {
                             <Button
                               size="small"
                               variant="outlined"
-                              disabled={
-                                addon.approvalStatus === "approved" ||
-                                addon.approvalStatus === "rejected"
-                              }
+                              
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleReviewClick(addon);

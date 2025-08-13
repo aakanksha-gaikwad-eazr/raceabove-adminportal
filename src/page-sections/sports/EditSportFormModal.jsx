@@ -54,7 +54,7 @@ export default function EditSportsFormModal({ open, handleClose, sportId }) {
         formData.append('name', values.name);
         
         // Only append iconFile if a new file was selected
-        if (values.iconFile) {
+        if (values.iconFile || values.icon) {
           formData.append('iconFile', values.iconFile);
         }
 
