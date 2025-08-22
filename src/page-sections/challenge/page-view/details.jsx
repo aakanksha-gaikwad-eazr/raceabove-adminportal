@@ -216,7 +216,7 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
 const StyledTab = styled(Tab)(({ theme }) => ({
   fontWeight: 600,
   fontSize: "0.875rem",
-  minHeight: 48,
+  minHeight: 60,
   textTransform: "none",
   color: theme.palette.text.secondary,
   "&.Mui-selected": {
@@ -520,7 +520,7 @@ export default function ChallengeDetailsPage() {
             </StyledTabs>
 
             {/* Tab Panels */}
-            <Box sx={{ p: 3 }}>
+            <Box sx={{ p: 2, pt: 0 }}>
               {/* Overview Tab */}
               <TabPanel value={activeTab} index={0}>
                 <Box sx={{ mb: 3 }}>
@@ -1350,6 +1350,7 @@ export default function ChallengeDetailsPage() {
                         />
                       </Box>
                     )}
+
                     <Stack spacing={1.5}>
                       {challengeData.organizer.name && (
                         <Box>
@@ -1364,6 +1365,7 @@ export default function ChallengeDetailsPage() {
                           </Typography>
                         </Box>
                       )}
+
                       {challengeData.organizer.companyName && (
                         <Box>
                           <Typography
@@ -1374,32 +1376,6 @@ export default function ChallengeDetailsPage() {
                           </Typography>
                           <Typography variant="body2">
                             {challengeData.organizer.companyName}
-                          </Typography>
-                        </Box>
-                      )}
-                      {challengeData.organizer.phoneNumber && (
-                        <Box>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
-                            Phone
-                          </Typography>
-                          <Typography variant="body2">
-                            {challengeData.organizer.phoneNumber}
-                          </Typography>
-                        </Box>
-                      )}
-                      {challengeData.organizer.email && (
-                        <Box>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
-                            Email
-                          </Typography>
-                          <Typography variant="body2">
-                            {challengeData.organizer.email}
                           </Typography>
                         </Box>
                       )}
