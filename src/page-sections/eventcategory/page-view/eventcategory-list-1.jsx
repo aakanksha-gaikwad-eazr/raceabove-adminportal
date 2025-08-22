@@ -13,12 +13,12 @@ import { TableDataNotFound, TableToolbar } from '@/components/table'; // CUSTOM 
 import SearchArea from '../SearchArea';
 import HeadingArea from '../HeadingArea';
 import UserTableRow from '../SportsTableRow';
-import UserTableHead from '../gearsTableHead'; // CUSTOM DEFINED HOOK
+import UserTableHead from '../eventcategoryTableHead'; // CUSTOM DEFINED HOOK
 
 import useMuiTable, { getComparator, stableSort } from '@/hooks/useMuiTable'; // CUSTOM DUMMY DATA
 
 import { USER_LIST } from '@/__fakeData__/users';
-export default function GearsList1PageView() {
+export default function GearTypesList1PageView() {
   const [users, setUsers] = useState([...USER_LIST]);
   const [userFilter, setUserFilter] = useState({
     role: '',

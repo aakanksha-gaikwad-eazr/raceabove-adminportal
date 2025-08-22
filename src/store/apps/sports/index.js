@@ -13,7 +13,7 @@ export const getSports = createAsyncThunk('appSports/getSports', async () => {
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/sports`
+    let url = `${ip}/v2/sports`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -36,7 +36,7 @@ export const getSportsById = createAsyncThunk('appSports/getSportsById', async (
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/sports/${id}`
+    let url = `${ip}/v2/sports/${id}`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -60,7 +60,7 @@ export const createSports = createAsyncThunk('appSports/createSports', async (da
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/sports`
+    let url = `${ip}/v2/sports`
 
     const response = await axiosInstance.post(url,data, {
    
@@ -83,7 +83,7 @@ export const deleteSports = createAsyncThunk('appSports/deleteSports', async id 
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
     const accessToken = adminData.accessToken
 
-    const url = `${ip}/v1/sports/${id}`
+    const url = `${ip}/v2/sports/${id}`
 
     const response = await axiosInstance.delete(url, {
       headers: { Authorization: `Bearer ${accessToken}` }
@@ -107,7 +107,7 @@ export const updateSports = createAsyncThunk('appSports/updateSports', async (re
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/sports/${req.id}`
+    let url = `${ip}/v2/sports/${req.id}`
     console.log("req", req)
 
     const response = await axiosInstance.patch(url,req?.data, {

@@ -53,6 +53,11 @@ export const navigations = [
     path: "/geartypes-list-2",
   },
   {
+    name: "Event Categories",
+    icon: duotone.DiagramProject,
+    path: "/eventcategory-list-2",
+  },
+  {
     name: "Targets",
     icon: duotone.DataTable,
     path: "/targets-grid",

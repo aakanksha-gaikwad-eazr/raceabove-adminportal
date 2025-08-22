@@ -332,6 +332,25 @@ const GearTypesGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/geartypes/geartypes-grid-2"))
 );
 
+
+// event category
+const AddNewEventCategory = Loadable(
+  lazy(() => import("@/pages/dashboard/eventcategory/add-new-eventcategory"))
+);
+const EventCategoryListView = Loadable(
+  lazy(() => import("@/pages/dashboard/eventcategory/eventcategory-list-1"))
+);
+
+const EventCategoryGridView = Loadable(
+  lazy(() => import("@/pages/dashboard/eventcategory/eventcategory-grid-1"))
+);
+const EventCategoryListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/eventcategory/eventcategory-list-2"))
+);
+const EventCategoryGridView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/eventcategory/eventcategory-grid-2"))
+);
+
 // Gears
 const AddNewGears = Loadable(
   lazy(() => import("@/pages/dashboard/gears/add-new-gears"))
@@ -964,6 +983,22 @@ export const DashboardRoutes = [
       {
         path: "geartypes-grid-2",
         element: <GearTypesGridView2 />,
+      },
+      {
+        path: "eventcategory-list",
+        element: <EventCategoryListView />,
+      },
+      {
+        path: "eventcategory-grid",
+        element: <EventCategoryGridView />,
+      },
+      {
+        path: "eventcategory-list-2",
+        element: <EventCategoryListView2 />,
+      },
+      {
+        path: "eventcategory-grid-2",
+        element: <EventCategoryGridView2 />,
       },
       {
         path: "add-gears",

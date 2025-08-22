@@ -16,7 +16,7 @@ export const getChallenges = createAsyncThunk('appChallenges/getChallenges', asy
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/challenges`
+    let url = `${ip}/v2/challenges`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -45,7 +45,7 @@ export const getChallengesById = createAsyncThunk('appChallenges/getChallengesBy
 
     // console.log("id", id)
 
-    let url = `${ip}/v1/challenges/${id}`
+    let url = `${ip}/v2/challenges/${id}`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -69,7 +69,7 @@ export const createChallenges = createAsyncThunk('appChallenges/createChallenges
     if (!accessToken) {
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/challenges`
+    let url = `${ip}/v2/challenges`
 
     const response = await axiosInstance.post(url, data, {
       headers: {
@@ -103,7 +103,7 @@ export const deleteChallenges = createAsyncThunk('appChallenges/deleteChallenges
     if (!accessToken) {
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/challenges/${id}`
+    let url = `${ip}/v2/challenges/${id}`
 
 
     const response = await axiosInstance.delete(url, {
@@ -135,7 +135,7 @@ export const updateChallenges = createAsyncThunk(
       }
 
       console.log("editid>>>", req?.id, req?.changedData)
-      let url = `${ip}/v1/challenges/${req?.id}`; 
+      let url = `${ip}/v2/challenges/${req?.id}`; 
 
       const response = await axiosInstance.patch(url, req?.changedData, {
         headers: {
@@ -165,7 +165,7 @@ export const reviewChallenges = createAsyncThunk(
         throw new Error('Access token not found in localStorage');
       }
 
-      let url = `${ip}/v1/challenges/${challengeId}/review`; 
+      let url = `${ip}/v2/challenges/${challengeId}/review`; 
 
       const response = await axiosInstance.patch(url, reviewData, {
         headers: {

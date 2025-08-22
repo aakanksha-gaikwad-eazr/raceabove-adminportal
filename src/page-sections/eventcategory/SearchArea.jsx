@@ -2,20 +2,16 @@ import { useLocation, useNavigate } from "react-router-dom"; // MUI
 
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import IconButton from "@mui/material/IconButton"; // MUI ICON COMPONENT
 
 import Search from "@mui/icons-material/Search"; // CUSTOM COMPONENTS
 import FlexBetween from "@/components/flexbox/FlexBetween"; // CUSTOM ICON COMPONENTS
-import Apps from "@/icons/Apps";
-import FormatBullets from "@/icons/FormatBullets"; // ==========================================================================================
-import styled from "@emotion/styled";
-import { Button, Card } from "@mui/material";
 import { useState } from "react";
-import CreateGearsFormModal from "./CreateGearsFormModal";
+import CreateEventCategoryFormModal from "./CreateEventCategoryFormModal";
+import Add from "@/icons/Add";
+import { Button } from "@mui/material";
 
-// ==========================================================================================
 export default function SearchArea(props) {
-  const { value = "", onChange, gridRoute, listRoute } = props;
+  const { value = "", onChange } = props;
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -41,30 +37,29 @@ export default function SearchArea(props) {
             },
           }}
           sx={{
-            maxWidth: 400,
+            maxWidth: "100%",
             width: "100%",
           }}
         />
 
         {/* NAVIGATION BUTTONS */}
         <Box flexShrink={0} className="actions">
-          {/* <IconButton onClick={() => navigate(listRoute)}>
-          <FormatBullets sx={{
-          color: activeColor(listRoute)
-        }} />
-        </IconButton>  */}
-          <Button type="submit" variant="contained" onClick={handleModalOpen}>
-            Create Gear
-          </Button>
-          {/* 
-        <IconButton onClick={() => navigate(gridRoute)}>
-          <Apps sx={{
-          color: activeColor(gridRoute)
-        }} />
-        </IconButton> */}
+        
+          {/* <Button
+            type="submit"
+            variant="contained"
+            startIcon={<Add />}
+            onClick={handleModalOpen}
+          >
+            Create Gear Types
+          </Button> */}
+   
         </Box>
       </FlexBetween>
-      <CreateGearsFormModal open={modalOpen} handleClose={handleModalClose} />
+      <CreateEventCategoryFormModal
+        open={modalOpen}
+        handleClose={handleModalClose}
+      />
     </>
   );
 }

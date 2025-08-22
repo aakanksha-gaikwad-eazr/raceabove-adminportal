@@ -13,7 +13,7 @@ export const getTnc = createAsyncThunk('appTncSlice/getTnc', async () => {
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/terms-and-conditions`
+    let url = `${ip}/v2/terms-and-conditions`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -38,7 +38,7 @@ export const reviewTnc = createAsyncThunk('appTncSlice/reviewTnc', async (req) =
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/terms-and-conditions/${req.id}/review`
+    let url = `${ip}/v2/terms-and-conditions/${req.id}/review`
     
     const response = await axiosInstance.patch(url, req.data, {
       headers: {
@@ -67,7 +67,7 @@ export const getSingleTnc = createAsyncThunk('appTncSlice/getSingleTnc', async (
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/terms-and-conditions/${id}`
+    let url = `${ip}/v2/terms-and-conditions/${id}`
 
     const response = await axiosInstance.get(url,id, {
       headers: {

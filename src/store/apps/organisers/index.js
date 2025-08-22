@@ -16,7 +16,7 @@ export const getOrganizers = createAsyncThunk('appOrganizers/getOrganizers', asy
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/organizers`
+    let url = `${ip}/v2/organizers`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -40,7 +40,7 @@ export const getSingleOrganizers = createAsyncThunk('appOrganizers/getSingleOrga
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/organizers/${id}`
+    let url = `${ip}/v2/organizers/${id}`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -66,7 +66,7 @@ export const createOrganizer = createAsyncThunk('appOrganizers/createOrganizer',
       throw new Error('Access token not found in localStorage')
     }
 
-    let url = `${ip}/v1/organizers`
+    let url = `${ip}/v2/organizers`
 
     console.log("data>>", formData)
     const response = await axiosInstance.post(url,formData, {
@@ -94,7 +94,7 @@ export const deleteOrganizer = createAsyncThunk('appOrganizers/deleteOrganizer',
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
     const accessToken = adminData.accessToken
 
-    const url = `${ip}/v1/organizers/${id}`
+    const url = `${ip}/v2/organizers/${id}`
 
     const response = await axiosInstance.delete(url, {
       headers: { Authorization: `Bearer ${accessToken}` }
@@ -117,7 +117,7 @@ export const updateOrganizer = createAsyncThunk('appOrganizers/updateOrganizer',
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/organizers/${req.editId}`
+    let url = `${ip}/v2/organizers/${req.editId}`
 
     const response = await axiosInstance.patch(url,req?.changedData, {
       headers: {

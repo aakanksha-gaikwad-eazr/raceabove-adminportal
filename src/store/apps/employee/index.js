@@ -16,7 +16,7 @@ export const getemployee = createAsyncThunk('appemployee/getemployee', async () 
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/admins`
+    let url = `${ip}/v2/admins`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -42,7 +42,7 @@ export const createUser = createAsyncThunk('appemployee/createUser', async (data
     }
 
   
-    let url = `${ip}/v1/employee`
+    let url = `${ip}/v2/employee`
 
     const response = await axiosInstance.post(url,data, {
    
@@ -67,7 +67,7 @@ export const deleteUser = createAsyncThunk('appemployee/deleteUser', async id =>
 
     // console.log("accessToken",accessToken)
 
-    const url = `${ip}/v1/employee/${id}`
+    const url = `${ip}/v2/employee/${id}`
 
     const response = await axiosInstance.delete(url, {
       headers: { Authorization: `Bearer ${accessToken}` }
@@ -95,7 +95,7 @@ export const updateEmployee = createAsyncThunk('appemployee/updateEmployee', asy
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/admins/${req.id}`;
+    let url = `${ip}/v2/admins/${req.id}`;
     console.log(req,"req")
 
     const response = await axiosInstance.patch(url,req?.data, {
@@ -128,7 +128,7 @@ export const getAllDataOfUser = createAsyncThunk('appemployee/allDataOfUser', as
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/employee/${id}`
+    let url = `${ip}/v2/employee/${id}`
 
     const response = await axiosInstance.get(url,id, {
       headers: {

@@ -14,7 +14,7 @@ export const getTicketType = createAsyncThunk('appTicketType/getTicketType', asy
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/ticket-types`
+    let url = `${ip}/v2/ticket-types`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -37,7 +37,7 @@ export const reviewTicketTypes = createAsyncThunk('appTicketType/reviewTicketTyp
     if (!accessToken) {
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/ticket-types/${req.id}/review`
+    let url = `${ip}/v2/ticket-types/${req.id}/review`
     
     const response = await axiosInstance.patch(url, req.data, {
       headers: {
@@ -66,7 +66,7 @@ export const getSingleTicketType = createAsyncThunk('appTicketType/getSingleTick
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/ticket-types/${id}`
+    let url = `${ip}/v2/ticket-types/${id}`
 
     const response = await axiosInstance.get(url, {
       headers: {

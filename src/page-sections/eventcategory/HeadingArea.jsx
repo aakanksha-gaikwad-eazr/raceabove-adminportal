@@ -10,8 +10,8 @@ import IconWrapper from '@/components/icon-wrapper';
 import { Paragraph } from '@/components/typography';
 import { FlexBetween, FlexBox } from '@/components/flexbox'; // CUSTOM ICON COMPONENTS
 
-import GroupSenior from '@/icons/GroupSenior';
 import Add from '@/icons/Add'; // STYLED COMPONENT
+import EngineeringIcon from '@mui/icons-material/Engineering';
 
 const TabListWrapper = styled(TabList)(({
   theme
@@ -23,34 +23,35 @@ const TabListWrapper = styled(TabList)(({
 })); // ===================================================================
 
 // ===================================================================
-export default function HeadingArea({
-  value,
-  changeTab
-}) {
+export default function HeadingArea({ value, changeTab }) {
   const navigate = useNavigate();
-  return <FlexBetween flexWrap="wrap" gap={1}>
+  return (
+    <FlexBetween
+      flexWrap="wrap"
+      gap={1}
+      style={{ marginBottom: "15px" }}
+    >
       <FlexBox alignItems="center">
         <IconWrapper>
-          <GroupSenior sx={{
-          color: 'primary.main'
-        }} />
+          <EngineeringIcon
+            sx={{
+              color: "primary.main",
+            }}
+          />
         </IconWrapper>
 
-        <Paragraph fontSize={16}>Users</Paragraph>
+        <Paragraph fontSize={20} fontWeight="bold">
+          Event Category
+        </Paragraph>
       </FlexBox>
 
-      <TabContext value={value}>
-        <TabListWrapper variant="scrollable" onChange={changeTab}>
-          <Tab disableRipple label="All Users" value="" />
-          <Tab disableRipple label="Editor" value="editor" />
-          <Tab disableRipple label="Contributor" value="contributor" />
-          <Tab disableRipple label="Administrator" value="administrator" />
-          <Tab disableRipple label="Subscriber" value="subscriber" />
-        </TabListWrapper>
-      </TabContext>
-
-      <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/dashboard/add-user')}>
-        Add New User
+      <Button
+        variant="contained"
+        startIcon={<Add />}
+        onClick={() => navigate("/add-gearstype")}
+      >
+        Add Event Category
       </Button>
-    </FlexBetween>;
+    </FlexBetween>
+  );
 }

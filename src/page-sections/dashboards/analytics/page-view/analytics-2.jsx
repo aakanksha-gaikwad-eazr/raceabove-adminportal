@@ -13,107 +13,111 @@ import SalesByCountry from '../SalesByCountry';
 import AveragePosition from '../AveragePosition';
 import HeadingArea from '../HeadingArea';
 export default function Analytics2PageView() {
-  return <div className="pt-2 pb-4">
-         {/* <HeadingArea /> */}
-      <Grid container spacing={3}>
+  return (
+  
+    <div><h1>coming soon...</h1></div>
+  // <div className="pt-2 pb-4">
+  //        {/* <HeadingArea /> */}
+  //     <Grid container spacing={3}>
 
-        {
-        /* AVERAGE POSITION CHART CARD */
-      }
-        <Grid size={{
-        md: 4,
-        xs: 12
-      }}>
-          <AveragePosition />
-        </Grid>
+  //       {
+  //       /* AVERAGE POSITION CHART CARD */
+  //     }
+  //       <Grid size={{
+  //       md: 4,
+  //       xs: 12
+  //     }}>
+  //         <AveragePosition />
+  //       </Grid>
 
-        {
-        /* DIFFERENT DATA SHOW WITH CHART */
-      }
-        <Grid size={{
-        md: 8,
-        xs: 12
-      }}>
-          <ChartFilters type="line" />
-        </Grid>
+  //       {
+  //       /* DIFFERENT DATA SHOW WITH CHART */
+  //     }
+  //       <Grid size={{
+  //       md: 8,
+  //       xs: 12
+  //     }}>
+  //         <ChartFilters type="line" />
+  //       </Grid>
 
-        {
-        /* VISIT BY TOP REFERRAL SOURCE CHART CARD */
-      }
-        <Grid size={{
-        md: 8,
-        xs: 12
-      }}>
-          <TopReferral />
-        </Grid>
+  //       {
+  //       /* VISIT BY TOP REFERRAL SOURCE CHART CARD */
+  //     }
+  //       <Grid size={{
+  //       md: 8,
+  //       xs: 12
+  //     }}>
+  //         <TopReferral />
+  //       </Grid>
 
-        {
-        /* SESSION BY BROWSER CHART CARD */
-      }
-        <Grid size={{
-        md: 4,
-        xs: 12
-      }}>
-          <SessionBrowser />
-        </Grid>
+  //       {
+  //       /* SESSION BY BROWSER CHART CARD */
+  //     }
+  //       <Grid size={{
+  //       md: 4,
+  //       xs: 12
+  //     }}>
+  //         <SessionBrowser />
+  //       </Grid>
 
-        {
-        /* COMPLETE GOAL AND RATES CARDS */
-      }
-        <Grid size={{
-        lg: 3,
-        xs: 12
-      }}>
-          <Stack spacing={3} sx={{
-          '& > div': {
-            flex: 1
-          }
-        }} direction={{
-          lg: 'column',
-          sm: 'row',
-          xs: 'column'
-        }}>
-            <CompleteGoal chart="area" />
-            <CompleteRate />
-          </Stack>
-        </Grid>
+  //       {
+  //       /* COMPLETE GOAL AND RATES CARDS */
+  //     }
+  //       <Grid size={{
+  //       lg: 3,
+  //       xs: 12
+  //     }}>
+  //         <Stack spacing={3} sx={{
+  //         '& > div': {
+  //           flex: 1
+  //         }
+  //       }} direction={{
+  //         lg: 'column',
+  //         sm: 'row',
+  //         xs: 'column'
+  //       }}>
+  //           <CompleteGoal chart="area" />
+  //           <CompleteRate />
+  //         </Stack>
+  //       </Grid>
 
-        {
-        /* SALES BY COUNTRY CHART CARD */
-      }
-        <Grid size={{
-        lg: 9,
-        xs: 12
-      }}>
-          <SalesByCountry chartHorizontal />
-        </Grid>
+  //       {
+  //       /* SALES BY COUNTRY CHART CARD */
+  //     }
+  //       <Grid size={{
+  //       lg: 9,
+  //       xs: 12
+  //     }}>
+  //         <SalesByCountry chartHorizontal />
+  //       </Grid>
 
-        {
-        /* TOP PERFORMING PAGE TABLE CARD */
-      }
-        <Grid size={{
-        md: 6,
-        xs: 12
-      }}>
-          <TopPerforming />
-        </Grid>
+  //       {
+  //       /* TOP PERFORMING PAGE TABLE CARD */
+  //     }
+  //       <Grid size={{
+  //       md: 6,
+  //       xs: 12
+  //     }}>
+  //         <TopPerforming />
+  //       </Grid>
 
-        {
-        /* TOP QUERIES TABLE CARD */
-      }
-        <Grid size={{
-        md: 6,
-        xs: 12
-      }}>
-          <TopQueries />
-        </Grid>
+  //       {
+  //       /* TOP QUERIES TABLE CARD */
+  //     }
+  //       <Grid size={{
+  //       md: 6,
+  //       xs: 12
+  //     }}>
+  //         <TopQueries />
+  //       </Grid>
 
-        {
-        /* FOOTER CARD */
-      }
-        <Grid size={12}>
-          <Footer />
-        </Grid>
-      </Grid>
-    </div>;
-}
+  //       {
+  //       /* FOOTER CARD */
+  //     }
+  //       <Grid size={12}>
+  //         <Footer />
+  //       </Grid>
+  //     </Grid>
+  //   </div>
+
+)}

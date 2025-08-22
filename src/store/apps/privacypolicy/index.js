@@ -13,7 +13,7 @@ export const getPrivacyPolicies = createAsyncThunk('appPrivacyPoliciesSlice/getP
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/privacy-policies`
+    let url = `${ip}/v2/privacy-policies`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -37,7 +37,7 @@ export const reviewPrivacyPolicies = createAsyncThunk('appPrivacyPoliciesSlice/r
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/privacy-policies/${req.id}/review`
+    let url = `${ip}/v2/privacy-policies/${req.id}/review`
     
     const response = await axiosInstance.patch(url, req.data, {
       headers: {
@@ -66,7 +66,7 @@ export const getSinglePrivacyPolicies = createAsyncThunk('appPrivacyPoliciesSlic
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/privacy-policies/${id}`
+    let url = `${ip}/v2/privacy-policies/${id}`
 
     const response = await axiosInstance.get(url,id, {
       headers: {

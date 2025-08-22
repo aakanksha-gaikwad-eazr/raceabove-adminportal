@@ -51,7 +51,7 @@ export default function HeadingArea({
       <Button
         variant="contained"
         startIcon={<Add />}
-        onClick={() => navigate("/add-admin")}
+        onClick={() => navigate("/add-employee")}
       >
         Add New Employee
       </Button>

@@ -13,7 +13,7 @@ export const getGearTypes = createAsyncThunk('appSports/gearTypes', async () => 
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/gear-types`
+    let url = `${ip}/v2/gear-types`
 
     const response = await axiosInstance.get(url, {
       headers:  {  'Content-Type': 'multipart/form-data', Authorization: `Bearer ${accessToken}`}
@@ -36,7 +36,7 @@ export const getGearTypesById = createAsyncThunk('appSports/getGearTypesById', a
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/gear-types`
+    let url = `${ip}/v2/gear-types`
 
     const response = await axiosInstance.get(url, {
       'Content-Type': 'multipart/form-data',
@@ -62,7 +62,7 @@ export const createGearTypes = createAsyncThunk('appUsers/createGearTypes', asyn
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/gear-types`
+    let url = `${ip}/v2/gear-types`
     console.log("🌍 API URL:", url);
 
     console.log("data create gear", data)
@@ -90,7 +90,7 @@ export const deleteGearTypes = createAsyncThunk('appUsers/deleteGearTypes', asyn
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
     const accessToken = adminData.accessToken
 
-    const url = `${ip}/v1/gear-types/${id}`
+    const url = `${ip}/v2/gear-types/${id}`
 
     const response = await axiosInstance.delete(url, {
       headers: {  'Content-Type': 'multipart/form-data', Authorization: `Bearer ${accessToken}` }
@@ -116,7 +116,7 @@ export const deleteGearTypes = createAsyncThunk('appUsers/deleteGearTypes', asyn
 //       throw new Error('Access token not found in localStorage')
 //     }
   
-//     let url = `${ip}/v1/gear-types/${req.id}`
+//     let url = `${ip}/v2/gear-types/${req.id}`
 //     console.log(req?.data,"req?.data gear-types")
 
 //     const response = await axiosInstance.patch(url,req?.data, {
@@ -149,7 +149,7 @@ export const updateGearTypes = createAsyncThunk(
         throw new Error('Access token not found in localStorage')
       }
     
-      let url = `${ip}/v1/gear-types/${req.id}`
+      let url = `${ip}/v2/gear-types/${req.id}`
       console.log(req?.data,"req?.data gear-types")
 
       const response = await axiosInstance.patch(url, req?.data, {

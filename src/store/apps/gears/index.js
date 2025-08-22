@@ -13,7 +13,7 @@ export const getGears = createAsyncThunk('appGears/getGears', async () => {
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/gears`
+    let url = `${ip}/v2/gears`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -36,7 +36,7 @@ export const getGearsById = createAsyncThunk('appGears/getGearsById', async (id)
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/gears/${id}`
+    let url = `${ip}/v2/gears/${id}`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -60,7 +60,7 @@ export const createGears = createAsyncThunk('appGears/createGears', async (formD
       throw new Error('Access token not found in localStorage');
     }
 
-    const url = `${ip}/v1/gears`;
+    const url = `${ip}/v2/gears`;
 
     // Debug log formData content
     // if (formData?.forEach) {
@@ -92,7 +92,7 @@ export const deleteGears = createAsyncThunk('appGears/deleteGears', async id => 
 
     // console.log("accessToken",accessToken)
 
-    const url = `${ip}/v1/gears/${id}`
+    const url = `${ip}/v2/gears/${id}`
 
     const response = await axiosInstance.delete(url, {
       headers: { Authorization: `Bearer ${accessToken}` }
@@ -115,7 +115,7 @@ export const updateGears = createAsyncThunk('appGears/updateGears', async (req) 
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/gears/${req.id}`
+    let url = `${ip}/v2/gears/${req.id}`
 
     const response = await axiosInstance.patch(url,req?.data, {
       headers: {

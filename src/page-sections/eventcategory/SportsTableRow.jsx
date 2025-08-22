@@ -14,7 +14,7 @@ import { Paragraph } from '@/components/typography';
 import { TableMoreMenuItem, TableMoreMenu } from '@/components/table'; // ==============================================================
 
 // ==============================================================
-export default function GearsTableRow(props) {
+export default function EventCategoryTableRow(props) {
   const {
     user,
     isSelected,

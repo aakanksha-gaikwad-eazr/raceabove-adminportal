@@ -19,7 +19,7 @@ import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 
 // ==========================================================================
-export default function AddGearTypesForm({ handleCancel, data }) {
+export default function AddEventCategoryForm({ handleCancel, data }) {
   const dispatch = useDispatch();
   useEffect(()=>{
     console.log("updated")
@@ -91,7 +91,7 @@ export default function AddGearTypesForm({ handleCancel, data }) {
         }
       });
     } catch (error) {
-      toast.error("Failed to update gears. Please try again.");
+      toast.error("Failed to update geartype. Please try again.");
     } finally {
       setSubmitting(false);
     }

@@ -1,35 +1,62 @@
-import Card from '@mui/material/Card'; // CUSTOM COMPONENTS
+import Card from '@mui/material/Card'; 
 import Box from '@mui/material/Box';
 import MoreButton from '@/components/more-button';
 import { H6, Paragraph } from '@/components/typography';
 import FlexBetween from '@/components/flexbox/FlexBetween';
-import { Avatar } from '@mui/material';
+import { Avatar, Chip } from '@mui/material';
 
-export default function Summery({allDataOfSingleUser}) {
-  return <Card className="p-3">
+export default function Summery({ singleOrganizer }) {
+  console.log("singleOrganizer", singleOrganizer);
+
+  return (
+    <Card className="p-3">
       <FlexBetween>
-        <H6 fontSize={16}>Target</H6>
-        {/* <MoreButton size="small" /> */}
+        <H6 fontSize={16}>Organizer Summary</H6>
+        <MoreButton size="small" />
       </FlexBetween>
 
       <Box mt={2}>
-        {allDataOfSingleUser?.targets?.map((item) => (
-          <Box key={item.id} mb={2}>
-            <Avatar 
-              src={item.banner} 
-              alt={item.name}
-              style={{ 
-                width: '70%', 
-                height: '150px',
-                borderRadius: '8px',
-                marginBottom: '8px'
-              }} 
+        <Box display="flex" alignItems="center" mb={2}>
+          <Box>
+            <Chip
+              label={singleOrganizer?.isActive ? "Active" : "Inactive"}
+              color={singleOrganizer?.isActive ? "success" : "error"}
+              size="small"
+              sx={{ mt: 1 }}
             />
-            <Paragraph color="text.secondary" fontWeight={700}>
-              {item.name}
-            </Paragraph>
           </Box>
-        ))}
+        </Box>
+
+        <Box mb={1}>
+          <Paragraph color="text.secondary" fontWeight={600}>Email:</Paragraph>
+          <Paragraph>{singleOrganizer?.email}</Paragraph>
+        </Box>
+
+        <Box mb={1}>
+          <Paragraph color="text.secondary" fontWeight={600}>Phone:</Paragraph>
+          <Paragraph>{singleOrganizer?.phoneNumber}</Paragraph>
+        </Box>
+
+        <Box mb={1}>
+          <Paragraph color="text.secondary" fontWeight={600}>Commission:</Paragraph>
+          <Paragraph>{singleOrganizer?.commission} %</Paragraph>
+        </Box>
+
+        <Box mb={1}>
+          <Paragraph color="text.secondary" fontWeight={600}>Approval Status:</Paragraph>
+          <Paragraph>{singleOrganizer?.approvalStatus}</Paragraph>
+        </Box>
+
+        <Box mb={1}>
+          <Paragraph color="text.secondary" fontWeight={600}>Reviewed By:</Paragraph>
+          <Paragraph>{singleOrganizer?.reviewedBy || "N/A"}</Paragraph>
+        </Box>
+
+        <Box>
+          <Paragraph color="text.secondary" fontWeight={600}>Review Reason:</Paragraph>
+          <Paragraph>{singleOrganizer?.reviewReason || "N/A"}</Paragraph>
+        </Box>
       </Box>
-    </Card>;
+    </Card>
+  );
 }

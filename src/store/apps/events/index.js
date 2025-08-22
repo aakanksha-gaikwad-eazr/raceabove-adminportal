@@ -5,6 +5,27 @@ import { ip } from '../../../config/config'
 
 //** fetch all users
 
+export const getEventCategory = createAsyncThunk('appEventsSlice/getEventCategory', async () => {
+  try {
+    const adminData = JSON.parse(localStorage.getItem('raceabove'))
+    const accessToken = adminData.accessToken
+
+    if (!accessToken) { 
+      throw new Error('Access token not found in localStorage')
+    }
+    let url = `${ip}/v2/event-categories`
+
+    const response = await axiosInstance.get(url, {
+      headers:  { Authorization: `Bearer ${accessToken}`}
+    })
+
+    return response.data.data
+
+  } catch (error) {
+    console.log("Failed to fetch all getEventCategory")
+    throw new Error('Failed to fetch all getEventCategory')
+  }
+})
 export const getEvents = createAsyncThunk('appEventsSlice/getEvents', async () => {
   try {
     const adminData = JSON.parse(localStorage.getItem('raceabove'))
@@ -13,7 +34,7 @@ export const getEvents = createAsyncThunk('appEventsSlice/getEvents', async () =
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/events`
+    let url = `${ip}/v2/events`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -39,7 +60,7 @@ export const getEventsById = createAsyncThunk('appEventsSlice/getEventsById', as
       throw new Error('Access token not found in localStorage')
     }
 
-    let url = `${ip}/v1/events/${id}`
+    let url = `${ip}/v2/events/${id}`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -63,7 +84,7 @@ export const createEvents = createAsyncThunk('appEventsSlice/createEvents', asyn
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/events`
+    let url = `${ip}/v2/events`
 
     const response = await axiosInstance.post(url,data, {
    
@@ -95,7 +116,7 @@ export const updateEvents = createAsyncThunk('appEventsSlice/updateEvents', asyn
 
     console.log("req",req)
 
-    const url = `${ip}/v1/events/${req?.id}`
+    const url = `${ip}/v2/events/${req?.id}`
 
     const response = await axiosInstance.patch(url, req?.changedData, {
       headers: {
@@ -123,7 +144,7 @@ export const reviewEvents = createAsyncThunk('appEventsSlice/reviewEvents', asyn
 
     console.log("req",req)
 
-    const url = `${ip}/v1/events/${req?.id}/review`
+    const url = `${ip}/v2/events/${req?.id}/review`
 
     const response = await axiosInstance.patch(url, req?.data, {
       headers: {
@@ -147,6 +168,7 @@ export const appEventsSlice = createSlice({
     allEvents:[],
     singleEvents:[],
     isLoading: false,
+    eventsCategory:[],
   },
   reducers: {},
   extraReducers: builder => {
@@ -173,6 +195,9 @@ export const appEventsSlice = createSlice({
     })
     .addCase(createEvents.fulfilled, (state, action) => {
       state.success = true
+    })
+    .addCase(getEventCategory.fulfilled, (state, action) => {
+          state.eventsCategory = action.payload
     })
   }
 })

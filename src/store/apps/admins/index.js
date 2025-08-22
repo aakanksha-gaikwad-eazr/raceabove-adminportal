@@ -16,7 +16,7 @@ export const getSingleAdmin = createAsyncThunk(
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
-      let url = `${ip}/v1/admins/${id}`;
+      let url = `${ip}/v2/admins/${id}`;
 
       const response = await axios.get(url, {
         headers: {
@@ -43,7 +43,7 @@ export const getAllAdmin = createAsyncThunk("appAdmins/getallAdmin",async () => 
       if (!accessToken) {
         throw new Error("Access token not found in localStorage");
       }
-      let url = `${ip}/v1/admins`;
+      let url = `${ip}/v2/admins`;
 
       const response = await axios.get(url, {
         headers: {
@@ -72,7 +72,7 @@ export const createAdmin = createAsyncThunk("appAdmins/createAdmin", async (form
         throw new Error("Access token not found in localStorage");
       }
 
-      let url = `${ip}/v1/admins`;
+      let url = `${ip}/v2/admins`;
       console.log("req body formData", formData)
 
       const response = await axios.post(url, formData, {
@@ -107,7 +107,7 @@ export const updateAdmin = createAsyncThunk(
         throw new Error("Access token not found in localStorage");
       }
 
-      let url = `${ip}/v1/admins/${req?.editId}`;
+      let url = `${ip}/v2/admins/${req?.editId}`;
 
       const response = await axios.patch(url, req?.changedData, {
         headers: {
@@ -135,7 +135,7 @@ export const deleteAdmin = createAsyncThunk("appAdmins/deleteAdmin",async (id) =
         throw new Error("Access token not found in localStorage");
       }
 
-      let url = `${ip}/v1/admins/${id}`;
+      let url = `${ip}/v2/admins/${id}`;
 
       const response = await axios.delete(url, {
         headers: {

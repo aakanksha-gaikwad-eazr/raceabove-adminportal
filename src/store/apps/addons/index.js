@@ -13,7 +13,7 @@ export const getAddOns = createAsyncThunk('appAddOns/getAddOns', async () => {
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/products`
+    let url = `${ip}/v2/products`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -39,7 +39,7 @@ export const reviewAddOns = createAsyncThunk('appAddOns/reviewAddOns', async (re
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/products/${req.id}/review`
+    let url = `${ip}/v2/products/${req.id}/review`
     
     const response = await axiosInstance.patch(url, req.data, {
       headers: {
@@ -68,7 +68,7 @@ export const singleAddOn = createAsyncThunk('appAddOns/singleAddOn', async (id) 
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/products/${id}`
+    let url = `${ip}/v2/products/${id}`
 
     const response = await axiosInstance.get(url,id, {
       headers: {

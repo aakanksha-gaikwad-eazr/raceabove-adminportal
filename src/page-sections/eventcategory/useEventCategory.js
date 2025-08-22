@@ -3,11 +3,13 @@ import { useEffect, useState } from 'react'; // CUSTOM DATA
 // import { PROJECTS } from '@/__fakeData__/projects';
 import { useDispatch, useSelector } from 'react-redux';
 import { getGearTypes } from '../../store/apps/geartypes';
-export default function useGears() {
+export default function useEventCategory() {
   const [openModal, setOpenModal] = useState(false);
   const [filters, setFilters] = useState({
     status: 'all',
     searchValue: ''
+
+
   });
  
    const dispatch = useDispatch()

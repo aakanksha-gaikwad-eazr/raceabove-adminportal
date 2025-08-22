@@ -38,7 +38,7 @@ const headCells = [{
   label: 'Actions'
 } //   { id: "" },
 ];
-export default function GearsTableHead(props) {
+export default function EventCategoryTableHead(props) {
   const {
     onSelectAllRows,
     order,

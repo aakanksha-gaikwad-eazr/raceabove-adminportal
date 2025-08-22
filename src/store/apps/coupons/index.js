@@ -13,7 +13,7 @@ export const getCoupons = createAsyncThunk('appCouponsSlice/getCoupons', async (
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/coupons`
+    let url = `${ip}/v2/coupons`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -35,7 +35,7 @@ export const getCouponsById = createAsyncThunk('appCouponsSlice/getCouponsById',
       throw new Error('Access token not found in localStorage')
     }
 
-    let url = `${ip}/v1/coupons/${id}`
+    let url = `${ip}/v2/coupons/${id}`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -60,7 +60,7 @@ export const createCoupon = createAsyncThunk('appCouponsSlice/createCoupon', asy
     if (!accessToken) {
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/coupons`
+    let url = `${ip}/v2/coupons`
 
     const response = await axiosInstance.post(url,data, {
 
@@ -84,7 +84,7 @@ export const deleteCoupons = createAsyncThunk('appCouponsSlice/deleteCoupons', a
     if (!accessToken) {
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/coupons/${id}`
+    let url = `${ip}/v2/coupons/${id}`
     const response = await axiosInstance.delete(url, {
       headers: {
         Authorization: `Bearer ${accessToken}`, 
@@ -108,7 +108,7 @@ export const reviewCoupons = createAsyncThunk('appCouponsSlice/reviewCoupons', a
       throw new Error('Access token not found in localStorage')
     }
 
-    const url = `${ip}/v1/coupons/${req?.id}/review`
+    const url = `${ip}/v2/coupons/${req?.id}/review`
     
     const response = await axiosInstance.patch(url, req?.data, {
       headers: {

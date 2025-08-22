@@ -14,7 +14,7 @@ export const getFaq = createAsyncThunk('appFaqSlice/getFaq', async () => {
     if (!accessToken) { 
       throw new Error('Access token not found in localStorage')
     }
-    let url = `${ip}/v1/frequently-asked-questions`
+    let url = `${ip}/v2/frequently-asked-questions`
 
     const response = await axiosInstance.get(url, {
       headers:  { Authorization: `Bearer ${accessToken}`}
@@ -40,7 +40,7 @@ export const reviewFaq = createAsyncThunk('appFaqSlice/reviewFaq', async (req) =
     }
     console.log("req", req)
   
-    let url = `${ip}/v1/frequently-asked-questions/${req.id}/review`
+    let url = `${ip}/v2/frequently-asked-questions/${req.id}/review`
     
     const response = await axiosInstance.patch(url, req.data, {
       headers: {
@@ -67,7 +67,7 @@ export const getSingleFaq = createAsyncThunk('appFaqSlice/getSingleFaq', async (
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v1/frequently-asked-questions/${id}`
+    let url = `${ip}/v2/frequently-asked-questions/${id}`
 
     const response = await axiosInstance.get(url,id, {
       headers: {

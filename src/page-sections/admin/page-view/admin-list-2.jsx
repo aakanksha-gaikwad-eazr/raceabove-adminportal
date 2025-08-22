@@ -46,6 +46,8 @@ import {
   updateAdmin,
 } from "@/store/apps/admins";
 import { useNavigate } from "react-router-dom";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
   fontSize: 14,
@@ -81,14 +83,14 @@ const headCells = [
     disablePadding: false,
     label: "Name",
   },
+  // {
+  //   id: "position",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Commission",
+  // },
   {
-    id: "position",
-    numeric: true,
-    disablePadding: false,
-    label: "Commission",
-  },
-  {
-    id: "company",
+    id: "companyname",
     numeric: true,
     disablePadding: false,
     label: "Company Name",
@@ -161,7 +163,7 @@ export default function AdminList2PageView() {
   }, [dispatch]);
 
   const handleEditClick = async (id) => {
-    navigate(`/edit-admin/${id}`);
+    navigate(`/edit-employee/${id}`);
     setSelectedAdminId(id);
 
     // try {
@@ -245,17 +247,17 @@ export default function AdminList2PageView() {
         );
 
         if (response.payload?.status === 200) {
-          toast.success("Admin updated successfully");
+          toast.success("Employee updated successfully");
           dispatch(getAllAdmin());
           setEditModalOpen(false);
           setSelectedAdminId(null);
           setSelectedAdminData(null);
         } else {
-          toast.error("Failed to update admin");
+          toast.error("Failed to update Employee");
         }
       } catch (error) {
         console.log("error", error);
-        toast.error("An error occurred while updating admin");
+        toast.error("An error occurred while updating Employee");
       }
     }
   };
@@ -278,7 +280,7 @@ export default function AdminList2PageView() {
         .then((res) => {
           console.log(res, "res");
           if (res.payload.status == 200) {
-            toast.success("Admin Deleted Succesfully");
+            toast.success("Employee Deleted Succesfully");
           }
         })
         .catch((err) => {
@@ -331,6 +333,11 @@ export default function AdminList2PageView() {
 
   return (
     <div className="pt-2 pb-4">
+           {/* SEARCH BOX AREA */}
+            <Box px={3}>
+              <HeadingArea />
+             
+            </Box>
       <Card sx={{ py: 2 }}>
         <Grid container>
           <Grid
@@ -338,16 +345,12 @@ export default function AdminList2PageView() {
               xs: 12,
             }}
           >
-            {/* SEARCH BOX AREA */}
-            <Box px={3}>
-              <HeadingArea />
-              <SearchArea
+        <SearchArea
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
-                gridRoute="/admin-grid-2"
-                listRoute="/admin-list-2"
+                gridRoute="/employee-grid-2"
+                listRoute="/employee-list-2"
               />
-            </Box>
 
             {/* TABLE HEAD & BODY ROWS */}
             <TableContainer>
@@ -418,9 +421,9 @@ export default function AdminList2PageView() {
                               </H6>
                             </Stack>
                           </BodyTableCell>
-                          <BodyTableCell>
+                          {/* <BodyTableCell>
                             {admin.commission ?? "N/A"}
-                          </BodyTableCell>
+                          </BodyTableCell> */}
                           <BodyTableCell>
                             {admin.companyName ?? "N/A"}
                           </BodyTableCell>
@@ -432,20 +435,25 @@ export default function AdminList2PageView() {
                           </BodyTableCell>
                           <BodyTableCell>
                             <IconButton
+                              color="primary"
+                              size="small"
                               onClick={() =>
                                 handleEditClick(admin?.id)
                               }
                             >
-                              <Edit sx={iconStyle} />
+                              <Edit  />
                             </IconButton>
 
                             {/* delete button */}
                             <IconButton
+                            color="error"
+                              size="small"
                               onClick={() =>
                                 handleDeleteClick(admin?.id)
                               }
                             >
-                              <Delete sx={iconStyle} />
+                              <DeleteIcon  />
+
                             </IconButton>
                           </BodyTableCell>
                         </BodyTableRow>
@@ -477,7 +485,7 @@ export default function AdminList2PageView() {
         open={deleteModalOpen}
         handleClose={handleDeleteCancel}
         handleConfirm={handleDeleteConfirm}
-        message={`Are you sure you want to dele ${selectedAdmin?.name || "N/A"}?`}
+        message={`Are you sure you want to delete ${selectedAdmin?.name || "N/A"}?`}
         actions={[
           {
             label: "Cancel",
@@ -497,7 +505,7 @@ export default function AdminList2PageView() {
         editId={selectedAdminId}
         initialData={selectedAdminData}
         fields={editFields}
-        title="Edit Admin"
+        title="Edit Employee"
       />
     </div>
   );

@@ -9,97 +9,62 @@ import IconButton from "@mui/material/IconButton";
 import useTheme from "@mui/material/styles/useTheme";
 import DeleteOutline from "@mui/icons-material/DeleteOutline"; // CUSTOM COMPONENTS
 
-import Modal from "@/components/modal";
-import AddContactForm from "./AddgearsForm";
+import EditEventcategoryFormModal from "./EditEventcategoryFormModal";
 import { TableMoreMenuItem } from "@/components/table";
 import { H6, Paragraph } from "@/components/typography";
 import FlexBetween from "@/components/flexbox/FlexBetween"; // CUSTOM ICON COMPONENTS
 
 import Add from "@/icons/Add";
-import Call from "@/icons/Call";
-import City from "@/icons/City";
 import Edit from "@/icons/Edit";
-import Flag from "@/icons/Flag";
-import User from "@/icons/User";
-import Email from "@/icons/Email";
-import Skype from "@/icons/social/Skype";
-import ShareVs from "@/icons/ShareVs";
-import Birthday from "@/icons/Birthday";
-import Facebook from "@/icons/social/Facebook";
-import Whatsapp from "@/icons/social/Whatsapp";
-import Messenger from "@/icons/Messenger";
 import MoreHorizontal from "@/icons/MoreHorizontal"; // CUSTOM UTILS METHOD
 
 import { isDark } from "@/utils/constants"; // ==============================================================
-import { useDispatch, useSelector } from "react-redux";
-import { deleteUser, getUsers } from "../../store/apps/user";
+import { useDispatch } from "react-redux";
+import { deleteGearTypes, getGearTypes } from "../../store/apps/geartypes";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 // ==============================================================
 
-export default function GearsDetails({ data }) {
+export default function EventCategoryDetails({ data }) {
   const theme = useTheme();
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log("gear details received user:", data);
+    console.log("geatypesDetails received user:", data);
   }, [data]);
 
-  const [isEdit, setIsEdit] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-
-  const handleCloseModal = () => setOpenModal(false);
-
   const [anchorEl, setAnchorEl] = useState(null);
 
+  const handleCloseModal = () => setOpenModal(false);
   const handleCloseMenu = () => setAnchorEl(null);
 
-  // const handleDelete = (id)=> {
-  //   console.log("delete click")
-
-  //   dispatch(deleteUser(id))
-  //   .then((resposne)=>{
-  //     console.log("res delete user", resposne)
-  //   })
-  //   console.log("delete")
-  // }
-
   const handleDelete = async (id) => {
-    console.log("Delete clicked for user ID:", id);
-
     try {
-      const response = await dispatch(deleteUser(id)).unwrap();
-      console.log("res del", response);
-
-      if (response?.status === 200) {
-        dispatch(getUsers());
+      const response = await dispatch(deleteGearTypes(id));
+      
+      if (response?.payload?.status === 200) {
+        dispatch(getGearTypes());
         setAnchorEl(null);
-        toast.success("User deleted successfully!");
+        toast.success("Gear type deleted successfully!");
+      } else {
+        toast.error("Failed to delete gear type.");
       }
     } catch (error) {
-      console.error("❌ Error deleting user:", error);
+      console.error("❌ Error deleting gear type:", error);
       toast.error(error.message || "Something went wrong while deleting!");
-
-      // Check for 404 User Not Found
-      if (error) {
-        toast.error("User not found! It may have already been deleted.");
-      } else {
-        toast.error(error.message || "Something went wrong while deleting!");
-      }
     }
   };
 
-  const handleAddContact = () => {
-    navigate("/add-user");
+  const handleAddGearType = () => {
+    navigate("/add-gear-type");
   };
 
   const handleEditModal = () => {
-    setIsEdit(true);
     setOpenModal(true);
-    localStorage.setItem("update", JSON.stringify({ updatekey: false }));
   };
 
   return (
@@ -116,17 +81,16 @@ export default function GearsDetails({ data }) {
         fullWidth
         variant="contained"
         startIcon={<Add />}
-        onClick={() => handleAddContact()}
+        onClick={handleAddGearType}
       >
-        Add User
+        Add Gear Type
       </Button>
 
-      <Modal open={openModal} handleClose={handleCloseModal}>
-        <AddContactForm
-          handleCancel={handleCloseModal}
-          data={isEdit ? data : null}
-        />
-      </Modal>
+      <EditEventCategoryFormModal 
+        open={openModal} 
+        handleClose={handleCloseModal}
+        data={data}
+      />
 
       {data ? (
         <>
@@ -170,7 +134,7 @@ export default function GearsDetails({ data }) {
 
           <Stack alignItems="center">
             <Avatar
-              src={data?.profilePhoto}
+              src={data?.icon}
               sx={{
                 width: 120,
                 height: 120,
@@ -180,27 +144,7 @@ export default function GearsDetails({ data }) {
             <H6 fontSize={16} mt={2}>
               {data.name}
             </H6>
-            <Paragraph color="text.secondary" mt={0.5}>
-              {data.activitiesCount}
-            </Paragraph>
           </Stack>
-
-          <Box mt={4}>
-            {/* <ListItem Icon={Birthday} title="June 3, 1996" /> */}
-            <ListItem Icon={User} title={data?.gender} />
-            <ListItem Icon={City} title={data.exerciseLevel} />
-            <ListItem Icon={Email} title={data.email} />
-            <ListItem Icon={Call} title={data.phoneNumber} />
-            <ListItem Icon={ShareVs} title={data?.target} />
-            <ListItem Icon={Flag} title={data?.height} />
-          </Box>
-
-          <Box mt={2}>
-            <ListItem Icon={Messenger} title={data.reminder} />
-            <ListItem Icon={Facebook} title={data.isActive} />
-            <ListItem Icon={Skype} title={data.age} />
-            <ListItem Icon={Whatsapp} title="+1 (345) 556-2248" />
-          </Box>
         </>
       ) : (
         <Box
