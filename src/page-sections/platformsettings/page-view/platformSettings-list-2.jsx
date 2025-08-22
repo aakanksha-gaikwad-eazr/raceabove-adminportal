@@ -34,15 +34,16 @@ import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable";
 import { isDark } from "@/utils/constants";
 // REDUX
 import { useDispatch, useSelector } from "react-redux";
-import { getGearTypes, updateGearTypes } from "@/store/apps/geartypes";
+import { getSports, updateSports } from "@/store/apps/sports";
 import toast from "react-hot-toast";
 // COMPONENTS
-import EditEventCategoryFormModal from "../EditEventCategoryFormModal";
+import EditSportsFormModal from "../EditSportFormModal";
 import DeleteEventModal from "@/components/delete-modal-event";
 import HeadingArea from "../HeadingArea";
+import { deleteSports } from "@/store/apps/sports";
+import { limitWords } from "@/utils/wordLimiter";
 import { formatDate } from "@/utils/dateFormatter";
-import { deleteGearTypes } from "@/store/apps/geartypes";
-import { getEventCategory } from "@/store/apps/events";
+import { getPlatformSettings } from "@/store/apps/platformsettings";
 
 // STYLED COMPONENTS
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
@@ -54,19 +55,10 @@ const HeadTableCell = styled(TableCell)(({ theme }) => ({
   borderBottom: `1px solid ${theme.palette.grey[isDark(theme) ? 700 : 100]}`,
   "&:first-of-type": {
     paddingLeft: 24,
-    // width: "4%",
     // minWidth: 180,
   },
   "&:last-of-type": {
     paddingRight: 24,
-    width: "10%",
-  },
-  "&:nth-of-type(8)": {
-    // Status column
-    width: "10%",
-  },
-  "&:not(:first-of-type):not(:last-of-type):not(:nth-of-type(8))": {
-    width: "10.7%",
   },
 }));
 
@@ -76,8 +68,9 @@ const BodyTableCell = styled(HeadTableCell)(({ theme, isDeleted }) => ({
   backgroundColor: "transparent",
   paddingBlock: 12,
   verticalAlign: "middle",
+  // ...(width && { width }),
   ...(isDeleted && {
-    opacity: 0.5,
+    opacity: 0.6,
     color: theme.palette.text.disabled,
   }),
 }));
@@ -111,28 +104,34 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Name",
-    width: "15s%",
+    width: "12%",
   },
-  {
-    id: "description",
-    numeric: true,
-    disablePadding: false,
-    label: "Description",
-    width: "15s%",
-  },
+  // {
+  //   id: "updatedBy",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Updated By",
+  //   width: "20%",
+  // },
+  // {
+  //   id: "updatedByRole",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Updated By Role",
+  //   width:"20%"
+  // },
   {
     id: "createdAt",
     numeric: true,
     disablePadding: false,
     label: "Date",
-    width: "5%",
+    width: "15%",
   },
-
   {
-    id: "updatedBy",
+    id: "createdBy",
     numeric: true,
     disablePadding: false,
-    label: "Updated By",
+    label: "Created By",
     width: "15%",
   },
 
@@ -141,7 +140,7 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Status",
-    width: "5%",
+    width: "10%",
   },
   {
     id: "actions",
@@ -152,16 +151,16 @@ const headCells = [
   },
 ];
 
-export default function EventCategoryList2PageView() {
+export default function PlatformSettingsListPageView() {
   const [searchFilter, setSearchFilter] = useState("");
-  const [selectedEventCategory, setSelectedEventCategory] = useState();
+  const [selectedSport, setSelectedSport] = useState();
   const [loadingStates, setLoadingStates] = useState({});
-  const [selectTab, setSelectTab] = useState("all");
+  const [selectTab, setSelectTab] = useState("active");
 
   // Modal states
   const [openEditModal, setOpenEditModal] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const [eventCategoryId, setEventCategoryId] = useState(null);
+  const [sportId, setSportId] = useState(null);
 
   const {
     page,
@@ -177,181 +176,169 @@ export default function EventCategoryList2PageView() {
   });
 
   const dispatch = useDispatch();
-  const  {eventsCategory}  = useSelector((state) => state.events);
-
-  console.log("EventsCategory",eventsCategory)
+  const settings  = useSelector((state) => state);
+    console.log("state",settings)
 
   useEffect(() => {
-    dispatch(getEventCategory());
-  }, []);
+    dispatch(getPlatformSettings());
+  }, [dispatch]);
 
   // Handle tab change
   const handleChangeTab = (_, newTab) => {
     setSelectTab(newTab);
-    setPage(0); // Reset to first page when changing tabs
+    handleChangePage(null, 0); // Reset to first page when changing tabs - using the correct function
   };
 
+  // Filter sports based on tab selection and search
+  const filteredSports = stableSort(
+    sports || [],
+    getComparator(order, orderBy)
+  ).filter((item) => {
+    // Include deleted items but show them as disabled
+    const isDeleted = item?.deletedAt !== null;
 
+    // Filter by tab selection
+    if (selectTab === "active" && (!item?.isActive || isDeleted)) {
+      return false;
+    }
+    if (selectTab === "inactive" && (item?.isActive || isDeleted)) {
+      return false;
+    }
+    if (selectTab === "deleted" && !isDeleted) {
+      return false;
+    }
 
-  // Filter gear types based on tab selection and search
-const filteredEventCategory = Array.isArray(eventsCategory)
-  ? stableSort(eventsCategory, getComparator(order, orderBy)).filter((item) => {
-      // filter out deleted
-      if (item?.deletedAt) return false;
+    // For "all" tab, show both active, inactive, and deleted items
 
-      // tab filters
-      if (selectTab === "active" && !item?.isActive) return false;
-      if (selectTab === "inactive" && item?.isActive) return false;
+    // Apply search filter
+    if (searchFilter) {
+      return item?.name
+        ?.toLowerCase()
+        .includes(searchFilter?.toLowerCase());
+    }
 
-      // search filter
-      if (searchFilter) {
-        return item?.name?.toLowerCase().includes(searchFilter.toLowerCase());
-      }
-
-      return true;
-    })
-  : [];
-
-
-  console.log("filteredEventCategory",filteredEventCategory)
+    return true;
+  });
 
   useEffect(() => {
-    if (selectedEventCategory) {
-      const updatedEventCategory = eventsCategory.find(
-        (eventCategory) => eventCategory.id === selectedEventCategory.id
+    if (selectedSport) {
+      const updatedSport = sports?.find(
+        (sport) => sport.id === selectedSport.id
       );
-      if (updatedEventCategory) setSelectedEventCategory(updatedEventCategory);
+      if (updatedSport) setSelectedSport(updatedSport);
     } else {
-      // Only select non-deleted items by default
-      const firstNonDeleted = eventsCategory.find(
-        (eventcategory) => eventcategory.deletedAt === null
-      );
-      setSelectedEventCategory(firstNonDeleted || eventsCategory[0]);
+      // Select first available sport (including deleted ones for visibility)
+      const firstSport = sports?.[0];
+      if (firstSport) setSelectedSport(firstSport);
     }
-  }, [eventsCategory]);
+  }, [sports, selectedSport]);
 
-  // Fixed handleStatusToggle function
   const handleStatusToggle = async (
-    eventsCategoryId,
+    sportId,
     currentStatus,
     isDeleted
   ) => {
-    // Prevent toggling for deleted items
     if (isDeleted) {
       toast.error("Cannot update status of deleted items");
       return;
     }
-
-    setLoadingStates((prev) => ({ ...prev, [eventsCategoryId]: true }));
+    console.log("Toggle clicked - Sport ID:", sportId);
+    console.log("Current isActive status:", currentStatus);
+    console.log("New isActive status will be:", !currentStatus);
+    setLoadingStates((prev) => ({ ...prev, [sportId]: true }));
 
     try {
       const updateData = {
-        id: eventsCategoryId,
+        id: sportId,
         data: {
           isActive: !currentStatus,
         },
       };
 
-      const result = await dispatch(updateEventCategory(updateData));
+      console.log("Dispatching update sportId with:", updateData);
+
+      const result = await dispatch(updateSports(updateData));
+      console.log("result", result);
+
       if (
         result.payload?.data?.status == 200 ||
         result.meta?.requestStatus === "fulfilled"
       ) {
-        toast.success("Status updated successfully");
+        console.log("Sports status updated successfully");
+        toast.success("Sports Status updated successfully");
 
-        // Force refresh the gear types list
-        await dispatch(getEventCategory()).unwrap();
+        await dispatch(getSports());
 
-        // Update selected gear type if it's the one being toggled
-        if (selectedEventCategory?.id === eventsCategoryId) {
-          setSelectedEventCategory((prevSelected) => ({
+        if (selectedSport?.id === sportId) {
+          setSelectedSport((prevSelected) => ({
             ...prevSelected,
             isActive: !currentStatus,
           }));
         }
       } else {
+        console.error("Update failed:", result);
         toast.error("Status Update failed");
       }
     } catch (error) {
-      console.error("Error updating gear type status:", error);
+      console.error("Error updating sport status:", error);
       toast.error("Failed to update status");
     } finally {
-      setLoadingStates((prev) => ({ ...prev, [eventsCategoryId]: false }));
+      setLoadingStates((prev) => ({ ...prev, [sportId]: false }));
     }
   };
 
-  // Modal handlers
-  const handleOpenEditModal = (eventCategory) => {
-    // Prevent editing deleted items
-    if (eventCategory.deletedAt !== null) {
+  const handleOpenEditModal = (sport) => {
+    if (sport.deletedAt !== null) {
       toast.error("Cannot edit deleted items");
       return;
     }
-    setEventCategoryId(eventCategory.id);
+    setSportId(sport.id);
     setOpenEditModal(true);
   };
 
   const handleCloseEditModal = () => {
     setOpenEditModal(false);
-    setEventCategoryId(null);
+    setSportId(null);
   };
 
-  const handleOpenDeleteModal = (eventCategory) => {
-    // Prevent deleting already deleted items
-    if (eventCategory.deletedAt !== null) {
+  const handleOpenDeleteModal = (sport) => {
+    if (sport.deletedAt !== null) {
       toast.error("Item is already deleted");
       return;
     }
-    setEventCategoryId(eventCategory.id);
+    setSportId(sport.id);
     setOpenDeleteModal(true);
   };
 
   const handleCloseDeleteModal = () => {
     setOpenDeleteModal(false);
-    setEventCategoryId(null);
+    setSportId(null);
   };
 
   const handleDelete = async () => {
+    console.log("Deleting sport with id:", sportId);
     try {
-      const result = await dispatch(deleteEventCategory(eventCategoryId));
-      console.log("Delete result:", result);
-      if (
-        result.payload?.data?.status === 200 ||
-        result.meta?.requestStatus === "fulfilled"
-      ) {
-        console.log("Event Category type deleted successfully");
-        toast.success("Event Category type deleted successfully");
-
-        // Refresh the gear types list
-        await dispatch(getEventCategory()).unwrap();
-
-        // If the deleted item was selected, clear selection or select another item
-        if (selectedEventCategory?.id === eventCategoryId) {
-          const remainingGearTypes = eventCategory.filter(
-            (eventCategory) =>
-              eventCategory.id !== eventCategoryId && eventCategory.deletedAt === null
-          );
-          setSelectedEventCategory(remainingGearTypes[0] || null);
-        }
+      const result = await dispatch(deleteSports(sportId));
+      if (result.meta?.requestStatus === "fulfilled") {
+        await dispatch(getSports());
+        toast.success("Sport deleted successfully");
       } else {
-        console.error("Delete failed:", result);
-        toast.error("Failed to delete eventCategory type");
+        toast.error("Failed to delete sport");
       }
     } catch (error) {
-      console.error("Error deleting eventCategory type:", error);
-      toast.error("An error occurred while deleting the eventCategory type");
+      console.error("Error deleting sport:", error);
+      toast.error("An error occurred while deleting");
     } finally {
-      // Always close the modal regardless of success or failure
       handleCloseDeleteModal();
     }
   };
 
-  const handleActionClick = (e, action, eventCategory) => {
+  const handleActionClick = (e, action, sport) => {
     e.stopPropagation();
     if (action === "edit") {
-      handleOpenEditModal(eventCategory);
+      handleOpenEditModal(sport);
     } else if (action === "delete") {
-      handleOpenDeleteModal(eventCategory);
+      handleOpenDeleteModal(sport);
     }
   };
 
@@ -367,6 +354,7 @@ const filteredEventCategory = Array.isArray(eventsCategory)
           <Tab label="All" value="all" />
           <Tab label="Active" value="active" />
           <Tab label="Inactive" value="inactive" />
+          <Tab label="Deleted" value="deleted" />
         </TabList>
 
         <Grid container>
@@ -388,8 +376,8 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                 <SearchArea
                   value={searchFilter}
                   onChange={(e) => setSearchFilter(e.target.value)}
-                  gridRoute="/user-grid-2"
-                  listRoute="/user-list-2"
+                  gridRoute="/sports-grid-2"
+                  listRoute="/sports-list-2"
                 />
               </Box>
 
@@ -416,7 +404,7 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                             sortDirection={
                               orderBy === headCell.id ? order : false
                             }
-                            width={headCell.width}
+                            width={headCell.width || "auto"}
                           >
                             {headCell.id === "actions" ||
                             headCell.id === "status" ? (
@@ -443,28 +431,22 @@ const filteredEventCategory = Array.isArray(eventsCategory)
 
                     {/* TABLE BODY AND DATA */}
                     <TableBody>
-                      {filteredEventCategory
+                      {filteredSports
                         .slice(
                           page * rowsPerPage,
                           page * rowsPerPage + rowsPerPage
                         )
-                        .map((eventCategory, ind) => {
-                          const isDeleted =
-                            eventCategory.deletedAt !== null;
+                        .map((sport, ind) => {
+                          const isDeleted = sport.deletedAt !== null;
 
                           return (
                             <BodyTableRow
-                              key={eventCategory.id}
+                              key={sport.id}
                               active={
-                                selectedEventCategory?.id === eventCategory.id
-                                  ? 1
-                                  : 0
+                                selectedSport?.id === sport.id ? 1 : 0
                               }
                               isDeleted={isDeleted}
-                              onClick={() =>
-                                !isDeleted &&
-                                setSelectedEventCategory(eventCategory)
-                              }
+                              onClick={() => setSelectedSport(sport)}
                             >
                               <BodyTableCell align="left">
                                 {page * rowsPerPage + ind + 1}
@@ -472,17 +454,16 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                               <BodyTableCell
                                 align="center"
                                 isDeleted={isDeleted}
-                                style={{
-                                  textTransform: "capitalize",
-                                }}
                               >
                                 <Stack
                                   direction="row"
                                   alignItems="center"
                                   spacing={2}
                                 >
-                                  {/* <Avatar
-                                    src={eventCategory?.icon}
+                                  <Avatar
+                                    src={
+                                      sport?.icon || sports?.iconFile
+                                    }
                                     sx={{
                                       borderRadius: "20%",
                                       backgroundColor: "grey.100",
@@ -492,20 +473,19 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                                         opacity: 0.5,
                                       }),
                                     }}
-                                  /> */}
+                                  />
                                   <Stack>
-                                    <H6 
+                                    <H6
                                       fontSize={13}
-                                      color={
-                                        isDeleted
-                                          ? "text.disabled"
-                                          : "text.primary"
-                                      }
+                                      color={"text.primary"}
                                       fontWeight={500}
+                                      style={{
+                                        textTransform: "capitalize",
+                                      }}
                                     >
-                                      {eventCategory.name ?? "N/A"}
+                                      {limitWords(sport.name, 15)}
                                     </H6>
-                                    {/* {isDeleted && (
+                                    {isDeleted && (
                                       <Chip
                                         label="Deleted"
                                         size="small"
@@ -516,44 +496,33 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                                           fontSize: 11,
                                         }}
                                       />
-                                    )} */}
+                                    )}
                                   </Stack>
                                 </Stack>
                               </BodyTableCell>
-                              <BodyTableCell
-                                align="center"
-                                // isDeleted={isDeleted}
-                              >
-                                {eventCategory.description}
-                              </BodyTableCell>
-                              <BodyTableCell
-                                align="center"
-                                isDeleted={isDeleted}
-                              >
-                                {formatDate(eventCategory.createdAt)}
-                              </BodyTableCell>
-                              {/* <BodyTableCell align="left" isDeleted={isDeleted}>
-                                {geartype.createdBy ?? "N/A"}
-                              </BodyTableCell>
-                              <BodyTableCell align="left" isDeleted={isDeleted}>
-                                {geartype.createdByRole ?? "N/A"}
+                              {/* <BodyTableCell align="center" style={{textTransform:"capitalize"}} >
+                              <div>  {limitWords(sport.updatedBy,25)}</div>
+                              <div>  {limitWords(sport.updatedByRole,25)}</div>
+                              </BodyTableCell> */}
+                              {/* <BodyTableCell align="center" style={{textTransform:"capitalize"}}>
+                                {sport.updatedByRole ?? "N/A"}
                               </BodyTableCell> */}
                               <BodyTableCell
                                 align="center"
-                                isDeleted={isDeleted}
                                 style={{
                                   textTransform: "capitalize",
                                 }}
                               >
-                                {eventCategory.updatedBy ?? "N/A"}
+                                {formatDate(sport.createdAt)}
                               </BodyTableCell>
-
-                              {/* <BodyTableCell align="left" isDeleted={isDeleted}>
-                                {geartype.deletedBy ?? "N/A"}
+                              <BodyTableCell
+                                align="center"
+                                style={{
+                                  textTransform: "capitalize",
+                                }}
+                              >
+                                {limitWords(sport.createdBy, 25)}
                               </BodyTableCell>
-                              <BodyTableCell align="left" isDeleted={isDeleted}>
-                                {geartype.deletedByRole ?? "N/A"}
-                              </BodyTableCell> */}
 
                               {/* STATUS COLUMN */}
                               <BodyTableCell
@@ -566,42 +535,25 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                                   justifyContent="center"
                                   spacing={1}
                                 >
-                                  {loadingStates[eventCategory.id] ? (
+                                  {loadingStates[sport.id] ? (
                                     <CircularProgress size={20} />
                                   ) : (
                                     <>
                                       <Switch
                                         checked={
-                                          eventCategory?.isActive || false
+                                          sport?.isActive || false
                                         }
                                         onChange={(e) => {
                                           e.stopPropagation();
                                           handleStatusToggle(
-                                            eventCategory.id,
-                                            eventCategory.isActive,
+                                            sport.id,
+                                            sport.isActive,
                                             isDeleted
                                           );
                                         }}
                                         size="small"
                                         color="success"
-                                        disabled={isDeleted}
                                       />
-                                      {/* {!isDeleted && (
-                                        <Chip
-                                          label={
-                                            geartype?.isActive
-                                              ? "Active"
-                                              : "Inactive"
-                                          }
-                                          size="small"
-                                          color={
-                                            geartype?.isActive
-                                              ? "success"
-                                              : "default"
-                                          }
-                                          variant="outlined"
-                                        />
-                                      )} */}
                                     </>
                                   )}
                                 </Stack>
@@ -609,8 +561,8 @@ const filteredEventCategory = Array.isArray(eventsCategory)
 
                               {/* ACTIONS COLUMN */}
                               <BodyTableCell
-                                align="center"
-                                isDeleted={isDeleted}
+                                align="right"
+                                // isDeleted={isDeleted}
                               >
                                 <Stack
                                   direction="row"
@@ -632,10 +584,10 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                                           handleActionClick(
                                             e,
                                             "edit",
-                                            eventCategory
+                                            sport
                                           )
                                         }
-                                        disabled={isDeleted}
+                                        // disabled={isDeleted}
                                       >
                                         <EditIcon fontSize="small" />
                                       </IconButton>
@@ -656,10 +608,10 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                                           handleActionClick(
                                             e,
                                             "delete",
-                                            eventCategory
+                                            sport
                                           )
                                         }
-                                        disabled={isDeleted}
+                                        // disabled={isDeleted}
                                       >
                                         <DeleteIcon fontSize="small" />
                                       </IconButton>
@@ -671,7 +623,7 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                           );
                         })}
 
-                      {filteredEventCategory.length === 0 && (
+                      {filteredSports.length === 0 && (
                         <TableDataNotFound />
                       )}
                     </TableBody>
@@ -684,7 +636,7 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                 page={page}
                 component="div"
                 rowsPerPage={rowsPerPage}
-                count={filteredEventCategory.length}
+                count={filteredSports.length}
                 onPageChange={handleChangePage}
                 rowsPerPageOptions={[5, 10, 25]}
                 onRowsPerPageChange={handleChangeRowsPerPage}
@@ -695,17 +647,17 @@ const filteredEventCategory = Array.isArray(eventsCategory)
       </TabContext>
 
       {/* MODALS */}
-      <EditEventCategoryFormModal
+      <EditSportsFormModal
         open={openEditModal}
         handleClose={handleCloseEditModal}
-        data={{ id: eventCategoryId }}
+        sportId={{ id: sportId }}
       />
 
       <DeleteEventModal
         open={openDeleteModal}
         handleClose={handleCloseDeleteModal}
         title="Delete Confirmation"
-        message="Are you sure you want to Delete this gear type?"
+        message="Are you sure you want to Delete this Sport?"
         actions={[
           {
             label: "Cancel",

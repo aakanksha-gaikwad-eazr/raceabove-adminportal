@@ -164,6 +164,7 @@ export default function OrganizerDetailsPageView() {
                 aria-label="organizer details tabs"
                 variant="scrollable"
                 scrollButtons="auto"
+                style={{padding:"10px 20px"}}
               >
                 <Tab label="Overview" />
                 <Tab label="Events" />

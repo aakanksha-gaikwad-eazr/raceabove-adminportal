@@ -304,6 +304,16 @@ const SportsGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/sports/sports-grid-2"))
 );
 
+// platform Settings
+const AddNewPlatformSettings = Loadable(
+  lazy(() => import("@/pages/dashboard/platformsettings/add-new-platformSettings"))
+);
+
+const PlatformSettingsListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/platformsettings/platformsettings-list-2"))
+);
+
+
 // notification
 
 const NotificationListView2 = Loadable(
@@ -936,6 +946,8 @@ export const DashboardRoutes = [
         path: "addon-list-2",
         element: <AddonListView2 />,
       },
+
+      
       {
         path: "add-sports",
         element: <AddNewSports />,
@@ -956,6 +968,16 @@ export const DashboardRoutes = [
         path: "sports-grid-2",
         element: <SportsGridView2 />,
       },
+
+      {
+        path: "add-platformsettings",
+        element: <AddNewPlatformSettings />,
+      },
+      {
+        path: "platformsettings-list-2",
+        element: <PlatformSettingsListView2 />,
+      },
+  
 
       // notifications
 

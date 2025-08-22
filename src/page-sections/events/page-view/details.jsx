@@ -233,7 +233,7 @@ export default function EventsDetailsPageView() {
             {/* Event Banner */}
             <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
               <img
-                src={eventsData?.banner}
+                src={eventsData?.desktopCoverImage}
                 alt="Event Banner"
                 style={{
                   borderRadius: "15px",

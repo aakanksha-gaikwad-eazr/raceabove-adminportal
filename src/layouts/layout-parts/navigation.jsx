@@ -122,6 +122,6 @@ export const navigations = [
   {
     name: "Platform Setting",
     icon: duotone.DataTable,
-    path: "/",
+    path: "/platformsettings-list-2",
   },
 ];
