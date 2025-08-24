@@ -35,7 +35,7 @@ export default function AddNewPlatformSettingsPageView() {
   const navigate = useNavigate();
   const [isActive, setIsActive] = useState(true);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [iconFile, setIconFile] = useState(null); // Add this state
+  const [iconFile, setIconFile] = useState(null); 
 
   const initialValues = {
     name: "",
@@ -45,7 +45,7 @@ export default function AddNewPlatformSettingsPageView() {
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Sport name is required"),
     iconFile: Yup.mixed().required("Icon is required"),
-  });
+  }); 
 
   const {
     values,

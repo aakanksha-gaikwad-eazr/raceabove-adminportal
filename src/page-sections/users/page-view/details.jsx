@@ -2197,7 +2197,7 @@ export default function UserDetailsPageView() {
         <Grid size={{ md: 4, xs: 12 }}>
           <Grid container spacing={3}>
             {/* ORGANIZER DETAILS */}
-            <Grid size={12}>
+            {/* <Grid size={12}>
               <Card>
                 <Div>
                   <SectionHeader>
@@ -2232,14 +2232,14 @@ export default function UserDetailsPageView() {
                   )}
                 </Div>
               </Card>
-            </Grid>
+            </Grid> */}
 
             {/* STATUS */}
             <Grid size={12}>
               <Card>
                 <Div>
                   <SectionHeader>
-                    <Paragraph fontWeight={600}>Status</Paragraph>
+                    <Paragraph fontWeight={600}>User Status</Paragraph>
                   </SectionHeader>
                   <Switch checked={usersData?.isActive} />
                 </Div>

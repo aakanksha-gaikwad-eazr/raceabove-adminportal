@@ -117,9 +117,9 @@ export const updateOrganizer = createAsyncThunk('appOrganizers/updateOrganizer',
       throw new Error('Access token not found in localStorage')
     }
   
-    let url = `${ip}/v2/organizers/${req.editId}`
+    let url = `${ip}/v2/organizers/${req.id}`
 
-    const response = await axiosInstance.patch(url,req?.changedData, {
+    const response = await axiosInstance.patch(url,req?.data, {
       headers: {
         Authorization: `Bearer ${accessToken}`, 
       } 

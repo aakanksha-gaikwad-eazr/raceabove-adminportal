@@ -153,7 +153,7 @@ const headCells = [
 
 export default function PlatformSettingsListPageView() {
   const [searchFilter, setSearchFilter] = useState("");
-  const [selectedSport, setSelectedSport] = useState();
+  const [selectedSettings, setSelectedSettings] = useState();
   const [loadingStates, setLoadingStates] = useState({});
   const [selectTab, setSelectTab] = useState("active");
 
@@ -176,7 +176,7 @@ export default function PlatformSettingsListPageView() {
   });
 
   const dispatch = useDispatch();
-  const settings  = useSelector((state) => state);
+  const settings  = useSelector((state) => state.platformSettings);
     console.log("state",settings)
 
   useEffect(() => {
@@ -191,7 +191,7 @@ export default function PlatformSettingsListPageView() {
 
   // Filter sports based on tab selection and search
   const filteredSports = stableSort(
-    sports || [],
+    settings || [],
     getComparator(order, orderBy)
   ).filter((item) => {
     // Include deleted items but show them as disabled
@@ -221,17 +221,17 @@ export default function PlatformSettingsListPageView() {
   });
 
   useEffect(() => {
-    if (selectedSport) {
-      const updatedSport = sports?.find(
-        (sport) => sport.id === selectedSport.id
+    if (selectedSettings) {
+      const updatedSettings = settings?.find(
+        (sport) => sport.id === selectedSettings.id
       );
-      if (updatedSport) setSelectedSport(updatedSport);
+      if (updatedSettings) setSelectedSettings(updatedSettings);
     } else {
       // Select first available sport (including deleted ones for visibility)
       const firstSport = sports?.[0];
-      if (firstSport) setSelectedSport(firstSport);
+      if (firstSport) setSelectedSettings(firstSport);
     }
-  }, [sports, selectedSport]);
+  }, [sports, selectedSettings]);
 
   const handleStatusToggle = async (
     sportId,
@@ -269,8 +269,8 @@ export default function PlatformSettingsListPageView() {
 
         await dispatch(getSports());
 
-        if (selectedSport?.id === sportId) {
-          setSelectedSport((prevSelected) => ({
+        if (selectedSettings?.id === sportId) {
+          setSelectedSettings((prevSelected) => ({
             ...prevSelected,
             isActive: !currentStatus,
           }));
@@ -443,10 +443,10 @@ export default function PlatformSettingsListPageView() {
                             <BodyTableRow
                               key={sport.id}
                               active={
-                                selectedSport?.id === sport.id ? 1 : 0
+                                selectedSettings?.id === sport.id ? 1 : 0
                               }
                               isDeleted={isDeleted}
-                              onClick={() => setSelectedSport(sport)}
+                              onClick={() => setSelectedSettings(sport)}
                             >
                               <BodyTableCell align="left">
                                 {page * rowsPerPage + ind + 1}

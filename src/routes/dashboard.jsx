@@ -612,7 +612,7 @@ export const DashboardRoutes = [
         element: <AddNewUser />,
       },
       {
-        path: "edit-user",
+        path: "edit-user/:id",
         element: <EditUser />,
       },
       {
@@ -701,7 +701,7 @@ export const DashboardRoutes = [
         element: <AddNewOrganiser />,
       },
       {
-        path: "edit-organiser",
+        path: "edit-organiser/:id",
         element: <EditOrganiser />,
       },
       {

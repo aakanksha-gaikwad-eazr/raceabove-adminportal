@@ -44,6 +44,7 @@ export const store = configureStore({
     faq,
     employee,
     Notification,
+    platformSettings,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
