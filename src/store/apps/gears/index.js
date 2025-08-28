@@ -67,12 +67,6 @@ export const createGears = createAsyncThunk(
 
       const url = `${ip}/v2/gears`;
 
-      // Debug log formData content
-      // if (formData?.forEach) {
-      //   formData.forEach((value, key) => {
-      //     console.log(`🧾 ${key}:`, value);
-      //   });
-      // }
 
       const response = await axiosInstance.post(url, formData, {
         headers: {
