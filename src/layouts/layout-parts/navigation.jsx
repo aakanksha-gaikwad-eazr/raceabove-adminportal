@@ -114,9 +114,5 @@ export const navigations = [
     icon: duotone.Invoice,
     path: "/employee-list-2",
   },
-  {
-    name: "Platform Setting",
-    icon: duotone.Invoice,
-    path: "/coupons-list-2",
-  },
+
 ];
