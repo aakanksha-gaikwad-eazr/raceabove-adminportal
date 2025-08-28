@@ -77,7 +77,7 @@ const headCells = [
     numeric: false,
     disablePadding: false,
     label: "Content",
-    width: "25%",
+    width: "15%",
     align: "center",
   },
   {
@@ -342,7 +342,7 @@ export default function PrivacyPolicy2PageView() {
     }
   };
 
-  const MultiLineContentCell = ({ content, maxLines = 2 }) => (
+  const MultiLineContentCell = ({ content, maxLines = 1 }) => (
     <Box
       sx={{
         display: "-webkit-box",
@@ -357,7 +357,7 @@ export default function PrivacyPolicy2PageView() {
         textAlign: "left",
         px: 1,
       }}
-      title={content}
+ 
     >
       {content || "N/A"}
     </Box>
@@ -497,7 +497,7 @@ export default function PrivacyPolicy2PageView() {
                               <BodyTableCell align="center">
                                 <MultiLineContentCell
                                   content={pp.content}
-                                  maxLines={2}
+                                  maxLines={1}
                                 />
                               </BodyTableCell>
                               <BodyTableCell align="center">

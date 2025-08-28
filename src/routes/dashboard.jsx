@@ -48,21 +48,22 @@ const UserDetails = Loadable(
   lazy(() => import("@/pages/dashboard/users/details"))
 );
 
+//adlready exist as admins
 //  employee
 
-const EmployeeListView2 = Loadable(
-  lazy(() => import("@/pages/dashboard/employee/employee-list-2"))
-);
+// const EmployeeListView2 = Loadable(
+//   lazy(() => import("@/pages/dashboard/employee/employee-list-2"))
+// );
 
-const AddNewEmployee = Loadable(
-  lazy(() => import("@/pages/dashboard/employee/add-new-employee"))
-);
+// const AddNewEmployee = Loadable(
+//   lazy(() => import("@/pages/dashboard/employee/add-new-employee"))
+// );
 
-const EditEmployee = Loadable(
-  lazy(() => import("@/pages/dashboard/employee/edit-employee"))
-);
+// const EditEmployee = Loadable(
+//   lazy(() => import("@/pages/dashboard/employee/edit-employee"))
+// );
 
-//admin
+//admin are employee
 
 const AddNewAdmin = Loadable(
   lazy(() => import("@/pages/dashboard/admin/add-new-admin"))
@@ -303,6 +304,16 @@ const SportsGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/sports/sports-grid-2"))
 );
 
+// platform Settings
+const AddNewPlatformSettings = Loadable(
+  lazy(() => import("@/pages/dashboard/platformsettings/add-new-platformSettings"))
+);
+
+const PlatformSettingsListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/platformsettings/platformsettings-list-2"))
+);
+
+
 // notification
 
 const NotificationListView2 = Loadable(
@@ -329,6 +340,25 @@ const GearTypesListView2 = Loadable(
 );
 const GearTypesGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/geartypes/geartypes-grid-2"))
+);
+
+
+// event category
+const AddNewEventCategory = Loadable(
+  lazy(() => import("@/pages/dashboard/eventcategory/add-new-eventcategory"))
+);
+const EventCategoryListView = Loadable(
+  lazy(() => import("@/pages/dashboard/eventcategory/eventcategory-list-1"))
+);
+
+const EventCategoryGridView = Loadable(
+  lazy(() => import("@/pages/dashboard/eventcategory/eventcategory-grid-1"))
+);
+const EventCategoryListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/eventcategory/eventcategory-list-2"))
+);
+const EventCategoryGridView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/eventcategory/eventcategory-grid-2"))
 );
 
 // Gears
@@ -582,7 +612,7 @@ export const DashboardRoutes = [
         element: <AddNewUser />,
       },
       {
-        path: "edit-user",
+        path: "edit-user/:id",
         element: <EditUser />,
       },
       {
@@ -602,20 +632,20 @@ export const DashboardRoutes = [
         element: <UserGridView2 />,
       },
       {
-        path: "user-details",
+        path: "user-details/:id",
         element: <UserDetails />,
       },
 
       // employee
 
-      {
-        path: "add-employee",
-        element: <AddNewEmployee />,
-      },
-      {
-        path: "edit-employee",
-        element: <EditEmployee />,
-      },
+      // {
+      //   path: "add-employee",
+      //   element: <AddNewEmployee />,
+      // },
+      // {
+      //   path: "edit-employee",
+      //   element: <EditEmployee />,
+      // },
       // {
       //   path: "user-list",
       //   element: <UserListView />,
@@ -624,10 +654,10 @@ export const DashboardRoutes = [
       //   path: "user-grid",
       //   element: <UserGridView />,
       // },
-      {
-        path: "employee-list-2",
-        element: <EmployeeListView2 />,
-      },
+      // {
+      //   path: "employee-list-2",
+      //   element: <EmployeeListView2 />,
+      // },
       // {
       //   path: "user-grid-2",
       //   element: <UserGridView2 />,
@@ -640,27 +670,27 @@ export const DashboardRoutes = [
       //admin
 
       {
-        path: "add-admin",
+        path: "add-employee",
         element: <AddNewAdmin />,
       },
       {
-        path: "edit-admin/:id",
+        path: "edit-employee/:id",
         element: <EditAdmin />,
       },
       {
-        path: "admin-list",
+        path: "employee-list",
         element: <AdminListView />,
       },
       {
-        path: "admin-grid",
+        path: "employee-grid",
         element: <AdminGridView />,
       },
       {
-        path: "admin-list-2",
+        path: "employee-list-2",
         element: <AdminListView2 />,
       },
       {
-        path: "admin-grid-2",
+        path: "employee-grid-2",
         element: <AdminGridView2 />,
       },
 
@@ -671,7 +701,7 @@ export const DashboardRoutes = [
         element: <AddNewOrganiser />,
       },
       {
-        path: "edit-organiser",
+        path: "edit-organiser/:id",
         element: <EditOrganiser />,
       },
       {
@@ -916,6 +946,8 @@ export const DashboardRoutes = [
         path: "addon-list-2",
         element: <AddonListView2 />,
       },
+
+      
       {
         path: "add-sports",
         element: <AddNewSports />,
@@ -936,6 +968,16 @@ export const DashboardRoutes = [
         path: "sports-grid-2",
         element: <SportsGridView2 />,
       },
+
+      {
+        path: "add-platformsettings",
+        element: <AddNewPlatformSettings />,
+      },
+      {
+        path: "platformsettings-list-2",
+        element: <PlatformSettingsListView2 />,
+      },
+  
 
       // notifications
 
@@ -963,6 +1005,22 @@ export const DashboardRoutes = [
       {
         path: "geartypes-grid-2",
         element: <GearTypesGridView2 />,
+      },
+      {
+        path: "eventcategory-list",
+        element: <EventCategoryListView />,
+      },
+      {
+        path: "eventcategory-grid",
+        element: <EventCategoryGridView />,
+      },
+      {
+        path: "eventcategory-list-2",
+        element: <EventCategoryListView2 />,
+      },
+      {
+        path: "eventcategory-grid-2",
+        element: <EventCategoryGridView2 />,
       },
       {
         path: "add-gears",

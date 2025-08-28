@@ -1,75 +1,60 @@
 import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid2';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem'; // CUSTOM COMPONENTS
+import { H6 } from '@/components/typography';
 
-import ConnectionCard from './ConnectionCard';
-import { H6, Span } from '@/components/typography';
-import FlexBetween from '@/components/flexbox/FlexBetween'; // CUSTOM DUMMY DATA
+export default function WalletDetails({ wallet }) {
+  const hasData =
+    wallet &&
+    (wallet.balance !== undefined ||
+      wallet.totalCoinsEarned !== undefined ||
+      wallet.totalCoinsUsed !== undefined);
 
-const CONNECTION_LIST = [{
-  id: 1,
-  connected: false,
-  name: 'Miphoshka',
-  position: 'Visual Designer',
-  img: '/static/user/user-11.png'
-}, {
-  id: 2,
-  connected: true,
-  name: 'Tim Carrey',
-  position: 'Visual Designer',
-  img: '/static/user/user-10.png'
-}, {
-  id: 3,
-  connected: false,
-  name: 'Edward Norton',
-  position: 'Visual Designer',
-  img: '/static/user/user-9.png'
-}, {
-  id: 4,
-  connected: true,
-  name: 'Eva Mendes',
-  position: 'Visual Designer',
-  img: '/static/user/user-8.png'
-}, {
-  id: 5,
-  connected: false,
-  name: 'Vida Lao',
-  position: 'Visual Designer',
-  img: '/static/user/user-7.png'
-}, {
-  id: 6,
-  connected: false,
-  name: 'Angelina',
-  position: 'Visual Designer',
-  img: '/static/user/user-6.png'
-}];
-export default function Connections() {
-  return <Box py={3}>
-      <Grid container spacing={3}>
-        <Grid size={12}>
-          <FlexBetween flexWrap="wrap">
-            <H6 fontSize={16} mb={1}>
-              My Connections{' '}
-              <Span fontSize={14} fontWeight={400} color="text.secondary">
-                (100+ Resources)
-              </Span>
-            </H6>
+  if (!hasData) {
+    return (
+      <Box py={2}>
+        <H6 fontSize={16} mb={2}>
+          Wallet Details
+        </H6>
+        <Typography variant="body2" color="text.secondary">
+          No data available
+        </Typography>
+      </Box>
+    );
+  }
 
-            <Select defaultValue="active" size="small">
-              <MenuItem value="active">Active</MenuItem>
-              <MenuItem value="deactivate">Deactivate</MenuItem>
-            </Select>
-          </FlexBetween>
+  return (
+    <Box py={2}>
+      <H6 fontSize={16} mb={2}>
+        Wallet Details
+      </H6>
+
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <Typography variant="body2" color="text.secondary">
+            Balance
+          </Typography>
+          <Typography variant="h6">{wallet.balance} Coins</Typography>
         </Grid>
 
-        {CONNECTION_LIST.map(item => <Grid size={{
-        md: 4,
-        sm: 6,
-        xs: 12
-      }} key={item.id}>
-            <ConnectionCard img={item.img} name={item.name} position={item.position} connected={item.connected} />
-          </Grid>)}
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <Typography variant="body2" color="text.secondary">
+            Total Coins Earned
+          </Typography>
+          <Typography variant="h6" color="success.main">
+            {wallet.totalCoinsEarned} Coins
+          </Typography>
+        </Grid>
+
+        <Grid size={{ xs: 12, sm: 4 }}>
+          <Typography variant="body2" color="text.secondary">
+            Total Coins Used
+          </Typography>
+          <Typography variant="h6" color="error.main">
+            {wallet.totalCoinsUsed} Coins
+          </Typography>
+        </Grid>
       </Grid>
-    </Box>;
+    </Box>
+  );
 }

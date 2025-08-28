@@ -21,6 +21,7 @@ import privacypolicy from './apps/privacypolicy'
 import faq from './apps/faq'
 import employee from "./apps/employee";
 import Notification from "./apps/notification";
+import platformSettings from "./apps/platformsettings";
 
 export const store = configureStore({
   reducer: {
@@ -43,6 +44,7 @@ export const store = configureStore({
     faq,
     employee,
     Notification,
+    platformSettings,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -98,6 +98,12 @@ const headCells = [
     label: "Email",
   },
   {
+    id: "location",
+    numeric: true,
+    disablePadding: false,
+    label: "Location",
+  },
+  {
     id: "gender",
     numeric: true,
     disablePadding: false,
@@ -109,12 +115,12 @@ const headCells = [
     disablePadding: false,
     label: "Status",
   },
-  {
-    id: "actions",
-    numeric: false,
-    disablePadding: false,
-    label: "Actions",
-  },
+  // {
+  //   id: "actions",
+  //   numeric: false,
+  //   disablePadding: false,
+  //   label: "Actions",
+  // },
 ];
 
 export default function UserList2PageView() {
@@ -403,6 +409,14 @@ export default function UserList2PageView() {
                                   {user.email ?? "No Email"}
                                 </span>
                               </BodyTableCell>
+                              <BodyTableCell align="center">
+                                <p style={{ color: isDeleted ? 'rgba(0,0,0,0.4)' : 'inherit' }}>
+                                  {user.city ?? "No Location"}
+                                </p>
+                                <span style={{ color: isDeleted ? 'rgba(0,0,0,0.4)' : 'inherit' }}>
+                                 {user?.state}
+                                </span>
+                              </BodyTableCell>
 
                               <BodyTableCell align="center">
                                 <span style={{ color: isDeleted ? 'rgba(0,0,0,0.4)' : 'inherit' }}>
@@ -438,7 +452,7 @@ export default function UserList2PageView() {
                               </BodyTableCell>
 
                               {/* ACTIONS COLUMN */}
-                              <BodyTableCell align="center">
+                              {/* <BodyTableCell align="center">
                                 <Stack direction="row" spacing={1} justifyContent="center">
                                   <Tooltip
                                     title={isDeleted ? "Cannot edit deleted items" : "Edit"}
@@ -455,7 +469,7 @@ export default function UserList2PageView() {
                                     </span>
                                   </Tooltip>
                                 </Stack>
-                              </BodyTableCell>
+                              </BodyTableCell> */}
                             </BodyTableRow>
                           );
                         })}

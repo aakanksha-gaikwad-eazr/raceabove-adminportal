@@ -323,16 +323,26 @@ export default function EditTicketTemplatePageView() {
                         </MenuItem>
                       ))}
                     </Select>
+
                     {touched.ticketTypeId && errors.ticketTypeId && (
                       <FormHelperText>{errors.ticketTypeId}</FormHelperText>
                     )}
                   </FormControl>
+                  
+                 
+             
                   {/* Debug info */}
                   {/* <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
                     Current selected: {values.ticketTypeId || 'None'} | 
                     Available: {tickettypes?.length || 0} types
                   </div> */}
                 </Grid>
+
+
+                
+
+                
+                  
                 {/* Remove the duplicate ticketTypeId TextField */}
                 <Grid size={12}>
                   <Button type="submit" variant="contained">

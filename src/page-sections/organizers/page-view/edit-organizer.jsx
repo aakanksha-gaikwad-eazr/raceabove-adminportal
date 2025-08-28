@@ -21,7 +21,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { createUser, updateUser } from "../../../store/apps/user";
 import toast from "react-hot-toast";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { Checkbox, ListItemText } from "@mui/material";
 import { getTargets } from "@/store/apps/target";
@@ -29,6 +34,7 @@ import { FlexBox } from "@/components/flexbox";
 import { Wallet } from "@mui/icons-material";
 import { updateOrganizer } from "@/store/apps/organisers";
 import { getOrganizers } from "@/store/apps/organisers";
+import { getSingleOrganizers } from "@/store/apps/organisers";
 
 const SwitchWrapper = styled("div")({
   width: "100%",
@@ -69,8 +75,15 @@ export default function EditOrganizerPageView() {
   //store
   const dispatch = useDispatch();
   const { organisers } = useSelector((state) => state.organisers);
-  const { state } = useLocation();
-  const data = state?.user;
+  const { singleOrganizer } = useSelector((state) => state.organisers);
+
+  const { id } = useParams();
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getSingleOrganizers(id));
+    }
+  }, [id, dispatch]);
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -85,12 +98,15 @@ export default function EditOrganizerPageView() {
   };
 
   const initialValues = {
-    name: data?.name || "",
-    email: data?.email || "",
-    phoneNumber: data?.phoneNumber?.replace(/^\+91/, "") || "",
-    companyName: data?.companyName,
+    name: singleOrganizer?.name || "",
+    email: singleOrganizer?.email || "",
+    phoneNumber: singleOrganizer?.phoneNumber?.replace(/^\+91/, "") || "",
+    companyName: singleOrganizer?.companyName || "",
+    commission: singleOrganizer?.commission || "",
     companyLogoFile: null,
-    commission: data?.commission,
+    isActive: singleOrganizer?.isActive ?? true,
+    approvalStatus: singleOrganizer?.approvalStatus || "pending",
+    reviewReason: singleOrganizer?.reviewReason || "",
   };
 
   const validationSchema = Yup.object({
@@ -109,37 +125,71 @@ export default function EditOrganizerPageView() {
   });
 
   //handle edit user
-  const handleUpdateOrganizer = async (values, setSubmitting) => {
-    console.log("clciked", values);
-    try {
-      const formData = new FormData();
+  // const handleUpdateOrganizer = async (values, setSubmitting) => {
+  //   console.log("clciked", values);
+  //   try {
+  //     // const formData = new FormData();
 
-      // Append all form values
-      Object.keys(values).forEach((key) => {
-        if (key === "profilePhoto" && values[key] instanceof File) {
-          formData.append("profilePhoto", values[key]);
-        } else if (key === "phoneNumber") {
-          // Prepend +91 before submitting
-          formData.append("phoneNumber", `+91${values[key]}`);
+  //     // Append all form values
+  //     Object.keys(values).forEach((key) => {
+  //       if (key === "profilePhoto" && values[key] instanceof File) {
+  //         formData.append("profilePhoto", values[key]);
+  //       } else if (key === "phoneNumber") {
+  //         // Prepend +91 before submitting
+  //         formData.append("phoneNumber", `+91${values[key]}`);
+  //       } else {
+  //         formData.append(key, values[key]);
+  //       }
+  //     });
+
+  //     console.log("formdata", formData);
+
+  //     dispatch(updateOrganizer({ id: data?.id, data: formData })).then(
+  //       (response) => {
+  //         if (response?.payload?.status === 200) {
+  //           toast.success("Organizer updated successfully!");
+  //           dispatch(getOrganizers());
+  //           setUpdate();
+  //           localStorage.setItem("update", JSON.stringify({ updatekey: true }));
+  //         } else {
+  //           toast.error(response?.message || "Something went wrong.");
+  //         }
+  //       }
+  //     );
+  //   } catch (error) {
+  //     toast.error("Failed to update Organizer. Please try again.");
+  //   } finally {
+  //     setSubmitting(false);
+  //   }
+  // };
+
+  const handleUpdateOrganizer = async (values, setSubmitting) => {
+    console.log("clicked", values);
+    try {
+      // ✅ Construct plain JSON instead of FormData
+      const payload = {
+        name: values.name,
+        email: values.email,
+        phoneNumber: `+91${values.phoneNumber}`, // backend expects full number
+        companyName: values.companyName,
+        commission: Number(values.commission),
+        isActive: values.isActive ?? true, // bind this to your Switch
+        approvalStatus: "pending", // default or from form
+        reviewReason: values.reviewReason || "N/A",
+      };
+
+      console.log("payload", payload)
+
+      dispatch(updateOrganizer({ id, data: payload })).then((response) => {
+        if (response?.payload?.status === 200) {
+          toast.success("Organizer updated successfully!");
+          dispatch(getOrganizers());
+          navigate('/organiser-list-2')
+          localStorage.setItem("update", JSON.stringify({ updatekey: true }));
         } else {
-          formData.append(key, values[key]);
+          toast.error(response?.message || "Something went wrong.");
         }
       });
-
-      console.log("formdata", formData);
-
-      dispatch(updateOrganizer({ id: data?.id, data: formData })).then(
-        (response) => {
-          if (response?.payload?.status === 200) {
-            toast.success("Organizer updated successfully!");
-            dispatch(getOrganizers());
-            setUpdate();
-            localStorage.setItem("update", JSON.stringify({ updatekey: true }));
-          } else {
-            toast.error(response?.message || "Something went wrong.");
-          }
-        }
-      );
     } catch (error) {
       toast.error("Failed to update Organizer. Please try again.");
     } finally {
@@ -148,7 +198,7 @@ export default function EditOrganizerPageView() {
   };
 
   const [edImage, selectedImage, setSelectedImage] = useState(
-    data?.profilePhoto || "/static/avatar/001-man.svg"
+    singleOrganizer?.profilePhoto || "/static/avatar/001-man.svg"
   );
 
   const {
@@ -161,6 +211,7 @@ export default function EditOrganizerPageView() {
     setFieldValue,
   } = useFormik({
     initialValues,
+    enableReinitialize: true,
     validationSchema,
     onSubmit: (values, { setSubmitting }) => {
       handleUpdateOrganizer(values, setSubmitting);
@@ -328,7 +379,6 @@ export default function EditOrganizerPageView() {
                       onChange={handleChange}
                       helperText={touched.companyName && errors.companyName}
                       error={Boolean(touched.companyName && errors.companyName)}
-                      
                     />
                   </Grid>
                   <Grid
@@ -346,6 +396,43 @@ export default function EditOrganizerPageView() {
                       helperText={touched.commission && errors.commission}
                       error={Boolean(touched.commission && errors.commission)}
                     />
+                  </Grid>
+                  <Grid
+                    size={{
+                      sm: 6,
+                      xs: 12,
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      name="reviewReason"
+                      label="reviewReason"
+                      value={values.reviewReason}
+                      onChange={handleChange}
+                      helperText={touched.reviewReason && errors.reviewReason}
+                      error={Boolean(
+                        touched.reviewReason && errors.reviewReason
+                      )}
+                    />
+                  </Grid>
+                  <Grid
+                    size={{
+                      sm: 6,
+                      xs: 12,
+                    }}
+                  >
+                    <SwitchWrapper>
+                      <Paragraph display="block" fontWeight={600}>
+                       Approval Status
+                      </Paragraph>
+
+                      <Switch
+                      checked={values.approvalStatus}
+                      onChange={(e) =>
+                        setFieldValue("approvalStatus", e.target.checked)
+                      }/>
+                    </SwitchWrapper>
+        
                   </Grid>
 
                   <Grid

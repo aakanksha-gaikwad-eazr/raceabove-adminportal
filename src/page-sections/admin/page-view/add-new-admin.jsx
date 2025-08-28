@@ -83,9 +83,7 @@ export default function AddNewAdminPageView() {
       "image/webp",
     ];
     if (!validImageTypes.includes(file.type)) {
-      toast.error(
-        "Only image files (JPEG, PNG, GIF, WebP) are allowed!"
-      );
+      toast.error("Only image files (JPEG, PNG, GIF, WebP) are allowed!");
       return;
     }
     setSelectedFile(file);
@@ -126,23 +124,15 @@ export default function AddNewAdminPageView() {
       )
       .required("Phone Number is Required!"),
     companyName: Yup.string().required("Company Name is Required!"),
-    companyLogoFile: Yup.string().required(
-      "Company Logo is Required!"
-    ),
+    companyLogoFile: Yup.string().required("Company Logo is Required!"),
   });
 
-  const {
-    values,
-    errors,
-    handleChange,
-    handleSubmit,
-    touched,
-    handleBlur,
-  } = useFormik({
-    initialValues,
-    // validationSchema,
-    onSubmit: handleFormSubmit,
-  });
+  const { values, errors, handleChange, handleSubmit, touched, handleBlur } =
+    useFormik({
+      initialValues,
+      // validationSchema,
+      onSubmit: handleFormSubmit,
+    });
 
   const navigate = useNavigate();
 
@@ -170,14 +160,25 @@ export default function AddNewAdminPageView() {
       console.log("responseadmin>>", response);
 
       if (response?.status === 201) {
-        toast.success("Admin created successfully!");
-        navigate("/admin-list-2");
+        toast.success("Employee created successfully!");
+        navigate("/employee-list-2");
       } else {
-        throw new Error("Failed to create admin");
+        throw new Error("Failed to create Employee");
       }
     } catch (error) {
       console.error("❌ Error in form submission:", error);
-      toast.error(error?.message || "Failed to create admin");
+      const msg = error?.response?.data?.message || error?.message || "";
+
+      if (
+        msg.includes("duplicate key value") ||
+        msg.includes("UQ_82848f053b46b5766bc2cfdf5d8")
+      ) {
+        toast.error(
+          "This phone number has already been used for an Employee and cannot be reused."
+        );
+      } else {
+        toast.error(msg || "Failed to create Employee");
+      }
     }
   }
 
@@ -192,7 +193,7 @@ export default function AddNewAdminPageView() {
                   <GroupSenior sx={{ color: "primary.main" }} />
                 </IconWrapper>
                 <Paragraph fontSize={18} fontWeight="bold">
-                  Add New Admin
+                  Add New Employee
                 </Paragraph>
               </FlexBox>
             </Grid>
@@ -259,8 +260,7 @@ export default function AddNewAdminPageView() {
                   textAlign="center"
                   color="text.secondary"
                 >
-                  Allowed *.jpeg, *.jpg, *.png, *.gif max size of 3.1
-                  MB
+                  Allowed *.jpeg, *.jpg, *.png, *.gif max size of 3.1 MB
                 </Paragraph>
               </StyledCard>
             </Grid>
@@ -326,12 +326,8 @@ export default function AddNewAdminPageView() {
                       value={values.phoneNumber}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      helperText={
-                        touched.phoneNumber && errors.phoneNumber
-                      }
-                      error={Boolean(
-                        touched.phoneNumber && errors.phoneNumber
-                      )}
+                      helperText={touched.phoneNumber && errors.phoneNumber}
+                      error={Boolean(touched.phoneNumber && errors.phoneNumber)}
                     />
                   </Grid>
 
@@ -349,12 +345,8 @@ export default function AddNewAdminPageView() {
                       value={values.companyName}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      helperText={
-                        touched.companyName && errors.companyName
-                      }
-                      error={Boolean(
-                        touched.companyName && errors.companyName
-                      )}
+                      helperText={touched.companyName && errors.companyName}
+                      error={Boolean(touched.companyName && errors.companyName)}
                     />
                   </Grid>
 

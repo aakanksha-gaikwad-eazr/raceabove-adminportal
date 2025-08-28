@@ -48,8 +48,7 @@ export default function CampaignCard({ item }) {
   return (
     <Card className="p-3" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header with Status Chips */}
-      <FlexBetween mb={2}>
-        <Stack direction="row" spacing={1}>
+      <FlexBetween mb={2}  direction="row" spacing={1} style={{textTransform:"capitalize"}}>
           <Chip
             label={item?.approvalStatus || "pending"}
             color={getStatusColor(item?.approvalStatus)}
@@ -61,10 +60,7 @@ export default function CampaignCard({ item }) {
             color={getActiveStatusColor(item?.isActive)}
             size="small"
           />
-        </Stack>
-        <IconButton size="small">
-          <MoreHoriz />
-        </IconButton>
+    
       </FlexBetween>
 
       {/* Banner Image */}
@@ -96,7 +92,8 @@ export default function CampaignCard({ item }) {
         textOverflow: "ellipsis",
         whiteSpace: "nowrap",
         fontWeight: 600
-      }}>
+      }}
+       style={{textTransform:"capitalize"}}>
         {item?.title || "Untitled Event"}
       </H6>
 
@@ -140,11 +137,12 @@ export default function CampaignCard({ item }) {
               fontSize={12} 
               fontWeight={500}
               sx={{ 
-                maxWidth: '120px',
+                maxWidth: '110px',
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap"
               }}
+               style={{textTransform:"capitalize"}}
             >
               {item?.location?.address || "N/A"}
             </Paragraph>
