@@ -44,16 +44,16 @@ export default function HeadingArea({
         </IconWrapper>
 
         <Paragraph fontSize={20} fontWeight="bold">
-          Admins
+          Employee
         </Paragraph>
       </FlexBox>
 
       <Button
         variant="contained"
         startIcon={<Add />}
-        onClick={() => navigate("/add-admin")}
+        onClick={() => navigate("/add-employee")}
       >
-        Add New Admin
+        Add New Employee
       </Button>
     </FlexBetween>
   ); 

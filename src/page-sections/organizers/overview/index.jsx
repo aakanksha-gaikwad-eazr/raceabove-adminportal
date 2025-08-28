@@ -12,8 +12,8 @@ import Portfolio from "./portfolios";
 import MyConnections from "./my-connection";
 import AdditionalDetails from "./additional-details";
 
-export default function Overview({ allDataOfSingleUser }) {
-  if (!allDataOfSingleUser) {
+export default function Overview({ singleOrganizer }) {
+  if (!singleOrganizer) {
     return (
       <Box mt={3} display="flex" justifyContent="center" alignItems="center" minHeight="200px">
         <Typography variant="h6" color="text.secondary">
@@ -34,12 +34,12 @@ export default function Overview({ allDataOfSingleUser }) {
           }}
         >
           <Stack spacing={3}>
-            <Summery allDataOfSingleUser={allDataOfSingleUser} />
+            <Summery singleOrganizer={singleOrganizer} />
             {/* <Skills /> */}
-            {/* <Teams allDataOfSingleUser={allDataOfSingleUser}/> */}
+            {/* <Teams singleOrganizer={singleOrganizer}/> */}
             {/* <Hobbies /> */}
 
-            {/* <Posts allDataOfSingleUser={allDataOfSingleUser} /> */}
+            {/* <Posts singleOrganizer={singleOrganizer} /> */}
             {/* <Portfolio /> */}
           </Stack>
         </Grid>
@@ -52,8 +52,8 @@ export default function Overview({ allDataOfSingleUser }) {
           }}
         >
           <Stack spacing={3}>
-            <MyConnections allDataOfSingleUser={allDataOfSingleUser} />
-            {/* <AdditionalDetails allDataOfSingleUser={allDataOfSingleUser} /> */}
+            <MyConnections singleOrganizer={singleOrganizer} />
+            {/* <AdditionalDetails singleOrganizer={singleOrganizer} /> */}
           </Stack>
         </Grid>
       </Grid>

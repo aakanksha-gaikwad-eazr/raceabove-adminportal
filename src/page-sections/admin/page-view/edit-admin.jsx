@@ -95,7 +95,7 @@ export default function EditAdminPageView() {
         });
         setSelectedImage(data.companyLogo);
       } else {
-        toast.error("Failed to fetch admin details");
+        toast.error("Failed to fetch Employee details");
       }
     });
   }, [id, dispatch]);
@@ -126,10 +126,10 @@ export default function EditAdminPageView() {
         updateAdmin({ editId: id, changedData: formData })
       ).unwrap();
       if (response?.status === 200) {
-        toast.success("Admin updated successfully!");
-        navigate("/admin-list-2");
+        toast.success("Employee updated successfully!");
+        navigate("/employee-list-2");
       } else {
-        toast.error(response?.message || "Failed to update admin");
+        toast.error(response?.message || "Failed to update Employee");
       }
     } catch (err) {
       console.error(err);
@@ -148,7 +148,7 @@ export default function EditAdminPageView() {
                   <GroupSenior sx={{ color: "primary.main" }} />
                 </IconWrapper>
                 <Paragraph fontSize={18} fontWeight="bold">
-                  Edit Admin
+                  Edit Employee
                 </Paragraph>
               </Box>
             </Grid>
@@ -260,7 +260,7 @@ export default function EditAdminPageView() {
 
                   <Grid item xs={12}>
                     <Button type="submit" variant="contained">
-                      Update Admin
+                      Update Employee
                     </Button>
                   </Grid>
                 </Grid>

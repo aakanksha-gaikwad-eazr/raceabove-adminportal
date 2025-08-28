@@ -53,6 +53,11 @@ export const navigations = [
     path: "/geartypes-list-2",
   },
   {
+    name: "Event Categories",
+    icon: duotone.DiagramProject,
+    path: "/eventcategory-list-2",
+  },
+  {
     name: "Targets",
     icon: duotone.DataTable,
     path: "/targets-grid",
@@ -69,11 +74,11 @@ export const navigations = [
     path: "/addoncategory-list-2",
   },
 
-  {
-    name: "Ticket Type",
-    icon: duotone.Accounts,
-    path: "/ticket-type-list-2",
-  },
+  // {
+  //   name: "Ticket Type",
+  //   icon: duotone.Accounts,
+  //   path: "/ticket-type-list-2",
+  // },
   {
     name: "Ticket Template",
     icon: duotone.Pages,
@@ -111,12 +116,12 @@ export const navigations = [
   },
   {
     name: "Employee",
-    icon: duotone.Invoice,
+    icon: duotone.Accounts,
     path: "/employee-list-2",
   },
   {
     name: "Platform Setting",
-    icon: duotone.Invoice,
-    path: "/coupons-list-2",
+    icon: duotone.DataTable,
+    path: "/platformsettings-list-2",
   },
 ];

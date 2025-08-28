@@ -146,8 +146,8 @@ export default function Layout({
           <Tab disableRipple label="Challenge" value="2" />
           <Tab disableRipple label="Events" value="3" />
           {/* <Tab disableRipple label="Documents" value="4" /> */}
-          {/* <Tab disableRipple label="Connections" value="5" /> */}
-          <Tab disableRipple label="Activity" value="6" />
+          <Tab disableRipple label="Wallet" value="5" />
+          <Tab disableRipple label="Targets" value="6" />
         </StyledTabList>
       </Card>
 

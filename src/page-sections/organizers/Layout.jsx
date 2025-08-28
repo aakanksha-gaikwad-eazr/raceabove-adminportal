@@ -141,9 +141,11 @@ export default function Layout({ children, handleTabList, singleOrganizer }) {
           <Tab disableRipple label="Overview" value="1" />
           <Tab disableRipple label="Challenge" value="2" />
           <Tab disableRipple label="Events" value="3" />
-          <Tab disableRipple label="Tickets" value="4" />
+          <Tab disableRipple label="Coupons" value="4" />
           <Tab disableRipple label="Terms" value="5" />
-          <Tab disableRipple label="Activity" value="6" />
+          <Tab disableRipple label="Products" value="6" />
+          <Tab disableRipple label="Ticket" value="7" />
+          <Tab disableRipple label="Activity" value="8" />
         </StyledTabList>
       </Card>
 

@@ -117,20 +117,23 @@ export default function AddNewUserPageView() {
     toast.success("Image uploaded successfully!");
   };
 
-  const initialValues = {
-    name: "",
-    email: "",
-    phoneNumber: "",
-    age: "",
-    targets: [],
-    exerciseLevel: "",
-    activitiesCount: "",
-    height: "",
-    weight: "",
-    gender: "",
-    reminder: "",
-    profilePhoto: null,
-  };
+ const initialValues = {
+  name: "",
+  email: "",
+  phoneNumber: "",
+  dateOfBirth: "",
+  city: "",
+  state: "",
+  dailyStepsTarget: 0,
+  targets: [],
+  exerciseLevel: "",
+  activitiesCount: "",
+  height: "",
+  weight: "",
+  gender: "",
+  isActive: true,
+};
+
 
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Name is Required!"),
@@ -139,6 +142,9 @@ export default function AddNewUserPageView() {
       .matches(/^\d{10}$/, "Phone number must be 10 digits long")
       .required("Phone Number is Required!"),
     age: Yup.number().required("age is Required!"),
+dateOfBirth: Yup.string()
+  .matches(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD")
+  .required("Date of Birth is required!"),
     targets: Yup.array()
       .min(1, "Select at least one target")
       .required("Targets are required!"),
@@ -182,58 +188,101 @@ export default function AddNewUserPageView() {
 
   const navigate = useNavigate();
 
-  async function handleFormSubmit(formData) {
-    console.log("form", formData);
+  // async function handleFormSubmit(formData) {
+  //   console.log("form", formData);
     
-    // Check if profile photo is selected
-    if (!selectedFile) {
-      toast.error("Profile photo is required!");
-      return;
+  //   // Check if profile photo is selected
+  //   if (!selectedFile) {
+  //     toast.error("Profile photo is required!");
+  //     return;
+  //   }
+
+  //   // Create FormData object
+  //   const formDataToSend = new FormData();
+
+  //   // Append all form values
+  //   Object.keys(formData).forEach((key) => {
+  //     if (key === "phoneNumber") {
+  //       // Add +91 prefix to phone number
+  //       formDataToSend.append(key, `+91${formData[key]}`);
+  //     } else if (key === "targets") {
+  //       // Handle targets array
+  //       formData[key]
+  //         .filter((target) => !!target)
+  //         .forEach((target, i) =>
+  //           formDataToSend.append(`targets[${i}]`, target)
+  //         );
+  //     }else if(formData.dateOfBirth) {
+  //   const [year, month, day] = formData.dateOfBirth.split("-");
+  //   formData.dateOfBirth = `${day}/${month}/${year}`;
+  //     }else if (key === "profilePhoto") {
+  //       // Skip profilePhoto here, we'll add the actual file below
+  //       return;
+  //     } else {
+  //       formDataToSend.append(key, formData[key]);
+  //     }
+  //   });
+
+  //   // Append profile photo file
+  //   formDataToSend.append("profilePhoto", selectedFile);
+
+  //   try {
+  //     console.log("formdata to send", formDataToSend);
+  //     const response = await dispatch(
+  //       createUser(formDataToSend)
+  //     ).unwrap();
+
+  //     if (response?.status === 201) {
+  //       toast.success("User created successfully!");
+  //       navigate("/user-list-2");
+  //     } else {
+  //       throw new Error(response.message || "Failed to create user");
+  //     }
+  //   } catch (error) {
+  //     console.error("❌ Error in form submission:", error);
+  //     toast.error(error?.message);
+  //   }
+  // }
+
+ async function handleFormSubmit(formData, { resetForm }){
+  try {
+    // ✅ Convert dateOfBirth from YYYY-MM-DD → DD/MM/YYYY before sending
+    if (formData.dateOfBirth) {
+      const [year, month, day] = formData.dateOfBirth.split("-");
+      formData.dateOfBirth = `${day}/${month}/${year}`;
     }
 
-    // Create FormData object
     const formDataToSend = new FormData();
 
-    // Append all form values
     Object.keys(formData).forEach((key) => {
       if (key === "phoneNumber") {
-        // Add +91 prefix to phone number
         formDataToSend.append(key, `+91${formData[key]}`);
       } else if (key === "targets") {
-        // Handle targets array
-        formData[key]
-          .filter((target) => !!target)
-          .forEach((target, i) =>
-            formDataToSend.append(`targets[${i}]`, target)
-          );
-      } else if (key === "profilePhoto") {
-        // Skip profilePhoto here, we'll add the actual file below
-        return;
-      } else {
+        formData[key].forEach((target, index) => {
+          formDataToSend.append(`targets[${index}]`, target);
+        });
+      } else if (key !== "profilePhoto") {
         formDataToSend.append(key, formData[key]);
       }
     });
 
-    // Append profile photo file
-    formDataToSend.append("profilePhoto", selectedFile);
-
-    try {
-      console.log("formdata to send", formDataToSend);
-      const response = await dispatch(
-        createUser(formDataToSend)
-      ).unwrap();
-
-      if (response?.status === 201) {
-        toast.success("User created successfully!");
-        navigate("/user-list-2");
-      } else {
-        throw new Error(response.message || "Failed to create user");
-      }
-    } catch (error) {
-      console.error("❌ Error in form submission:", error);
-      toast.error(error?.message);
+    if (formData.profilePhoto) {
+      formDataToSend.append("profilePhoto", formData.profilePhoto);
     }
+
+    const response = await dispatch(createUser(formDataToSend)).unwrap();
+    if (response?.statusCode === 200) {
+      toast.success("User added successfully!");
+      resetForm();
+    } else {
+      toast.error("Failed to add user. Please try again.");
+    }
+  } catch (error) {
+    console.error("Error adding user:", error);
+    toast.error("Something went wrong. Please try again.");
   }
+};
+
 
   return (
     <div className="pt-2 pb-4">
@@ -517,6 +566,82 @@ export default function AddNewUserPageView() {
                       helperText={touched.height && errors.height}
                       error={Boolean(touched.height && errors.height)}
                       type="number"
+                    />
+                  </Grid>
+
+                  <Grid
+                    size={{
+                      sm: 6,
+                      xs: 12,
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      name="state"
+                      label="State"
+                      value={values.state}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      helperText={touched.state && errors.state}
+                      error={Boolean(touched.state && errors.state)}
+                      
+                    />
+                  </Grid>
+                  <Grid
+                    size={{
+                      sm: 6,
+                      xs: 12,
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      name="dailyStepsTarget"
+                      label="Daily Steps Target"
+                      value={values.dailyStepsTarget}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      helperText={touched.dailyStepsTarget && errors.dailyStepsTarget}
+                      error={Boolean(touched.dailyStepsTarget && errors.dailyStepsTarget)}
+                      
+                    />
+                  </Grid>
+                  <Grid
+                    size={{
+                      sm: 6,
+                      xs: 12,
+                    }}
+                  >
+               <TextField
+  fullWidth
+  type="date"
+  name="dateOfBirth"
+  label="Date of Birth"
+  InputLabelProps={{ shrink: true }}
+  value={values.dateOfBirth}   // keep YYYY-MM-DD here
+  onChange={handleChange}
+  onBlur={handleBlur}
+  helperText={touched.dateOfBirth && errors.dateOfBirth}
+  error={Boolean(touched.dateOfBirth && errors.dateOfBirth)}
+/>
+
+
+                  </Grid>
+                  <Grid
+                    size={{
+                      sm: 6,
+                      xs: 12,
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      name="city"
+                      label="City (cm)"
+                      value={values.city}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      helperText={touched.city && errors.city}
+                      error={Boolean(touched.city && errors.city)}
+                      
                     />
                   </Grid>
 

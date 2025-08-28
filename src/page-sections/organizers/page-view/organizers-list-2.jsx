@@ -157,10 +157,10 @@ export default function OrganizersList2PageView() {
   }, [allOrganisers]);
 
   const handleEditClick = (e, organiser) => {
-      console.log("clciked")
+      console.log("clciked",organiser)
     e.stopPropagation();
     setOrganiserToEdit(organiser);
-  navigate('/edit-organiser', { state: { organiser } });
+  navigate(`/edit-organiser/${organiser.id}`);
   };
 
   const handleDeleteClick = (e, organiser) => {
@@ -301,7 +301,7 @@ export default function OrganizersList2PageView() {
                               </H6>
                             </Stack>
                           </BodyTableCell>
-                          <BodyTableCell>
+                          <BodyTableCell align="center">
                             {organiser?.commission ?? "N/A"}
                           </BodyTableCell>
                           <BodyTableCell>

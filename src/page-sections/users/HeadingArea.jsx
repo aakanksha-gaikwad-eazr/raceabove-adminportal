@@ -44,13 +44,13 @@ export default function HeadingArea({
         </Paragraph>
       </FlexBox>
 
-      <Button
+      {/* <Button
         variant="contained"
         startIcon={<Add />}
         onClick={() => navigate("/add-user")}
       >
         Add New User
-      </Button>
+      </Button> */}
     </FlexBetween>
   );
 }
