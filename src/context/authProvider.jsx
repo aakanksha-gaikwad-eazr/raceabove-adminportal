@@ -61,17 +61,17 @@ export function AuthProvider({ children }) {
  
   const login = useCallback(async (navigate, phoneNumber, otp) => {
     const formatedphoneNumber = `+91${phoneNumber}`;
-    const response = await axios.post(`${ip}/v1/auth/verify-otp`, {
+    const response = await axios.post(`${ip}/v2/auth/verify-otp`, {
       phoneNumber: formatedphoneNumber,
       otp,
       role: "admin",
     });
- 
+
     localStorage.setItem(
       "raceabove",
       JSON.stringify(response?.data?.data)
     );
- 
+
     dispatch({
       type: "LOGIN",
       payload: {
@@ -79,7 +79,7 @@ export function AuthProvider({ children }) {
         isAuthenticated: true,
       },
     });
- 
+
     if (response?.data?.status === 200) {
       setSession(response?.data?.accessToken);
       navigate("/");
@@ -89,17 +89,17 @@ export function AuthProvider({ children }) {
       console.log("error in verify otp");
     }
   }, []);
- 
+
   const sendOTP = useCallback(async (navigate, number) => {
-    const response = await axios.post(`${ip}/v1/admins/send-otp`, {
+    const response = await axios.post(`${ip}/v2/admins/send-otp`, {
       phoneNumber: `+91${number}`,
     });
- 
+
     if (response?.data?.status === 201) {
       window.localStorage.setItem("phoneNumber", number);
       navigate("/verify-code");
     }
- 
+
     setSession(response?.data?.data?.requestId);
     dispatch({
       type: "SENDOTP",
