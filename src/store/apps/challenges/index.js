@@ -5,179 +5,190 @@ import { ip } from '../../../config/config'
 
 //** fetch all challenges
 
-export const getChallenges = createAsyncThunk('appChallenges/getChallenges', async () => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    // console.log("adminData", adminData)
-    // console.log("token", accessToken)
-
-    if (!accessToken) { 
-      throw new Error('Access token not found in localStorage')
-    }
-    let url = `${ip}/v2/challenges`
-
-    const response = await axiosInstance.get(url, {
-      headers:  { Authorization: `Bearer ${accessToken}`}
-    })
-    // console.log("res:::", response)
-
-    return response.data.data
-
-  } catch (error) {
-    console.log("Failed to fetch all challenges")
-    throw new Error('Failed to fetch all challenges')
-  }
-})
-
-export const getChallengesById = createAsyncThunk('appChallenges/getChallengesById', async (id) => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    // console.log("adminData", adminData)
-    // console.log("token", accessToken)
-
-    if (!accessToken) { 
-      throw new Error('Access token not found in localStorage')
-    }
-
-    // console.log("id", id)
-
-    let url = `${ip}/v2/challenges/${id}`
-
-    const response = await axiosInstance.get(url, {
-      headers:  { Authorization: `Bearer ${accessToken}`}
-    })
-    // console.log("res::: by id", response.data.data)
-
-    return response.data.data
-
-  } catch (error) {
-    console.log("Failed to fetch all challenges")
-    throw new Error('Failed to fetch all challenges')
-  }
-})
-
-//add challenge
-export const createChallenges = createAsyncThunk('appChallenges/createChallenges', async (data) => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    if (!accessToken) {
-      throw new Error('Access token not found in localStorage')
-    }
-    let url = `${ip}/v2/challenges`
-
-    const response = await axiosInstance.post(url, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${accessToken}`
-      }
-    })
-
-    return response.data
-
-  } catch (error) {
-    console.error("Failed to create challenge:", {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      headers: error.response?.headers
-    })
-    throw new Error(error.response?.data?.message || 'Failed to create challenge')
-  }
-})
-
-//delete challenge
-export const deleteChallenges = createAsyncThunk('appChallenges/deleteChallenges', async (id) => {
-  console.log("delete id", id)
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-
-    console.log("accessToken",accessToken)
-
-    if (!accessToken) {
-      throw new Error('Access token not found in localStorage')
-    }
-    let url = `${ip}/v2/challenges/${id}`
-
-
-    const response = await axiosInstance.delete(url, {
-
-      headers: {
-        Authorization: `Bearer ${accessToken}`, 
-      } 
-    })
-    console.log("deleted user data", response)
-
-    return response.data
-
-  } catch (error) {
-    console.log("Failed to create  challenge")
-    throw new Error('Failed to create challenge')
-  }
-})
-
-//update challenge
-export const updateChallenges = createAsyncThunk(
-  'appChallenges/updateChallenges',
-  async (req, { rejectWithValue }) => {
+export const getChallenges = createAsyncThunk(
+  "appChallenges/getChallenges",
+  async () => {
     try {
-      const adminData = JSON.parse(localStorage.getItem('raceabove'));
-      const accessToken = adminData.accessToken; 
+      const adminData = JSON.parse(localStorage.getItem("raceabove"));
+      const accessToken = adminData.accessToken;
+
+      // console.log("adminData", adminData)
+      // console.log("token", accessToken)
 
       if (!accessToken) {
-        throw new Error('Access token not found in localStorage');
+        throw new Error("Access token not found in localStorage");
       }
+      let url = `${ip}/v2/challenges`;
 
-      console.log("editid>>>", req?.id, req?.changedData)
-      let url = `${ip}/v2/challenges/${req?.id}`; 
-
-      const response = await axiosInstance.patch(url, req?.changedData, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'multipart/form-data'
-        },
+      const response = await axiosInstance.get(url, {
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
+      // console.log("res:::", response)
 
-      return response.data;
+      return response.data.data;
     } catch (error) {
-      console.log('Failed to update challenges detail', error);
-      return rejectWithValue(error.response?.data || 'Update failed');
+      console.log("Failed to fetch all challenges");
+      throw new Error("Failed to fetch all challenges");
     }
   }
 );
 
-
-//update challenge
-export const reviewChallenges = createAsyncThunk(
-  'appChallenges/reviewChallenges',
-  async ({ challengeId, reviewData }, { rejectWithValue }) => {
+export const getChallengesById = createAsyncThunk(
+  "appChallenges/getChallengesById",
+  async (id) => {
     try {
-      const adminData = JSON.parse(localStorage.getItem('raceabove'));
-      const accessToken = adminData.accessToken; 
+      const adminData = JSON.parse(localStorage.getItem("raceabove"));
+      const accessToken = adminData.accessToken;
+
+      // console.log("adminData", adminData)
+      // console.log("token", accessToken)
 
       if (!accessToken) {
-        throw new Error('Access token not found in localStorage');
+        throw new Error("Access token not found in localStorage");
       }
 
-      let url = `${ip}/v2/challenges/${challengeId}/review`; 
+      // console.log("id", id)
 
-      const response = await axiosInstance.patch(url, reviewData, {
+      let url = `${ip}/v2/challenges/${id}`;
+
+      const response = await axiosInstance.get(url, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      // console.log("res::: by id", response.data.data)
+
+      return response.data.data;
+    } catch (error) {
+      console.log("Failed to fetch all challenges");
+      throw new Error("Failed to fetch all challenges");
+    }
+  }
+);
+
+//add challenge
+export const createChallenges = createAsyncThunk(
+  "appChallenges/createChallenges",
+  async (data) => {
+    try {
+      const adminData = JSON.parse(localStorage.getItem("raceabove"));
+      const accessToken = adminData.accessToken;
+
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+      let url = `${ip}/v2/challenges`;
+
+      const response = await axiosInstance.post(url, data, {
         headers: {
+          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
         },
       });
 
       return response.data;
     } catch (error) {
-      console.log('Failed to update challenges status', error);
-      return rejectWithValue(error.response?.data || 'Update failed');
+      console.error("Failed to create challenge:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers,
+      });
+      throw new Error(
+        error.response?.data?.message || "Failed to create challenge"
+      );
+    }
+  }
+);
+
+//delete challenge
+export const deleteChallenges = createAsyncThunk(
+  "appChallenges/deleteChallenges",
+  async (id) => {
+    console.log("delete id", id);
+    try {
+      const adminData = JSON.parse(localStorage.getItem("raceabove"));
+      const accessToken = adminData.accessToken;
+
+      console.log("accessToken", accessToken);
+
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+      let url = `${ip}/v2/challenges/${id}`;
+
+      const response = await axiosInstance.delete(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      console.log("deleted user data", response);
+
+      return response.data;
+    } catch (error) {
+      console.log("Failed to create  challenge");
+      throw new Error("Failed to create challenge");
+    }
+  }
+);
+
+//update challenge
+export const updateChallenges = createAsyncThunk(
+  "appChallenges/updateChallenges",
+  async (req, { rejectWithValue }) => {
+    try {
+      const adminData = JSON.parse(localStorage.getItem("raceabove"));
+      const accessToken = adminData.accessToken;
+
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+
+      console.log("editid>>>", req?.id, req?.changedData);
+      let url = `${ip}/v2/challenges/${req?.id}`;
+
+      const response = await axiosInstance.patch(
+        url,
+        req?.changedData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.log("Failed to update challenges detail", error);
+      return rejectWithValue(error.response?.data || "Update failed");
+    }
+  }
+);
+
+//update challenge
+export const reviewChallenges = createAsyncThunk(
+  "appChallenges/reviewChallenges",
+  async ({ challengeId, reviewData }, { rejectWithValue }) => {
+    try {
+      const adminData = JSON.parse(localStorage.getItem("raceabove"));
+      const accessToken = adminData.accessToken;
+
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+
+      let url = `${ip}/v2/challenges/${challengeId}/review`;
+
+      const response = await axiosInstance.patch(url, reviewData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.log("Failed to update challenges status", error);
+      return rejectWithValue(error.response?.data || "Update failed");
     }
   }
 );

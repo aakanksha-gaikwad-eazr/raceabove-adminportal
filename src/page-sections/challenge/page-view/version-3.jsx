@@ -3,10 +3,8 @@ import Grid from "@mui/material/Grid2"; // CUSTOM COMPONENTS
 import StatusFilter from "../StatusFilter";
 import SearchFilter from "../SearchFilter";
 import ProjectForm from "../project-form";
-import ProjectCard3 from "../project-card-3"; // CUSTOM DEFINED HOOK
 import useChallenge from "../useChallenge";
 import ChallengeCard3 from "../project-card-3";
-import { Typography } from "@mui/material";
 
 export default function ChallengeVersionThreePageView() {
   const {

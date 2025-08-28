@@ -5,124 +5,139 @@ import { ip } from '../../../config/config'
 
 //** fetch all coupons
 
-export const getCoupons = createAsyncThunk('appCouponsSlice/getCoupons', async () => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
+export const getCoupons = createAsyncThunk(
+  "appCouponsSlice/getCoupons",
+  async () => {
+    try {
+      const adminData = JSON.parse(localStorage.getItem("raceabove"));
+      const accessToken = adminData.accessToken;
 
-    if (!accessToken) { 
-      throw new Error('Access token not found in localStorage')
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+      let url = `${ip}/v2/coupons`;
+
+      const response = await axiosInstance.get(url, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      return response.data.data;
+    } catch (error) {
+      console.log("Failed to fetch all coupons");
+      throw new Error("Failed to fetch all coupons");
     }
-    let url = `${ip}/v2/coupons`
-
-    const response = await axiosInstance.get(url, {
-      headers:  { Authorization: `Bearer ${accessToken}`}
-    })
-    return response.data.data
-
-  } catch (error) {
-    console.log("Failed to fetch all coupons")
-    throw new Error('Failed to fetch all coupons')
   }
-})
+);
 
-export const getCouponsById = createAsyncThunk('appCouponsSlice/getCouponsById', async (id) => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
+export const getCouponsById = createAsyncThunk(
+  "appCouponsSlice/getCouponsById",
+  async (id) => {
+    try {
+      const adminData = JSON.parse(localStorage.getItem("raceabove"));
+      const accessToken = adminData.accessToken;
 
-    if (!accessToken) { 
-      throw new Error('Access token not found in localStorage')
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+
+      let url = `${ip}/v2/coupons/${id}`;
+
+      const response = await axiosInstance.get(url, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      return response.data.data;
+    } catch (error) {
+      console.log("Failed to fetch a coupon");
+      throw new Error("Failed to fetch a coupon");
     }
-
-    let url = `${ip}/v2/coupons/${id}`
-
-    const response = await axiosInstance.get(url, {
-      headers:  { Authorization: `Bearer ${accessToken}`}
-    })
-
-    return response.data.data
-
-  } catch (error) {
-    console.log("Failed to fetch a coupon")
-    throw new Error('Failed to fetch a coupon')
   }
-})
+);
 
 //create / add coupons
-export const createCoupon = createAsyncThunk('appCouponsSlice/createCoupon', async (data) => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
+export const createCoupon = createAsyncThunk(
+  "appCouponsSlice/createCoupon",
+  async (data) => {
+    try {
+      const adminData = JSON.parse(localStorage.getItem("raceabove"));
+      const accessToken = adminData.accessToken;
 
-    console.log("accessToken",accessToken)
+      console.log("accessToken", accessToken);
 
-    if (!accessToken) {
-      throw new Error('Access token not found in localStorage')
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+      let url = `${ip}/v2/coupons`;
+
+      const response = await axiosInstance.post(url, data, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Failed to create  coupons");
+      throw new Error("Failed to create coupons");
     }
-    let url = `${ip}/v2/coupons`
-
-    const response = await axiosInstance.post(url,data, {
-
-      headers: {
-        Authorization: `Bearer ${accessToken}`, 
-      } 
-    })
-    return response.data 
-
-  } catch (error) {
-    console.log("Failed to create  coupons")
-    throw new Error('Failed to create coupons')
   }
-})
+);
 
 // //delete coupons
-export const deleteCoupons = createAsyncThunk('appCouponsSlice/deleteCoupons', async (id) => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
-    if (!accessToken) {
-      throw new Error('Access token not found in localStorage')
+export const deleteCoupons = createAsyncThunk(
+  "appCouponsSlice/deleteCoupons",
+  async (id) => {
+    try {
+      const adminData = JSON.parse(localStorage.getItem("raceabove"));
+      const accessToken = adminData.accessToken;
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+      let url = `${ip}/v2/coupons/${id}`;
+      const response = await axiosInstance.delete(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Failed to delete coupons");
+      throw new Error("Failed to delete coupons");
     }
-    let url = `${ip}/v2/coupons/${id}`
-    const response = await axiosInstance.delete(url, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`, 
-      } 
-    })
-    return response.data
-
-  } catch (error) {
-    console.log("Failed to delete coupons")
-    throw new Error('Failed to delete coupons')
   }
-})
+);
 
 // //review coupons
-export const reviewCoupons = createAsyncThunk('appCouponsSlice/reviewCoupons', async (req, { rejectWithValue }) => {
-  try {
-    const adminData = JSON.parse(localStorage.getItem('raceabove'))
-    const accessToken = adminData.accessToken
+export const reviewCoupons = createAsyncThunk(
+  "appCouponsSlice/reviewCoupons",
+  async (req, { rejectWithValue }) => {
+    try {
+      const adminData = JSON.parse(localStorage.getItem("raceabove"));
+      const accessToken = adminData.accessToken;
 
-    if (!accessToken) {
-      throw new Error('Access token not found in localStorage')
-    }
-
-    const url = `${ip}/v2/coupons/${req?.id}/review`
-    
-    const response = await axiosInstance.patch(url, req?.data, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
       }
-    })
 
-    return response.data
-  } catch (error) {
-    console.error('Update coupon error:', error.response?.data || error.message)
-    return rejectWithValue(error.response?.data || { message: 'Failed to update coupon' })
+      const url = `${ip}/v2/coupons/${req?.id}/review`;
+
+      const response = await axiosInstance.patch(url, req?.data, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Update coupon error:",
+        error.response?.data || error.message
+      );
+      return rejectWithValue(
+        error.response?.data || { message: "Failed to update coupon" }
+      );
+    }
   }
-})
+);
 
 
 export const appCouponsSlice = createSlice({

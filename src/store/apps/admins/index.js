@@ -20,11 +20,11 @@ export const getSingleAdmin = createAsyncThunk(
 
       const response = await axios.get(url, {
         headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Accept": "application/json",
-          },
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
+        },
       });
-    
+
       // console.log("get res admin", response);
 
       return response.data.data;
@@ -35,7 +35,9 @@ export const getSingleAdmin = createAsyncThunk(
   }
 );
 
-export const getAllAdmin = createAsyncThunk("appAdmins/getallAdmin",async () => {
+export const getAllAdmin = createAsyncThunk(
+  "appAdmins/getallAdmin",
+  async () => {
     try {
       const adminData = JSON.parse(localStorage.getItem("raceabove"));
       const accessToken = adminData.accessToken;
@@ -47,11 +49,11 @@ export const getAllAdmin = createAsyncThunk("appAdmins/getallAdmin",async () => 
 
       const response = await axios.get(url, {
         headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Accept": "application/json",
-          },
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
+        },
       });
-    
+
       // console.log("get all admin", response);
 
       return response.data.data;
@@ -63,7 +65,9 @@ export const getAllAdmin = createAsyncThunk("appAdmins/getallAdmin",async () => 
 );
 
 //create admins
-export const createAdmin = createAsyncThunk("appAdmins/createAdmin", async (formData) => {
+export const createAdmin = createAsyncThunk(
+  "appAdmins/createAdmin",
+  async (formData) => {
     try {
       const adminData = JSON.parse(localStorage.getItem("raceabove"));
       const accessToken = adminData.accessToken;
@@ -73,15 +77,15 @@ export const createAdmin = createAsyncThunk("appAdmins/createAdmin", async (form
       }
 
       let url = `${ip}/v2/admins`;
-      console.log("req body formData", formData)
+      console.log("req body formData", formData);
 
       const response = await axios.post(url, formData, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
-      console.log("response from admin", response)
+      console.log("response from admin", response);
       return response.data;
     } catch (error) {
       console.error("Failed to create admin:", {
@@ -89,7 +93,9 @@ export const createAdmin = createAsyncThunk("appAdmins/createAdmin", async (form
         response: error.response?.data,
         status: error.response?.status,
       });
-      throw new Error(error.response?.data?.message || 'Failed to create admin');
+      throw new Error(
+        error.response?.data?.message || "Failed to create admin"
+      );
     }
   }
 );
@@ -112,7 +118,7 @@ export const updateAdmin = createAsyncThunk(
       const response = await axios.patch(url, req?.changedData, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
       console.log("res admin data", response.data);
@@ -125,9 +131,10 @@ export const updateAdmin = createAsyncThunk(
 );
 
 //delete admin
-export const deleteAdmin = createAsyncThunk("appAdmins/deleteAdmin",async (id) => {
+export const deleteAdmin = createAsyncThunk(
+  "appAdmins/deleteAdmin",
+  async (id) => {
     try {
-     
       const adminData = JSON.parse(localStorage.getItem("raceabove"));
       const accessToken = adminData.accessToken;
 
