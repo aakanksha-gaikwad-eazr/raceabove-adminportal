@@ -119,9 +119,5 @@ export const navigations = [
     icon: duotone.Accounts,
     path: "/employee-list-2",
   },
-  {
-    name: "Platform Setting",
-    icon: duotone.DataTable,
-    path: "/platformsettings-list-2",
-  },
+
 ];
