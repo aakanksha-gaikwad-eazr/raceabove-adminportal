@@ -294,9 +294,27 @@ export default function UserList2PageView() {
     e.stopPropagation();
     handleOpenDeleteModal(user);
   };
-  const handleNavigationDetailspge = (user) => {
-  navigate(`/user-details/${user?.id}`)
-  };
+
+  const handleNavigationDetailspge = (event, user) => {
+  // Check if the click originated from a button, icon button, switch, or other interactive elements
+  const clickedElement = event.target;
+  const isInteractiveElement = 
+    clickedElement.closest('button') ||
+    clickedElement.closest('[role="button"]') ||
+    clickedElement.closest('.MuiChip-root') ||
+    clickedElement.closest('.MuiIconButton-root') ||
+    clickedElement.closest('.MuiButton-root') ||
+    clickedElement.closest('.MuiSwitch-root') ||
+    clickedElement.closest('.MuiSwitch-switchBase') ||
+    clickedElement.closest('[role="switch"]') ||
+    clickedElement.closest('input[type="checkbox"]');
+  
+  if (isInteractiveElement) {
+    return;
+  }
+  
+  navigate(`/user-details/${user?.id}`);
+};
 
   return (
     <div className="pt-2 pb-4">
@@ -369,7 +387,7 @@ export default function UserList2PageView() {
                             <BodyTableRow
                               key={user.id}
                               // active={selectedUsers?.id === user.id ? 1 : 0}
-                              onClick={() => handleNavigationDetailspge(user)}
+                              onClick={() => handleNavigationDetailspge(event,user)}
                             >
                               <BodyTableCell align="left">
                                 <Stack direction="row" alignItems="center" spacing={2}>

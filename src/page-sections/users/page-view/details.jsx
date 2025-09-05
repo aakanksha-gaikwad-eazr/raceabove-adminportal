@@ -67,6 +67,7 @@ import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 import { getAllDataOfUser } from "@/store/apps/user";
 import { limitWords } from "@/utils/wordLimiter";
+import Pagination from "@mui/material/Pagination";
 
 const SimpleCouponCard = styled(Box)(({ theme, isActive }) => ({
   border: `2px dashed ${isActive ? theme.palette.primary.main : "#ccc"}`,
@@ -290,10 +291,91 @@ export default function UserDetailsPageView() {
   const [formsActiveStates, setFormsActiveStates] = useState({});
   const [couponsActiveStates, setCouponsActiveStates] = useState({});
 
+  //paginations
+  const [stepsPage, setStepsPage] = useState(1);
+  const [gearsPage, setGearsPage] = useState(1);
+  const [reviewsPage, setReviewsPage] = useState(1);
+  const [transactionsPage, setTransactionsPage] = useState(1);
+  const [challengesPage, setChallengesPage] = useState(1);
+  const [eventsPage, setEventsPage] = useState(1);
+  const [activitiesPage, setActivitiesPage] = useState(1);
+  const [targetsPage, setTargetsPage] = useState(1);
+
+  const ITEMS_PER_PAGE = 5;
+
+  const paginateData = (data, page, itemsPerPage = ITEMS_PER_PAGE) => {
+      const safeData = data || [];
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return {
+      items: safeData.slice(startIndex, endIndex),
+      totalPages: Math.ceil((data?.length || 0) / itemsPerPage),
+      totalItems: data?.length || 0,
+    };
+  };
+  const PaginationContainer = ({
+    totalPages,
+    currentPage,
+    onPageChange,
+    totalItems,
+    itemName,
+  }) => {
+    if (totalPages <= 1) return null;
+
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mt: 2,
+          pt: 2,
+          borderTop: "1px solid #e0e0e0",
+        }}
+      >
+        <Typography variant="body2" color="text.secondary">
+          Showing {Math.min(ITEMS_PER_PAGE, totalItems)} of {totalItems}{" "}
+          {itemName}
+        </Typography>
+        <Pagination
+          count={totalPages}
+          page={currentPage}
+          onChange={(event, value) => onPageChange(value)}
+          color="primary"
+          size="small"
+          showFirstButton
+          showLastButton
+        />
+      </Box>
+    );
+  };
+
+  const stepsData = paginateData(allDataOfSingleUser?.steps, stepsPage);
+  const gearsData = paginateData(allDataOfSingleUser?.gears, gearsPage);
+  const reviewsData = paginateData(allDataOfSingleUser?.reviews, reviewsPage);
+  const transactionsData = paginateData(
+    allDataOfSingleUser?.walletTransactions,
+    transactionsPage
+  );
+  const challengesData = paginateData(
+    allDataOfSingleUser?.challengeParticipations,
+    challengesPage
+  );
+  const eventsData = paginateData(
+    allDataOfSingleUser?.eventParticipations,
+    eventsPage
+  );
+  const activitiesData = paginateData(
+    allDataOfSingleUser?.activities,
+    activitiesPage
+  );
+  const targetsData = paginateData(allDataOfSingleUser?.targets, targetsPage);
+
   useEffect(() => {
     console.log("id of user", id);
     dispatch(getAllDataOfUser(id));
   }, [id]);
+
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -688,9 +770,18 @@ export default function UserDetailsPageView() {
                         <Paragraph fontSize={12} color="text.secondary">
                           Location
                         </Paragraph>
-                        <Paragraph fontWeight={500}>
+                        {/* <Paragraph fontWeight={500}>
                           {allDataOfSingleUser?.city?.trim()},{" "}
                           {allDataOfSingleUser?.state?.trim()}
+                        </Paragraph> */}
+
+                        <Paragraph fontWeight={500}>
+                          {[
+                            allDataOfSingleUser?.city?.trim(),
+                            allDataOfSingleUser?.state?.trim(),
+                          ]
+                            .filter(Boolean)
+                            .join(", ") || "N/A"}
                         </Paragraph>
                       </Grid>
                     </Grid>
@@ -840,66 +931,68 @@ export default function UserDetailsPageView() {
                   <Divider sx={{ my: 2 }} />
 
                   {/* Targets */}
-                  <Box mb={3}>
-                    <Accordion>
-                      <AccordionSummary
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls="targets-content"
-                        id="targets-header"
-                      >
-                        <H6 fontSize={16}>
-                          User Targets (
-                          {allDataOfSingleUser?.targets?.length || 0})
-                        </H6>
-                      </AccordionSummary>
-                      <AccordionDetails>
-                        {allDataOfSingleUser?.targets?.length > 0 ? (
-                          allDataOfSingleUser.targets.map((target) => (
-                            <InfoCard key={target.id} sx={{ mb: 2 }}>
-                              <Box p={2}>
-                                <FlexBox alignItems="center" gap={2}>
-                                  <img
-                                    src={target.banner}
-                                    alt={target.name}
-                                    style={{
-                                      width: 60,
-                                      height: 60,
-                                      borderRadius: 8,
-                                      objectFit: "cover",
-                                    }}
-                                  />
-                                  <Box flex={1}>
-                                    <Paragraph fontWeight={500} fontSize={14}>
-                                      {target.name}
-                                    </Paragraph>
-                                    <Paragraph
-                                      fontSize={12}
-                                      color="text.secondary"
-                                    >
-                                      Created: {formatDate(target.createdAt)}
-                                    </Paragraph>
-                                    <Chip
-                                      label={
-                                        target.isActive ? "Active" : "Inactive"
-                                      }
-                                      color={
-                                        target.isActive ? "success" : "default"
-                                      }
-                                      size="small"
-                                    />
-                                  </Box>
-                                </FlexBox>
-                              </Box>
-                            </InfoCard>
-                          ))
-                        ) : (
-                          <Paragraph fontSize={13} color="text.secondary">
-                            No targets set by user.
-                          </Paragraph>
-                        )}
-                      </AccordionDetails>
-                    </Accordion>
+                <Box mb={3}>
+  <Accordion>
+    <AccordionSummary
+      expandIcon={<ExpandMoreIcon />}
+      aria-controls="targets-content"
+      id="targets-header"
+    >
+      <H6 fontSize={16}>
+        User Targets ({allDataOfSingleUser?.targets?.length || 0})
+      </H6>
+    </AccordionSummary>
+    <AccordionDetails>
+      {targetsData.totalItems > 0 ? (
+        <>
+          {targetsData.items.map((target) => (
+            <InfoCard key={target.id} sx={{ mb: 2 }}>
+              <Box p={2}>
+                <FlexBox alignItems="center" gap={2}>
+                  <img
+                    src={target.banner}
+                    alt={target.name}
+                    style={{
+                      width: 60,
+                      height: 60,
+                      borderRadius: 8,
+                      objectFit: "cover",
+                    }}
+                  />
+                  <Box flex={1}>
+                    <Paragraph fontWeight={500} fontSize={14}>
+                      {target.name}
+                    </Paragraph>
+                    <Paragraph fontSize={12} color="text.secondary">
+                      Created: {formatDate(target.createdAt)}
+                    </Paragraph>
+                    <Chip
+                      label={target.isActive ? "Active" : "Inactive"}
+                      color={target.isActive ? "success" : "default"}
+                      size="small"
+                    />
                   </Box>
+                </FlexBox>
+              </Box>
+            </InfoCard>
+          ))}
+
+          <PaginationContainer
+            totalPages={targetsData.totalPages}
+            currentPage={targetsPage}
+            onPageChange={setTargetsPage}
+            totalItems={targetsData.totalItems}
+            itemName="targets"
+          />
+        </>
+      ) : (
+        <Paragraph fontSize={13} color="text.secondary">
+          No targets set by user.
+        </Paragraph>
+      )}
+    </AccordionDetails>
+  </Accordion>
+</Box>
                 </Div>
               </TabPanel>
 
@@ -916,17 +1009,25 @@ export default function UserDetailsPageView() {
                     </H6>
                   </SectionHeader>
 
-                  {allDataOfSingleUser?.challengeParticipations?.length > 0 ? (
-                    allDataOfSingleUser.challengeParticipations.map(
-                      (participation, idx) => (
+                  {challengesData.totalItems > 0 ? (
+                    <>
+                      {challengesData.items.map((participation, idx) => (
                         <Accordion key={participation.id} sx={{ mb: 2 }}>
                           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <FlexBetween width="100%">
                               <Box>
-                                <Paragraph fontWeight={600} fontSize={16} style={{textTransform:"capitalize"}}>
+                                <Paragraph
+                                  fontWeight={600}
+                                  fontSize={16}
+                                  style={{ textTransform: "capitalize" }}
+                                >
                                   {participation.challenge.title}
                                 </Paragraph>
-                                <Paragraph fontSize={12} color="text.secondary" style={{textTransform:"capitalize"}}>
+                                <Paragraph
+                                  fontSize={12}
+                                  color="text.secondary"
+                                  style={{ textTransform: "capitalize" }}
+                                >
                                   {participation.challenge.challengeType} •{" "}
                                   {participation.challenge.totalDays} days
                                 </Paragraph>
@@ -1011,7 +1112,7 @@ export default function UserDetailsPageView() {
                                       __html:
                                         participation.challenge.description,
                                     }}
-                                    style={{textTransform:"capitalize"}}
+                                    style={{ textTransform: "capitalize" }}
                                   />
                                 </Box>
                               </Grid>
@@ -1161,8 +1262,15 @@ export default function UserDetailsPageView() {
                             </Grid>
                           </AccordionDetails>
                         </Accordion>
-                      )
-                    )
+                      ))}
+                      <PaginationContainer
+                        totalPages={challengesData.totalPages}
+                        currentPage={challengesPage}
+                        onPageChange={setChallengesPage}
+                        totalItems={challengesData.totalItems}
+                        itemName="challenges"
+                      />
+                    </>
                   ) : (
                     <Box textAlign="center" py={4}>
                       <CampaignIcon
@@ -1187,9 +1295,9 @@ export default function UserDetailsPageView() {
                     </H6>
                   </SectionHeader>
 
-                  {allDataOfSingleUser?.eventParticipations?.length > 0 ? (
-                    allDataOfSingleUser.eventParticipations.map(
-                      (participation, idx) => (
+                  {eventsData.totalItems > 0 ? (
+                    <>
+                      {eventsData.items.map((participation, idx) => (
                         <Accordion key={participation.id} sx={{ mb: 2 }}>
                           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                             <FlexBetween width="100%">
@@ -1219,6 +1327,7 @@ export default function UserDetailsPageView() {
                           </AccordionSummary>
 
                           <AccordionDetails sx={{ p: 3 }}>
+                            {/* Keep all existing accordion details content exactly as is */}
                             <Grid container spacing={3}>
                               {/* Event Details */}
                               <Grid size={6}>
@@ -1243,16 +1352,12 @@ export default function UserDetailsPageView() {
                                     Event Description:
                                   </Paragraph>
                                   <Paragraph fontSize={13} lineHeight={1.5}>
-                                    {/* {participation.event.description} */}
-                                        <div
-                                    dangerouslySetInnerHTML={{
-                                      __html:
-                                        participation.event.description,
-                                    }}
-                                    style={{textTransform:"capitalize"}}
-                                  />
-
-
+                                    <div
+                                      dangerouslySetInnerHTML={{
+                                        __html: participation.event.description,
+                                      }}
+                                      style={{ textTransform: "capitalize" }}
+                                    />
                                   </Paragraph>
                                 </Box>
                               </Grid>
@@ -1299,17 +1404,6 @@ export default function UserDetailsPageView() {
                                     Organizer
                                   </Paragraph>
                                   <FlexBox alignItems="center" gap={1}>
-                                    {/* <Avatar
-                                      src={
-                                        participation.event.organizer
-                                          .companyLogo
-                                      }
-                                      sx={{ width: 24, height: 24 }}
-                                    >
-                                      {participation.event.organizer.name.charAt(
-                                        0
-                                      )}
-                                    </Avatar> */}
                                     <Box>
                                       <Paragraph fontSize={13} fontWeight={500}>
                                         {participation.event.organizer.name}
@@ -1376,7 +1470,9 @@ export default function UserDetailsPageView() {
                                                 <Paragraph
                                                   fontWeight={500}
                                                   fontSize={13}
-                                                  style={{textTransform:"capitalize"}}
+                                                  style={{
+                                                    textTransform: "capitalize",
+                                                  }}
                                                 >
                                                   {fullName}
                                                 </Paragraph>
@@ -1384,11 +1480,13 @@ export default function UserDetailsPageView() {
                                                   fontSize={11}
                                                   color="text.secondary"
                                                 >
-                                                  {participant.ticket?.name ?? "No Ticket"} - ₹
-                                                  {participant.ticket?.discountedPrice ??
- participant.ticket?.price ??
- "0"}
-
+                                                  {participant.ticket?.name ??
+                                                    "No Ticket"}{" "}
+                                                  - ₹
+                                                  {participant.ticket
+                                                    ?.discountedPrice ??
+                                                    participant.ticket?.price ??
+                                                    "0"}
                                                 </Paragraph>
                                               </Box>
                                             </FlexBox>
@@ -1421,7 +1519,11 @@ export default function UserDetailsPageView() {
                                   </H6>
                                   <InfoCard>
                                     <Box p={2}>
-                                      <Grid container spacing={2} style={{alignItems:"center"}}>
+                                      <Grid
+                                        container
+                                        spacing={2}
+                                        style={{ alignItems: "center" }}
+                                      >
                                         <Grid size={3}>
                                           <Paragraph
                                             fontSize={12}
@@ -1430,7 +1532,9 @@ export default function UserDetailsPageView() {
                                             Status
                                           </Paragraph>
                                           <StatusChip
-                                          style={{textTransform:"capitalize"}}
+                                            style={{
+                                              textTransform: "capitalize",
+                                            }}
                                             label={
                                               participation.payment
                                                 .paymentStatus
@@ -1455,7 +1559,9 @@ export default function UserDetailsPageView() {
                                             fontWeight={600}
                                             color="success.main"
                                           >
-                                            ₹{participation.payment.amountPaid ?? "N/A"}
+                                            ₹
+                                            {participation.payment.amountPaid ??
+                                              "N/A"}
                                           </Paragraph>
                                         </Grid>
                                         <Grid size={3}>
@@ -1488,7 +1594,10 @@ export default function UserDetailsPageView() {
                                             fontSize={11}
                                             fontFamily="monospace"
                                           >
-                                            {limitWords( participation.payment.orderId,20)}
+                                            {limitWords(
+                                              participation.payment.orderId,
+                                              20
+                                            )}
                                           </Paragraph>
                                         </Grid>
                                       </Grid>
@@ -1499,8 +1608,16 @@ export default function UserDetailsPageView() {
                             </Grid>
                           </AccordionDetails>
                         </Accordion>
-                      )
-                    )
+                      ))}
+
+                      <PaginationContainer
+                        totalPages={eventsData.totalPages}
+                        currentPage={eventsPage}
+                        onPageChange={setEventsPage}
+                        totalItems={eventsData.totalItems}
+                        itemName="events"
+                      />
+                    </>
                   ) : (
                     <Box textAlign="center" py={4}>
                       <LocalOfferIcon
@@ -1525,278 +1642,299 @@ export default function UserDetailsPageView() {
                     </H6>
                   </SectionHeader>
 
-                  {allDataOfSingleUser?.activities?.length > 0 ? (
-                    allDataOfSingleUser.activities.map((activity, idx) => {
-                      const stats = JSON.parse(activity.statistics || "{}");
+                  {activitiesData.totalItems > 0 ? (
+                    <>
+                      {activitiesData.items.map((activity, idx) => {
+                        const stats = JSON.parse(activity.statistics || "{}");
 
-                      return (
-                        <Accordion key={activity.id} sx={{ mb: 2 }}>
-                          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <FlexBetween width="100%">
-                              <FlexBox alignItems="center" gap={2}>
-                                <Avatar
-                                  src={activity.sport?.icon}
-                                  sx={{
-                                    width: 40,
-                                    height: 40,
-                                    background: "#f5f5f5",
-                                  }}
-                                >
-                                  🏃
-                                </Avatar>
-                                <Box>
-                                  <Paragraph
-                                    fontWeight={600}
-                                    fontSize={14}
-                                    style={{ textTransform: "capitalize" }}
+                        return (
+                          <Accordion key={activity.id} sx={{ mb: 2 }}>
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                              <FlexBetween width="100%">
+                                <FlexBox alignItems="center" gap={2}>
+                                  <Avatar
+                                    src={activity.sport?.icon}
+                                    sx={{
+                                      width: 40,
+                                      height: 40,
+                                      background: "#f5f5f5",
+                                    }}
                                   >
-                                    {activity.name ||
-                                      `${activity.sport?.name} Activity`}
-                                  </Paragraph>
-                                  <Paragraph
-                                    fontSize={12}
-                                    color="text.secondary"
-                                    style={{textTransform:"capitalize"}}
-                                  >
-                                    {activity.sport?.name} •{" "}
-                                    {formatDateTime(activity.completedAt)}
-                                  </Paragraph>
-                                </Box>
-                              </FlexBox>
-                              <Box textAlign="right">
-                                <Paragraph
-                                  fontSize={14}
-                                  fontWeight={600}
-                                  color="primary.main"
-                                >
-                                  {(activity.distanceInMeters / 1000).toFixed(
-                                    2
-                                  )}{" "}
-                                  km
-                                </Paragraph>
-                                <Paragraph fontSize={11} color="text.secondary">
-                                  {Math.floor(activity.durationInSeconds / 60)}:
-                                  {(activity.durationInSeconds % 60)
-                                    .toString()
-                                    .padStart(2, "0")}
-                                </Paragraph>
-                              </Box>
-                            </FlexBetween>
-                          </AccordionSummary>
-
-                          <AccordionDetails sx={{ p: 3 }}>
-                            <Grid container spacing={3}>
-                              {/* Activity Stats */}
-                              <Grid size={8}>
-                                <Grid container spacing={2}>
-                                  <Grid size={6}>
-                                    <Box
-                                      textAlign="center"
-                                      p={1.5}
-                                      sx={{
-                                        background: "#f8f9fa",
-                                        borderRadius: 2,
-                                      }}
-                                    >
-                                      <Paragraph
-                                        fontSize={18}
-                                        fontWeight={700}
-                                        color="primary.main"
-                                      >
-                                        {(
-                                          activity.distanceInMeters / 1000
-                                        ).toFixed(2)}
-                                      </Paragraph>
-                                      <Paragraph
-                                        fontSize={11}
-                                        color="text.secondary"
-                                      >
-                                        Distance (km)
-                                      </Paragraph>
-                                    </Box>
-                                  </Grid>
-                                  <Grid size={6}>
-                                    <Box
-                                      textAlign="center"
-                                      p={1.5}
-                                      sx={{
-                                        background: "#f8f9fa",
-                                        borderRadius: 2,
-                                      }}
-                                    >
-                                      <Paragraph
-                                        fontSize={18}
-                                        fontWeight={700}
-                                        color="success.main"
-                                      >
-                                        {activity.stepsCount}
-                                      </Paragraph>
-                                      <Paragraph
-                                        fontSize={11}
-                                        color="text.secondary"
-                                      >
-                                        Steps
-                                      </Paragraph>
-                                    </Box>
-                                  </Grid>
-                                  <Grid size={6}>
-                                    <Box
-                                      textAlign="center"
-                                      p={1.5}
-                                      sx={{
-                                        background: "#f8f9fa",
-                                        borderRadius: 2,
-                                      }}
-                                    >
-                                      <Paragraph
-                                        fontSize={18}
-                                        fontWeight={700}
-                                        color="warning.main"
-                                      >
-                                        {stats.calories?.toFixed(1) || 0}
-                                      </Paragraph>
-                                      <Paragraph
-                                        fontSize={11}
-                                        color="text.secondary"
-                                      >
-                                        Calories
-                                      </Paragraph>
-                                    </Box>
-                                  </Grid>
-                                  <Grid size={6}>
-                                    <Box
-                                      textAlign="center"
-                                      p={1.5}
-                                      sx={{
-                                        background: "#f8f9fa",
-                                        borderRadius: 2,
-                                      }}
-                                    >
-                                      <Paragraph
-                                        fontSize={18}
-                                        fontWeight={700}
-                                        color="info.main"
-                                      >
-                                        {stats.avgPace?.toFixed(1) || 0}
-                                      </Paragraph>
-                                      <Paragraph
-                                        fontSize={11}
-                                        color="text.secondary"
-                                      >
-                                        Avg Pace
-                                      </Paragraph>
-                                    </Box>
-                                  </Grid>
-                                </Grid>
-
-                                {activity.description && (
-                                  <Box mt={2}>
-                                    <Paragraph
-                                      fontSize={12}
-                                      color="text.secondary"
-                                      mb={1}
-                                    >
-                                      Description:
-                                    </Paragraph>
-                                    <Paragraph fontSize={13} >
-                                      {activity.description}
-                                    </Paragraph>
-                                  </Box>
-                                )}
-                              </Grid>
-
-                              {/* Activity Media & Gear */}
-                              <Grid size={4}>
-                                {activity.media?.length > 0 && (
-                                  <Box mb={2}>
-                                    <Paragraph
-                                      fontSize={12}
-                                      color="text.secondary"
-                                      mb={1}
-                                    >
-                                      Media:
-                                    </Paragraph>
-                                    <img
-                                      src={activity.media[0]}
-                                      alt="Activity"
-                                      style={{
-                                        width: "100%",
-                                        height: 120,
-                                        borderRadius: 8,
-                                        objectFit: "cover",
-                                      }}
-                                    />
-                                  </Box>
-                                )}
-
-                                {activity.gear && (
+                                    🏃
+                                  </Avatar>
                                   <Box>
                                     <Paragraph
+                                      fontWeight={600}
+                                      fontSize={14}
+                                      style={{ textTransform: "capitalize" }}
+                                    >
+                                      {activity.name ||
+                                        `${activity.sport?.name} Activity`}
+                                    </Paragraph>
+                                    <Paragraph
                                       fontSize={12}
                                       color="text.secondary"
-                                      mb={1}
+                                      style={{ textTransform: "capitalize" }}
                                     >
-                                      Gear Used:
+                                      {activity.sport?.name} •{" "}
+                                      {formatDateTime(activity.completedAt)}
                                     </Paragraph>
-                                    <FlexBox
-                                      alignItems="center"
-                                      gap={1}
-                                      p={1}
-                                      sx={{
-                                        background: "#f8f9fa",
-                                        borderRadius: 1,
-                                      }}
-                                    >
-                                      <Avatar
-                                        src={activity.gear.photo}
-                                        sx={{ width: 24, height: 24 }}
+                                  </Box>
+                                </FlexBox>
+                                <Box textAlign="right">
+                                  <Paragraph
+                                    fontSize={14}
+                                    fontWeight={600}
+                                    color="primary.main"
+                                  >
+                                    {(activity.distanceInMeters / 1000).toFixed(
+                                      2
+                                    )}{" "}
+                                    km
+                                  </Paragraph>
+                                  <Paragraph
+                                    fontSize={11}
+                                    color="text.secondary"
+                                  >
+                                    {Math.floor(
+                                      activity.durationInSeconds / 60
+                                    )}
+                                    :
+                                    {(activity.durationInSeconds % 60)
+                                      .toString()
+                                      .padStart(2, "0")}
+                                  </Paragraph>
+                                </Box>
+                              </FlexBetween>
+                            </AccordionSummary>
+
+                            <AccordionDetails sx={{ p: 3 }}>
+                              {/* Keep all existing accordion details content exactly as is */}
+                              <Grid container spacing={3}>
+                                {/* Activity Stats */}
+                                <Grid size={8}>
+                                  <Grid container spacing={2}>
+                                    <Grid size={6}>
+                                      <Box
+                                        textAlign="center"
+                                        p={1.5}
+                                        sx={{
+                                          background: "#f8f9fa",
+                                          borderRadius: 2,
+                                        }}
                                       >
-                                        G
-                                      </Avatar>
-                                      <Box>
+                                        <Paragraph
+                                          fontSize={18}
+                                          fontWeight={700}
+                                          color="primary.main"
+                                        >
+                                          {(
+                                            activity.distanceInMeters / 1000
+                                          ).toFixed(2)}
+                                        </Paragraph>
                                         <Paragraph
                                           fontSize={11}
-                                          fontWeight={500}
-                                           style={{textTransform:"capitalize"}}
-                                        >
-                                          {activity.gear.brand}{" "}
-                                          {activity.gear.model}
-                                        </Paragraph>
-                                        <Paragraph
-                                          fontSize={10}
                                           color="text.secondary"
-                                           style={{textTransform:"capitalize"}}
                                         >
-                                          {activity.gear.type?.name}
+                                          Distance (km)
                                         </Paragraph>
                                       </Box>
-                                    </FlexBox>
-                                  </Box>
-                                )}
-                              </Grid>
+                                    </Grid>
+                                    <Grid size={6}>
+                                      <Box
+                                        textAlign="center"
+                                        p={1.5}
+                                        sx={{
+                                          background: "#f8f9fa",
+                                          borderRadius: 2,
+                                        }}
+                                      >
+                                        <Paragraph
+                                          fontSize={18}
+                                          fontWeight={700}
+                                          color="success.main"
+                                        >
+                                          {activity.stepsCount}
+                                        </Paragraph>
+                                        <Paragraph
+                                          fontSize={11}
+                                          color="text.secondary"
+                                        >
+                                          Steps
+                                        </Paragraph>
+                                      </Box>
+                                    </Grid>
+                                    <Grid size={6}>
+                                      <Box
+                                        textAlign="center"
+                                        p={1.5}
+                                        sx={{
+                                          background: "#f8f9fa",
+                                          borderRadius: 2,
+                                        }}
+                                      >
+                                        <Paragraph
+                                          fontSize={18}
+                                          fontWeight={700}
+                                          color="warning.main"
+                                        >
+                                          {stats.calories?.toFixed(1) || 0}
+                                        </Paragraph>
+                                        <Paragraph
+                                          fontSize={11}
+                                          color="text.secondary"
+                                        >
+                                          Calories
+                                        </Paragraph>
+                                      </Box>
+                                    </Grid>
+                                    <Grid size={6}>
+                                      <Box
+                                        textAlign="center"
+                                        p={1.5}
+                                        sx={{
+                                          background: "#f8f9fa",
+                                          borderRadius: 2,
+                                        }}
+                                      >
+                                        <Paragraph
+                                          fontSize={18}
+                                          fontWeight={700}
+                                          color="info.main"
+                                        >
+                                          {stats.avgPace?.toFixed(1) || 0}
+                                        </Paragraph>
+                                        <Paragraph
+                                          fontSize={11}
+                                          color="text.secondary"
+                                        >
+                                          Avg Pace
+                                        </Paragraph>
+                                      </Box>
+                                    </Grid>
+                                  </Grid>
 
-                              {/* Exertion & Map Type */}
-                              <Grid size={12}>
-                                <FlexBox gap={1}>
-                                  <Chip
-                                    label={`Exertion: ${activity.exertion?.replace("_", " ")}`}
-                                    size="small"
-                                    variant="outlined"
-                                    style={{ textTransform: "capitalize" }}
-                                  />
-                                  <Chip
-                                    label={`Map: ${activity.mapType}`}
-                                    size="small"
-                                    variant="outlined"
-                                    style={{ textTransform: "capitalize" }}
-                                  />
-                                </FlexBox>
+                                  {activity.description && (
+                                    <Box mt={2}>
+                                      <Paragraph
+                                        fontSize={12}
+                                        color="text.secondary"
+                                        mb={1}
+                                      >
+                                        Description:
+                                      </Paragraph>
+                                      <Paragraph fontSize={13}>
+                                        {activity.description}
+                                      </Paragraph>
+                                    </Box>
+                                  )}
+                                </Grid>
+
+                                {/* Activity Media & Gear */}
+                                <Grid size={4}>
+                                  {activity.media?.length > 0 && (
+                                    <Box mb={2}>
+                                      <Paragraph
+                                        fontSize={12}
+                                        color="text.secondary"
+                                        mb={1}
+                                      >
+                                        Media:
+                                      </Paragraph>
+                                      <img
+                                        src={activity.media[0]}
+                                        alt="Activity"
+                                        style={{
+                                          width: "100%",
+                                          height: 120,
+                                          borderRadius: 8,
+                                          objectFit: "cover",
+                                        }}
+                                      />
+                                    </Box>
+                                  )}
+
+                                  {activity.gear && (
+                                    <Box>
+                                      <Paragraph
+                                        fontSize={12}
+                                        color="text.secondary"
+                                        mb={1}
+                                      >
+                                        Gear Used:
+                                      </Paragraph>
+                                      <FlexBox
+                                        alignItems="center"
+                                        gap={1}
+                                        p={1}
+                                        sx={{
+                                          background: "#f8f9fa",
+                                          borderRadius: 1,
+                                        }}
+                                      >
+                                        <Avatar
+                                          src={activity.gear.photo}
+                                          sx={{ width: 24, height: 24 }}
+                                        >
+                                          G
+                                        </Avatar>
+                                        <Box>
+                                          <Paragraph
+                                            fontSize={11}
+                                            fontWeight={500}
+                                            style={{
+                                              textTransform: "capitalize",
+                                            }}
+                                          >
+                                            {activity.gear.brand}{" "}
+                                            {activity.gear.model}
+                                          </Paragraph>
+                                          <Paragraph
+                                            fontSize={10}
+                                            color="text.secondary"
+                                            style={{
+                                              textTransform: "capitalize",
+                                            }}
+                                          >
+                                            {activity.gear.type?.name}
+                                          </Paragraph>
+                                        </Box>
+                                      </FlexBox>
+                                    </Box>
+                                  )}
+                                </Grid>
+
+                                {/* Exertion & Map Type */}
+                                <Grid size={12}>
+                                  <FlexBox gap={1}>
+                                    <Chip
+                                      label={`Exertion: ${activity.exertion?.replace("_", " ")}`}
+                                      size="small"
+                                      variant="outlined"
+                                      style={{ textTransform: "capitalize" }}
+                                    />
+                                    <Chip
+                                      label={`Map: ${activity.mapType}`}
+                                      size="small"
+                                      variant="outlined"
+                                      style={{ textTransform: "capitalize" }}
+                                    />
+                                  </FlexBox>
+                                </Grid>
                               </Grid>
-                            </Grid>
-                          </AccordionDetails>
-                        </Accordion>
-                      );
-                    })
+                            </AccordionDetails>
+                          </Accordion>
+                        );
+                      })}
+
+                      <PaginationContainer
+                        totalPages={activitiesData.totalPages}
+                        currentPage={activitiesPage}
+                        onPageChange={setActivitiesPage}
+                        totalItems={activitiesData.totalItems}
+                        itemName="activities"
+                      />
+                    </>
                   ) : (
                     <Box textAlign="center" py={4}>
                       <AccessTimeIcon
@@ -1811,168 +1949,187 @@ export default function UserDetailsPageView() {
               </TabPanel>
 
               {/* Tab 5: Health & Gear */}
-            
 
               <TabPanel value="5" sx={{ p: 0 }}>
                 <Div>
-                  {/* Steps Section */}
+                  {/* Steps Section with Pagination */}
                   <Box mb={4}>
-                    <H6 fontSize={16} mb={2}>
-                            Daily Steps
-                          </H6>
-             
-                    <Accordion  style={{borderRadius:"0"}} >
+                    <Accordion style={{ borderRadius: "0" }}>
                       <AccordionSummary
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="steps-content"
                         id="steps-header"
-                       
                       >
-                         <FlexBox alignItems="center" gap={1}  style={{borderRadius:"0"}}>
+                        <FlexBox
+                          alignItems="center"
+                          gap={1}
+                          style={{ borderRadius: "0" }}
+                        >
                           <AccessTimeIcon color="primary" />
                           <H6 fontSize={16}>
-                            Daily Steps
+                            Daily Steps (
+                            {allDataOfSingleUser?.steps?.length || 0})
                           </H6>
                         </FlexBox>
-                       
                       </AccordionSummary>
-                      <AccordionDetails  style={{borderRadius:"0"}}>
-                        {allDataOfSingleUser?.steps?.length > 0 ? (
-                          allDataOfSingleUser.steps.map((step, idx) => (
-                            <InfoCard key={step.id} sx={{ mb: 2 }} style={{borderRadius:"0"}}>
-                              <Box p={2}>
-                                <FlexBetween mb={2}>
-                                  <Box>
-                                    <Paragraph
-                                      fontWeight={600}
-                                      fontSize={16}
-                                      color="primary.main"
-                                    >
-                                      {step.count?.toLocaleString()} steps
-                                    </Paragraph>
-                                    <Paragraph fontSize={12} color="text.secondary" style={{textTransform:"capitalize"}}>
-                                      {formatDate(step.date)} • Source:{" "}
-                                      {step.source}
-                                    </Paragraph>
-                                  </Box>
-                    
-                                </FlexBetween>
+                      <AccordionDetails style={{ borderRadius: "0" }}>
+                        {stepsData.totalItems > 0 ? (
+                          <>
+                            {stepsData.items.map((step, idx) => (
+                              <InfoCard
+                                key={step.id}
+                                sx={{ mb: 2 }}
+                                style={{ borderRadius: "0" }}
+                              >
+                                <Box p={2}>
+                                  <FlexBetween mb={2}>
+                                    <Box>
+                                      <Paragraph
+                                        fontWeight={600}
+                                        fontSize={16}
+                                        color="primary.main"
+                                      >
+                                        {step.count?.toLocaleString()} steps
+                                      </Paragraph>
+                                      <Paragraph
+                                        fontSize={12}
+                                        color="text.secondary"
+                                        style={{ textTransform: "capitalize" }}
+                                      >
+                                        {formatDate(step.date)} • Source:{" "}
+                                        {step.source}
+                                      </Paragraph>
+                                    </Box>
+                                  </FlexBetween>
 
-                                <Grid container spacing={2}>
-                                  <Grid size={4}>
-                                    <Box
-                                      textAlign="center"
-                                      p={1}
-                                      sx={{
-                                        background: "#f8f9fa",
-                                        borderRadius: 1,
-                                      }}
-                                    >
-                                      <Paragraph
-                                        fontSize={14}
-                                        fontWeight={600}
-                                        color="info.main"
+                                  <Grid container spacing={2}>
+                                    <Grid size={4}>
+                                      <Box
+                                        textAlign="center"
+                                        p={1}
+                                        sx={{
+                                          background: "#f8f9fa",
+                                          borderRadius: 1,
+                                        }}
                                       >
-                                        {parseFloat(
-                                          step.distanceInMeter / 1000
-                                        ).toFixed(2)}{" "}
-                                        km
-                                      </Paragraph>
-                                      <Paragraph
-                                        fontSize={10}
-                                        color="text.secondary"
+                                        <Paragraph
+                                          fontSize={14}
+                                          fontWeight={600}
+                                          color="info.main"
+                                        >
+                                          {parseFloat(
+                                            step.distanceInMeter / 1000
+                                          ).toFixed(2)}{" "}
+                                          km
+                                        </Paragraph>
+                                        <Paragraph
+                                          fontSize={10}
+                                          color="text.secondary"
+                                        >
+                                          Distance
+                                        </Paragraph>
+                                      </Box>
+                                    </Grid>
+                                    <Grid size={4}>
+                                      <Box
+                                        textAlign="center"
+                                        p={1}
+                                        sx={{
+                                          background: "#f8f9fa",
+                                          borderRadius: 1,
+                                        }}
                                       >
-                                        Distance
-                                      </Paragraph>
-                                    </Box>
+                                        <Paragraph
+                                          fontSize={14}
+                                          fontWeight={600}
+                                          color="warning.main"
+                                        >
+                                          {parseFloat(
+                                            step.caloriesInKCal
+                                          ).toFixed(1)}
+                                        </Paragraph>
+                                        <Paragraph
+                                          fontSize={10}
+                                          color="text.secondary"
+                                        >
+                                          Calories
+                                        </Paragraph>
+                                      </Box>
+                                    </Grid>
+                                    <Grid size={4}>
+                                      <Box
+                                        textAlign="center"
+                                        p={1}
+                                        sx={{
+                                          background: "#f8f9fa",
+                                          borderRadius: 1,
+                                        }}
+                                      >
+                                        <Paragraph
+                                          fontSize={14}
+                                          fontWeight={600}
+                                          color="success.main"
+                                        >
+                                          {parseFloat(step.coinsEarned).toFixed(
+                                            2
+                                          )}
+                                        </Paragraph>
+                                        <Paragraph
+                                          fontSize={10}
+                                          color="text.secondary"
+                                        >
+                                          Coins Earned
+                                        </Paragraph>
+                                      </Box>
+                                    </Grid>
                                   </Grid>
-                                  <Grid size={4}>
-                                    <Box
-                                      textAlign="center"
-                                      p={1}
-                                      sx={{
-                                        background: "#f8f9fa",
-                                        borderRadius: 1,
-                                      }}
-                                    >
-                                      <Paragraph
-                                        fontSize={14}
-                                        fontWeight={600}
-                                        color="warning.main"
-                                      >
-                                        {parseFloat(step.caloriesInKCal).toFixed(1)}
-                                      </Paragraph>
-                                      <Paragraph
-                                        fontSize={10}
-                                        color="text.secondary"
-                                      >
-                                        Calories
-                                      </Paragraph>
-                                    </Box>
-                                  </Grid>
-                                  <Grid size={4}>
-                                    <Box
-                                      textAlign="center"
-                                      p={1}
-                                      sx={{
-                                        background: "#f8f9fa",
-                                        borderRadius: 1,
-                                      }}
-                                    >
-                                      <Paragraph
-                                        fontSize={14}
-                                        fontWeight={600}
-                                        color="success.main"
-                                      >
-                                        {parseFloat(step.coinsEarned).toFixed(2)}
-                                      </Paragraph>
-                                      <Paragraph
-                                        fontSize={10}
-                                        color="text.secondary"
-                                      >
-                                        Coins Earned
-                                      </Paragraph>
-                                    </Box>
-                                  </Grid>
-                                </Grid>
 
-                                {/* Progress toward daily target */}
-                                {allDataOfSingleUser?.dailyStepsTarget && (
-                                  <Box mt={2}>
-                                    <FlexBetween mb={0.5}>
-                                      <Paragraph
-                                        fontSize={11}
-                                        color="text.secondary"
-                                      >
-                                        Daily Target Progress
-                                      </Paragraph>
-                                      <Paragraph
-                                        fontSize={11}
-                                        color="text.secondary"
-                                      >
-                                        {(
+                                  {/* Progress toward daily target */}
+                                  {allDataOfSingleUser?.dailyStepsTarget && (
+                                    <Box mt={2}>
+                                      <FlexBetween mb={0.5}>
+                                        <Paragraph
+                                          fontSize={11}
+                                          color="text.secondary"
+                                        >
+                                          Daily Target Progress
+                                        </Paragraph>
+                                        <Paragraph
+                                          fontSize={11}
+                                          color="text.secondary"
+                                        >
+                                          {(
+                                            (step.count /
+                                              allDataOfSingleUser.dailyStepsTarget) *
+                                            100
+                                          ).toFixed(1)}
+                                          %
+                                        </Paragraph>
+                                      </FlexBetween>
+                                      <LinearProgress
+                                        variant="determinate"
+                                        value={Math.min(
                                           (step.count /
                                             allDataOfSingleUser.dailyStepsTarget) *
+                                            100,
                                           100
-                                        ).toFixed(1)}
-                                        %
-                                      </Paragraph>
-                                    </FlexBetween>
-                                    <LinearProgress
-                                      variant="determinate"
-                                      value={Math.min(
-                                        (step.count /
-                                          allDataOfSingleUser.dailyStepsTarget) *
-                                          100,
-                                        100
-                                      )}
-                                      sx={{ height: 4, borderRadius: 2 }}
-                                    />
-                                  </Box>
-                                )}
-                              </Box>
-                            </InfoCard>
-                          ))
+                                        )}
+                                        sx={{ height: 4, borderRadius: 2 }}
+                                      />
+                                    </Box>
+                                  )}
+                                </Box>
+                              </InfoCard>
+                            ))}
+
+                            <PaginationContainer
+                              totalPages={stepsData.totalPages}
+                              currentPage={stepsPage}
+                              onPageChange={setStepsPage}
+                              totalItems={stepsData.totalItems}
+                              itemName="steps"
+                            />
+                          </>
                         ) : (
                           <Box
                             textAlign="center"
@@ -1990,127 +2147,176 @@ export default function UserDetailsPageView() {
 
                   <Divider sx={{ my: 3 }} />
 
-                  {/* Gears Section */}
-             
-<Box mb={4}>
-  <Accordion>
-    <AccordionSummary
-      expandIcon={<ExpandMoreIcon />}
-      aria-controls="gears-content"
-      id="gears-header"
-    >
-      <FlexBox alignItems="center" gap={1}>
-        <PersonIcon color="primary" />
-        <H6 fontSize={16}>
-          User Gears ({allDataOfSingleUser?.gears?.length || 0})
-        </H6>
-      </FlexBox>
-    </AccordionSummary>
-
-    <AccordionDetails>
-      {allDataOfSingleUser?.gears?.length > 0 ? (
-        <Stack spacing={2}>
-          {allDataOfSingleUser.gears.map((gear) => (
-            <Box
-              key={gear.id}
-              sx={{
-                p: 2,
-                border: "1px solid #e0e0e0",
-                borderRadius: 2,
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <Avatar
-                src={gear.photo}
-                sx={{ width: 48, height: 48 }}
-              >
-                {gear.brand?.charAt(0) || "G"}
-              </Avatar>
-
-              <Box flex={1}>
-                <Paragraph fontWeight={600} fontSize={14} style={{textTransform:"capitalize"}}>
-                  {gear.brand} {gear.model}
-                </Paragraph>
-                <Paragraph fontSize={12} color="text.secondary" style={{textTransform:"capitalize"}}>
-                  {gear.type?.name} • {gear.sport?.name}
-                </Paragraph>
-                <Paragraph fontSize={11} color="text.disabled">
-                  Added: {formatDate(gear.createdAt)}
-                </Paragraph>
-              </Box>
-
-              <Paragraph
-                fontSize={13}
-                fontWeight={600}
-                color="primary.main"
-                sx={{ whiteSpace: "nowrap" }}
-              >
-                {gear.weight} kg
-              </Paragraph>
-            </Box>
-          ))}
-        </Stack>
-      ) : (
-        <Box
-          textAlign="center"
-          py={3}
-          sx={{ background: "#f9f9f9", borderRadius: 2 }}
-        >
-          <PersonIcon sx={{ fontSize: 32, color: "text.secondary", mb: 1 }} />
-          <Paragraph fontSize={14} color="text.secondary">
-            No gears registered by user
-          </Paragraph>
-        </Box>
-      )}
-    </AccordionDetails>
-  </Accordion>
-</Box>
-
-
-                  <Divider sx={{ my: 3 }} />
-
-                  {/* Reviews Section */}
+                  {/* Gears Section with Pagination */}
                   <Box mb={4}>
-                    <SectionHeader>
-                      <HelpIcon color="primary" />
-                      <H6 fontSize={16}>
-                        User Reviews (
-                        {allDataOfSingleUser?.reviews?.length || 0})
-                      </H6>
-                    </SectionHeader>
+                    <Accordion>
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="gears-content"
+                        id="gears-header"
+                      >
+                        <FlexBox alignItems="center" gap={1}>
+                          <PersonIcon color="primary" />
+                          <H6 fontSize={16}>
+                            User Gears (
+                            {allDataOfSingleUser?.gears?.length || 0})
+                          </H6>
+                        </FlexBox>
+                      </AccordionSummary>
 
-                    {allDataOfSingleUser?.reviews?.length > 0 ? (
-                      allDataOfSingleUser.reviews.map((review) => (
-                        <InfoCard key={review.id} sx={{ mb: 2 }}>
-                          <Box p={2}>
-                            {/* Review content will be displayed here when available */}
-                            <Paragraph fontSize={13}>
-                              Review content will be displayed here
+                      <AccordionDetails>
+                        {gearsData.totalItems > 0 ? (
+                          <>
+                            <Stack spacing={2}>
+                              {gearsData.items.map((gear) => (
+                                <Box
+                                  key={gear.id}
+                                  sx={{
+                                    p: 2,
+                                    border: "1px solid #e0e0e0",
+                                    borderRadius: 2,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 2,
+                                  }}
+                                >
+                                  <Avatar
+                                    src={gear.photo}
+                                    sx={{ width: 48, height: 48 }}
+                                  >
+                                    {gear.brand?.charAt(0) || "G"}
+                                  </Avatar>
+
+                                  <Box flex={1}>
+                                    <Paragraph
+                                      fontWeight={600}
+                                      fontSize={14}
+                                      style={{ textTransform: "capitalize" }}
+                                    >
+                                      {gear.brand} {gear.model}
+                                    </Paragraph>
+                                    <Paragraph
+                                      fontSize={12}
+                                      color="text.secondary"
+                                      style={{ textTransform: "capitalize" }}
+                                    >
+                                      {gear.type?.name} • {gear.sport?.name}
+                                    </Paragraph>
+                                    <Paragraph
+                                      fontSize={11}
+                                      color="text.disabled"
+                                    >
+                                      Added: {formatDate(gear.createdAt)}
+                                    </Paragraph>
+                                  </Box>
+
+                                  <Paragraph
+                                    fontSize={13}
+                                    fontWeight={600}
+                                    color="primary.main"
+                                    sx={{ whiteSpace: "nowrap" }}
+                                  >
+                                    {gear.weight} kg
+                                  </Paragraph>
+                                </Box>
+                              ))}
+                            </Stack>
+
+                            <PaginationContainer
+                              totalPages={gearsData.totalPages}
+                              currentPage={gearsPage}
+                              onPageChange={setGearsPage}
+                              totalItems={gearsData.totalItems}
+                              itemName="gears"
+                            />
+                          </>
+                        ) : (
+                          <Box
+                            textAlign="center"
+                            py={3}
+                            sx={{ background: "#f9f9f9", borderRadius: 2 }}
+                          >
+                            <PersonIcon
+                              sx={{
+                                fontSize: 32,
+                                color: "text.secondary",
+                                mb: 1,
+                              }}
+                            />
+                            <Paragraph fontSize={14} color="text.secondary">
+                              No gears registered by user
                             </Paragraph>
                           </Box>
-                        </InfoCard>
-                      ))
-                    ) : (
-                      <Box
-                        textAlign="center"
-                        py={3}
-                        sx={{ background: "#f9f9f9", borderRadius: 2 }}
-                      >
-                        <HelpIcon
-                          sx={{ fontSize: 32, color: "text.secondary", mb: 1 }}
-                        />
-                        <Paragraph fontSize={14} color="text.secondary">
-                          No reviews written by user
-                        </Paragraph>
-                      </Box>
-                    )}
+                        )}
+                      </AccordionDetails>
+                    </Accordion>
                   </Box>
 
                   <Divider sx={{ my: 3 }} />
 
-                  {/* Wallet Transactions */}
+                  {/* Reviews Section with Pagination */}
+                  <Box mb={4}>
+                    <Accordion>
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="reviews-content"
+                        id="reviews-header"
+                      >
+                        <FlexBox alignItems="center" gap={1}>
+                          <HelpIcon color="primary" />
+                          <H6 fontSize={16}>
+                            User Reviews (
+                            {allDataOfSingleUser?.reviews?.length || 0})
+                          </H6>
+                        </FlexBox>
+                      </AccordionSummary>
+
+                      <AccordionDetails>
+                        {reviewsData.totalItems > 0 ? (
+                          <>
+                            {reviewsData.items.map((review) => (
+                              <InfoCard key={review.id} sx={{ mb: 2 }}>
+                                <Box p={2}>
+                                  <Paragraph fontSize={13}>
+                                    Review content will be displayed here
+                                  </Paragraph>
+                                </Box>
+                              </InfoCard>
+                            ))}
+
+                            <PaginationContainer
+                              totalPages={reviewsData.totalPages}
+                              currentPage={reviewsPage}
+                              onPageChange={setReviewsPage}
+                              totalItems={reviewsData.totalItems}
+                              itemName="reviews"
+                            />
+                          </>
+                        ) : (
+                          <Box
+                            textAlign="center"
+                            py={3}
+                            sx={{ background: "#f9f9f9", borderRadius: 2 }}
+                          >
+                            <HelpIcon
+                              sx={{
+                                fontSize: 32,
+                                color: "text.secondary",
+                                mb: 1,
+                              }}
+                            />
+                            <Paragraph fontSize={14} color="text.secondary">
+                              No reviews written by user
+                            </Paragraph>
+                          </Box>
+                        )}
+                      </AccordionDetails>
+                    </Accordion>
+                  </Box>
+
+                  <Divider sx={{ my: 3 }} />
+
+                  {/* Wallet Transactions with Pagination */}
                   <Box>
                     <Accordion>
                       <AccordionSummary
@@ -2122,14 +2328,16 @@ export default function UserDetailsPageView() {
                           <LocalOfferIcon color="primary" />
                           <H6 fontSize={16}>
                             Recent Wallet Transactions (
-                            {allDataOfSingleUser?.walletTransactions?.length || 0})
+                            {allDataOfSingleUser?.walletTransactions?.length ||
+                              0}
+                            )
                           </H6>
                         </FlexBox>
                       </AccordionSummary>
                       <AccordionDetails>
-                        {allDataOfSingleUser?.walletTransactions?.length > 0 ? (
-                          allDataOfSingleUser.walletTransactions.map(
-                            (transaction) => (
+                        {transactionsData.totalItems > 0 ? (
+                          <>
+                            {transactionsData.items.map((transaction) => (
                               <InfoCard key={transaction.id} sx={{ mb: 1 }}>
                                 <Box p={2}>
                                   <FlexBetween>
@@ -2143,15 +2351,21 @@ export default function UserDetailsPageView() {
                                             : "error.main"
                                         }
                                       >
-                                        {transaction.type === "credit" ? "+" : "-"}₹
-                                        {parseFloat(transaction.amount).toFixed(2)}
+                                        {transaction.type === "credit"
+                                          ? "+"
+                                          : "-"}
+                                        ₹
+                                        {parseFloat(transaction.amount).toFixed(
+                                          2
+                                        )}
                                       </Paragraph>
                                       <Paragraph
                                         fontSize={12}
                                         color="text.secondary"
                                         style={{ textTransform: "capitalize" }}
                                       >
-                                        {transaction.source?.replace("_", " ")} •{" "}
+                                        {transaction.source?.replace("_", " ")}{" "}
+                                        •{" "}
                                         {formatDateTime(transaction.createdAt)}
                                       </Paragraph>
                                     </Box>
@@ -2168,8 +2382,16 @@ export default function UserDetailsPageView() {
                                   </FlexBetween>
                                 </Box>
                               </InfoCard>
-                            )
-                          )
+                            ))}
+
+                            <PaginationContainer
+                              totalPages={transactionsData.totalPages}
+                              currentPage={transactionsPage}
+                              onPageChange={setTransactionsPage}
+                              totalItems={transactionsData.totalItems}
+                              itemName="transactions"
+                            />
+                          </>
                         ) : (
                           <Box
                             textAlign="center"
@@ -2177,7 +2399,11 @@ export default function UserDetailsPageView() {
                             sx={{ background: "#f9f9f9", borderRadius: 2 }}
                           >
                             <LocalOfferIcon
-                              sx={{ fontSize: 32, color: "text.secondary", mb: 1 }}
+                              sx={{
+                                fontSize: 32,
+                                color: "text.secondary",
+                                mb: 1,
+                              }}
                             />
                             <Paragraph fontSize={14} color="text.secondary">
                               No wallet transactions found
