@@ -25,6 +25,8 @@ import {
   People,
   TrendingUp,
   Star,
+  AccessTime,
+  EventAvailable,
 } from "@mui/icons-material";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -41,286 +43,152 @@ import ApproveChallengeForm from "../approvalFormModal";
 import { TextField } from "@mui/material";
 import toast from "react-hot-toast";
 
-// Enhanced Styled Components
+// Clean, elegant styled components without animations
 const StyledCard = styled(Card)(({ theme }) => ({
   position: "relative",
-  overflow: "hidden",
-  borderRadius: 16,
-  boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)",
-  transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-  cursor: "pointer",
+  borderRadius: 12,
+  border: `1px solid ${theme.palette.divider}`,
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
+  transition: "box-shadow 0.2s ease",
   height: "100%",
   display: "flex",
   flexDirection: "column",
+  backgroundColor: theme.palette.background.paper,
   "&:hover": {
-    transform: "translateY(-6px)",
-    boxShadow: "0 12px 36px rgba(0, 0, 0, 0.18)",
-  },
-  "&::before": {
-    content: '""',
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 4,
-    background: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)",
-    zIndex: 1,
+    boxShadow: "0 4px 16px rgba(0, 0, 0, 0.12)",
   },
 }));
 
 const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
-  height: 180,
+  height: 160,
   position: "relative",
   backgroundSize: "cover",
   backgroundPosition: "center",
-  "&::after": {
-    content: '""',
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: "60%",
-    background: "linear-gradient(transparent, rgba(0, 0, 0, 0.5))",
-  },
+  borderRadius: "12px 12px 0 0",
 }));
 
-// Enhanced StatusBadge with better colors and effects
+// Clean status badge design
 const StatusBadge = styled(Chip)(({ theme, status }) => ({
-  zIndex: 10,
-  fontWeight: 700,
+  fontWeight: 600,
   fontSize: "0.7rem",
-  height: "auto",
-  padding: "4px 10px",
-  borderRadius: "12px",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-  transition: "all 0.3s ease",
-  "&:hover": {
-    transform: "scale(1.05)",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
-  },
-  // Status-specific styles
+  height: 24,
+  borderRadius: 6,
+  textTransform: "uppercase",
+  letterSpacing: "0.5px",
   ...(status === "approved" && {
-    background: "linear-gradient(135deg, #4CAF50, #388E3C)",
-    color: "white",
-    border: "1px solid rgba(255, 255, 255, 0.3)",
+    backgroundColor: "#e8f5e9",
+    color: "#2e7d32",
     "& .MuiChip-icon": {
-      color: "white",
+      color: "#2e7d32",
     },
   }),
   ...(status === "rejected" && {
-    background: "linear-gradient(135deg, #F44336, #D32F2F)",
-    color: "white",
-    border: "1px solid rgba(255, 255, 255, 0.3)",
+    backgroundColor: "#ffebee",
+    color: "#c62828",
     "& .MuiChip-icon": {
-      color: "white",
+      color: "#c62828",
     },
   }),
   ...(status === "pending" && {
-    background: "linear-gradient(135deg, #FF9800, #F57C00)",
-    color: "white",
-    border: "1px solid rgba(255, 255, 255, 0.3)",
+    backgroundColor: "#fff3e0",
+    color: "#e65100",
     "& .MuiChip-icon": {
-      color: "white",
+      color: "#e65100",
     },
   }),
   "& .MuiChip-label": {
-    padding: "0 4px",
-    fontSize: "0.7rem",
-    fontWeight: 700,
-    textTransform: "uppercase",
-    letterSpacing: "0.5px",
+    padding: "0 8px",
   },
   "& .MuiChip-icon": {
     fontSize: "14px",
-    marginLeft: "2px",
+    marginLeft: "4px",
   },
 }));
 
-const InfoChip = styled(Chip)(({ theme }) => ({
-  backgroundColor: "rgba(255, 255, 255, 0.15)",
-  backdropFilter: "blur(10px)",
-  color: theme.palette.text.primary,
-  border: `1px solid ${theme.palette.divider}`,
-  fontWeight: 500,
+const InfoChip = styled(Box)(({ theme }) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 4,
+  padding: "4px 8px",
+  borderRadius: 6,
+  backgroundColor: theme.palette.grey[50],
   fontSize: "0.75rem",
-  height: "24px",
-  "& .MuiChip-icon": {
-    color: theme.palette.primary.main,
-    fontSize: "16px",
+  fontWeight: 500,
+  color: theme.palette.text.secondary,
+  "& svg": {
+    fontSize: "14px",
   },
 }));
 
-const ProgressSection = styled(Box)(({ theme }) => ({
-  // background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
-  borderRadius: 12,
-  padding: theme.spacing(1.5),
-  marginTop: theme.spacing(1),
-  position: "relative",
+const DescriptionBox = styled(Typography)(({ theme }) => ({
+  fontSize: "0.875rem",
+  lineHeight: 1.6,
+  color: theme.palette.text.secondary,
+  height: 50, // Fixed height for description
   overflow: "hidden",
-  "&::before": {
-    content: '""',
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    // background:
-    //   "linear-gradient(135deg, rgba(103, 58, 183, 0.1) 0%, rgba(63, 81, 181, 0.1) 100%)",
+  display: "-webkit-box",
+  WebkitLineClamp: 3,
+  WebkitBoxOrient: "vertical",
+  textOverflow: "ellipsis",
+  textTransform:"capitalize"
+}));
+
+const ActionButton = styled(Button)(({ theme }) => ({
+  borderRadius: 8,
+  textTransform: "none",
+  fontWeight: 600,
+  padding: "8px 16px",
+  backgroundColor: theme.palette.primary.main,
+  color: "white",
+  "&:hover": {
+    backgroundColor: theme.palette.primary.dark,
+  },
+  "&.MuiButton-outlined": {
+    backgroundColor: "transparent",
+    border: `1px solid ${theme.palette.primary.main}`,
+    color: theme.palette.primary.main,
+    "&:hover": {
+      backgroundColor: theme.palette.primary.light + "10",
+    },
   },
 }));
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialog-paper": {
-    borderRadius: 20,
-    boxShadow: "0 20px 60px rgba(0, 0, 0, 0.25)",
-    padding: theme.spacing(1),
+    borderRadius: 16,
+    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.15)",
+    padding: theme.spacing(2),
     maxWidth: 500,
     width: "100%",
-    background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
-    border: "1px solid rgba(255, 255, 255, 0.8)",
-    overflow: "hidden",
   },
-  "& .MuiDialogTitle": {
-    fontWeight: 700,
-    fontSize: "1.4rem",
-    padding: theme.spacing(0, 0, theme.spacing(2)),
-    color: theme.palette.primary.main,
-    textAlign: "center",
-    position: "relative",
-    "&::after": {
-      content: '""',
-      position: "absolute",
-      bottom: theme.spacing(1),
-      left: "25%",
-      right: "25%",
-      height: 2,
-      background:
-        "linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.5), transparent)",
-    },
-  },
-  "& .MuiDialogContent": {
-    padding: theme.spacing(2, 0, theme.spacing(3)),
-    textAlign: "center",
-  },
-  "& .MuiDialogActions": {
-    padding: theme.spacing(2, 0, 0),
-    justifyContent: "center",
-    gap: theme.spacing(2),
-  },
-  "& .MuiTextField-root": {
-    "& .MuiOutlinedInput-root": {
-      borderRadius: 12,
-      backgroundColor: "rgba(255, 255, 255, 0.8)",
-      "&:hover": {
-        "& .MuiOutlinedInput-notchedOutline": {
-          borderColor: theme.palette.primary.main,
-        },
-      },
-      "&.Mui-focused": {
-        "& .MuiOutlinedInput-notchedOutline": {
-          borderColor: theme.palette.primary.main,
-          borderWidth: 2,
-        },
-      },
-    },
-  },
-  "& .MuiButton-root": {
-    borderRadius: 12,
-    fontWeight: 600,
-    padding: "10px 24px",
-    textTransform: "none",
-    transition: "all 0.3s ease",
-    "&:hover": {
-      transform: "translateY(-2px)",
-    },
-  },
-}));
-
-const GradientButton = styled(Button)(({ theme, color }) => ({
-  borderRadius: 8,
-  textTransform: "none",
-  fontWeight: 600,
-  padding: "8px 16px",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-  transition: "all 0.3s ease",
-  ...(color === "success" && {
-    background: "linear-gradient(45deg, #4CAF50, #388E3C)",
-    "&:hover": {
-      background: "linear-gradient(45deg, #388E3C, #2E7D32)",
-      boxShadow: "0 4px 12px rgba(76, 175, 80, 0.4)",
-    },
-  }),
-  ...(color === "error" && {
-    background: "linear-gradient(45deg, #F44336, #D32F2F)",
-    "&:hover": {
-      background: "linear-gradient(45deg, #D32F2F, #C62828)",
-      boxShadow: "0 4px 12px rgba(244, 67, 54, 0.4)",
-    },
-  }),
-  ...(color === "primary" && {
-    background: "linear-gradient(45deg, #667eea 30%, #764ba2 90%)",
-    "&:hover": {
-      background: "linear-gradient(45deg, #5a6fd8 30%, #6a4190 90%)",
-      boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
-    },
-  }),
-}));
-
-const ReviewButton = styled(Button)(({ theme, color }) => ({
-  borderRadius: 8,
-  textTransform: "none",
-  fontWeight: 600,
-  padding: "20px 16px",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-  transition: "all 0.3s ease",
 }));
 
 const DialogButton = styled(Button)(({ theme, variant }) => ({
-  borderRadius: 12,
-  border: "1px solid",
+  borderRadius: 8,
   fontWeight: 600,
-  padding: "12px 28px",
+  padding: "10px 24px",
   textTransform: "none",
-  transition: "all 0.3s ease",
-  boxShadow: "none",
-  minWidth: 140,
-  "&:hover": {
-    transform: "translateY(-2px)",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-  },
-  ...(variant === "primary" && {
-    // borderColor: "linear-gradient(45deg, #667eea 30%, #764ba2 90%)",
-    color: "grey",
-    "&:hover": {
-      background: "linear-gradient(45deg, #5a6fd8 30%, #6a4190 90%)",
-      color: "white",
-    },
-  }),
+  minWidth: 120,
   ...(variant === "success" && {
-    // borderColor: "linear-gradient(45deg, #4CAF50, #388E3C)",
-    borderColor: "green",
-    color: "grey",
+    backgroundColor: "#4CAF50",
+    color: "white",
     "&:hover": {
-      background: "linear-gradient(45deg, #388E3C, #2E7D32)",
-      color: "white",
+      backgroundColor: "#388E3C",
     },
   }),
   ...(variant === "error" && {
-    // borderColor: "linear-gradient(45deg, #F44336, #D32F2F)",
-    borderColor: "red",
-    color: "grey",
+    backgroundColor: "#F44336",
+    color: "white",
     "&:hover": {
-      background: "linear-gradient(45deg, #D32F2F, #C62828)",
-      color: "white",
+      backgroundColor: "#D32F2F",
     },
   }),
   ...(variant === "outlined" && {
-    background: "transparent",
-    border: `2px solid ${theme.palette.primary.main}`,
-    color: theme.palette.primary.main,
+    backgroundColor: "transparent",
+    border: `1px solid ${theme.palette.divider}`,
+    color: theme.palette.text.primary,
     "&:hover": {
-      background: "rgba(102, 126, 234, 0.08)",
-      borderColor: theme.palette.primary.dark,
+      backgroundColor: theme.palette.grey[50],
     },
   }),
 }));
@@ -336,7 +204,7 @@ export default function ChallengeCard3({
   );
   const [isProcessing, setIsProcessing] = useState(false);
   const [openReviewModal, setOpenReviewModal] = useState(false);
-  const [reviewAction, setReviewAction] = useState(""); // 'approve' or 'reject'
+  const [reviewAction, setReviewAction] = useState("");
   const [showReasonInput, setShowReasonInput] = useState(false);
   const [reviewReason, setReviewReason] = useState("");
   const dispatch = useDispatch();
@@ -354,7 +222,6 @@ export default function ChallengeCard3({
   };
 
   const handleOpenReviewModal = () => {
-    console.log("Opening review modal");
     setOpenReviewModal(true);
   };
 
@@ -364,28 +231,17 @@ export default function ChallengeCard3({
     const now = new Date();
     const diffTime = date - now;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
     if (diffDays < 0) {
-      return { text: "Ended", color: "error", icon: <Cancel /> };
+      return { text: "Ended", color: "error" };
     } else if (diffDays === 0) {
-      return { text: "Today", color: "warning", icon: <Schedule /> };
+      return { text: "Today", color: "warning" };
     } else if (diffDays === 1) {
-      return {
-        text: "Tomorrow",
-        color: "success",
-        icon: <Schedule />,
-      };
+      return { text: "Tomorrow", color: "success" };
     } else if (diffDays <= 7) {
-      return {
-        text: `${diffDays} days`,
-        color: "primary",
-        icon: <Schedule />,
-      };
+      return { text: `${diffDays} days`, color: "primary" };
     } else {
-      return {
-        text: date.toLocaleDateString(),
-        color: "default",
-        icon: <CalendarToday />,
-      };
+      return { text: date.toLocaleDateString(), color: "default" };
     }
   };
 
@@ -404,27 +260,22 @@ export default function ChallengeCard3({
   const getStatusChip = () => {
     const statusConfig = {
       approved: {
-        // label: "Approved",
-        color: "success",
+        label: "Approved",
         icon: <CheckCircle />,
       },
       rejected: {
-        // label: "Rejected",
-        color: "error",
+        label: "Rejected",
         icon: <Cancel />,
       },
       pending: {
-        // label: "Pending",
-        color: "warning",
+        label: "Pending",
         icon: <Schedule />,
       },
     };
-    const config =
-      statusConfig[isApprovalStatus] || statusConfig.pending;
+    const config = statusConfig[isApprovalStatus] || statusConfig.pending;
     return (
       <StatusBadge
         label={config.label}
-        color={config.color}
         size="small"
         icon={config.icon}
         status={isApprovalStatus}
@@ -436,49 +287,33 @@ export default function ChallengeCard3({
     try {
       setIsProcessing(true);
       const requestBody = {
-        approvalStatus:
-          reviewAction === "approve" ? "approved" : "rejected",
+        approvalStatus: reviewAction === "approve" ? "approved" : "rejected",
         reviewReason: reviewReason.trim(),
       };
-      console.log(`Action: ${reviewAction}, Reason: ${reviewReason}`);
-      console.log("Challenge ID:", allChallenges?.id);
-      console.log("Request Body:", requestBody);
+      
       const response = await dispatch(
         reviewChallenges({
           challengeId: allChallenges?.id,
           reviewData: requestBody,
         })
       );
-      console.log("Full response:", response);
-      // Check if the response was successful
+      
       if (
-        response?.type ===
-          "appChallenges/reviewChallenges/fulfilled" &&
+        response?.type === "appChallenges/reviewChallenges/fulfilled" &&
         response?.payload?.status === 200
       ) {
-        const action =
-          reviewAction === "approve" ? "approved" : "rejected";
+        const action = reviewAction === "approve" ? "approved" : "rejected";
         if (reviewAction === "approve") {
           toast.success(`Challenge ${action} successfully!`);
         } else {
           toast.error(`Challenge ${action} successfully!`);
         }
         setIsApprovalStatus(requestBody.approvalStatus);
-        // Reset states and close modal
         setShowReasonInput(false);
         setReviewReason("");
         setReviewAction("");
         setOpenReviewModal(false);
-      } else if (
-        response?.type === "appChallenges/reviewChallenges/rejected"
-      ) {
-        console.error(
-          "API rejected:",
-          response.payload || response.error
-        );
-        toast.error("Failed to review challenge. Please try again.");
       } else {
-        console.error("Unexpected response:", response);
         toast.error("Failed to review challenge. Please try again.");
       }
     } catch (error) {
@@ -507,132 +342,78 @@ export default function ChallengeCard3({
         image={allChallenges?.banner}
         title={allChallenges?.title}
       />
-      <CardContent
-        sx={{
-          p: 3,
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        {/* Title with Status Badge */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 1.5,
-          }}
-        >
-          <Link
-            href="/challenges/details"
-            onClick={() =>
-              handleChallengeDetailsClick(allChallenges?.id)
-            }
-            style={{ textDecoration: "none", flex: 1 }}
+      
+      <CardContent sx={{ p: 2.5, flex: 1, display: "flex", flexDirection: "column" }}>
+        {/* Header Section */}
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
+          <Typography
+            variant="h6"
+            component="h4"
+            sx={{
+              fontWeight: 600,
+              fontSize: "1rem",
+              flex: 1,
+              pr: 1,
+              color: "text.primary",
+              height:"60px",
+              cursor: "pointer",
+              "&:hover": {
+                color: "primary.main",
+              },
+            }}
+            style={{textTransform:"capitalize"}}
+            onClick={() => handleChallengeDetailsClick(allChallenges?.id)}
           >
-            <Tooltip title={allChallenges?.title || "No title"}>
-              <Typography
-                variant="h6"
-                component="h2"
-                sx={{
-                  fontWeight: 700,
-                  fontSize: "1.1rem",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                  textTransform: "capitalize",
-                  textOverflow: "ellipsis",
-                  color: "text.primary",
-                  "&:hover": {
-                    color: "primary.main",
-                  },
-                  pr: 1,
-                  lineHeight: 1.3,
-                }}
-              >
-                {allChallenges?.title || "No title"}
-              </Typography>
-            </Tooltip>
-          </Link>
-          <Box sx={{ padding: "10px" }}> {getStatusChip()}</Box>
+            {allChallenges?.title || "No title"}
+          </Typography>
+          {getStatusChip()}
         </Box>
 
-        {/* Description */}
-        <Typography
+        {/* Fixed Height Description */}
+        <DescriptionBox
           variant="body2"
-          color="text.secondary"
-          sx={{
-            mb: 2,
-            display: "-webkit-box",
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            lineHeight: 1.5,
-            fontSize: "0.9rem",
-          }}
           dangerouslySetInnerHTML={{
-            __html:
-              allChallenges?.description ||
-              "No description available",
+            __html: allChallenges?.description || "No description available",
           }}
         />
 
-        {/* Date Information */}
-        <Box sx={{ display: "flex", gap: 1, mt: 2, mb: 2 }}>
-          <InfoChip
-            size="small"
-            icon={startDateInfo.icon}
-            label={`Starts: ${startDateInfo.text}`}
-            color={startDateInfo.color}
-          />
-          <InfoChip
-            size="small"
-            icon={endDateInfo.icon}
-            label={`Ends: ${endDateInfo.text}`}
-            color={endDateInfo.color}
-          />
+        {/* Date Information - Simplified */}
+        <Box sx={{ display: "flex", gap: 2, mt: 2, mb: 2 }}>
+          <InfoChip >
+            <AccessTime sx={{color:"primary.main"}}/>
+            <span>Starts: {startDateInfo.text}</span>
+          </InfoChip>
+          <InfoChip>
+            <EventAvailable sx={{color:"primary.main"}} />
+            <span>Ends: {endDateInfo.text}</span>
+          </InfoChip>
         </Box>
 
-        {/* Bottom Section */}
-        <FlexBetween sx={{ mt: "auto" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <AvatarGroup
-              max={3}
-              sx={{
-                "& .MuiAvatar-root": {
-                  width: 28,
-                  height: 28,
-                  border: "2px solid white",
-                },
-              }}
-            >
-              <Avatar
-                alt="Challenge Badge"
-                src={allChallenges?.badge}
-              />
-              <Avatar
-                sx={{ bgcolor: "primary.main", fontSize: "0.7rem" }}
-              >
-                +5
-              </Avatar>
-            </AvatarGroup>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              fontWeight={500}
-            >
-              badges
-            </Typography>
-          </Box>
-        </FlexBetween>
+        {/* Badges Section */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+          <AvatarGroup
+            max={3}
+            sx={{
+              "& .MuiAvatar-root": {
+                width: 24,
+                height: 24,
+                fontSize: "0.7rem",
+                border: "2px solid white",
+              },
+            }}
+          >
+            <Avatar alt="Badge" src={allChallenges?.badge} />
+            <Avatar sx={{ bgcolor: "primary.light" }}>+5</Avatar>
+          </AvatarGroup>
+          <Typography variant="caption" color="text.secondary">
+            badges available
+          </Typography>
+        </Box>
 
         {/* Action Button */}
         {isApprovalStatus === "pending" && (
-          <ReviewButton
-            color="primary"
+          <ActionButton
+            variant="outlined"
             size="small"
             startIcon={<RateReview />}
             onClick={(e) => {
@@ -641,128 +422,67 @@ export default function ChallengeCard3({
             }}
             disabled={isProcessing}
             fullWidth
-            sx={{ mt: 2 }}
+            sx={{ mt: "auto" }}
           >
             {isProcessing ? (
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 1 }}
-              >
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <CircularProgress size={16} color="inherit" />
                 <span>Processing...</span>
               </Box>
             ) : (
-              `Review Challenge`
+              "Review Challenge"
             )}
-          </ReviewButton>
+          </ActionButton>
         )}
       </CardContent>
 
       {/* Review Dialog */}
-      <StyledDialog
-        open={openReviewModal}
-        onClose={handleCloseReviewModal}
-      >
+      <StyledDialog open={openReviewModal} onClose={handleCloseReviewModal}>
         <IconButton
           onClick={handleCloseReviewModal}
           sx={{
-            color: "text.secondary",
             position: "absolute",
-            top: "0",
-            right: "0",
-            border: "0.1px solid #f5f5dbff",
-            "&:hover": {
-              color: "text.primary",
-              backgroundColor: "rgba(0, 0, 0, 0.04)",
-            },
+            top: 8,
+            right: 8,
+            color: "text.secondary",
           }}
         >
           <Close />
         </IconButton>
+        
         <DialogTitle>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Typography
-              sx={{
-                fontWeight: 700,
-                fontSize: "1.4rem",
-                color: "primary.main",
-                textAlign: "center",
-                flex: 1,
-              }}
-            >
-              Review Challenge
-            </Typography>
-          </Box>
+          <Typography variant="h6" fontWeight={600}>
+            Review Challenge
+          </Typography>
         </DialogTitle>
+        
         <DialogContent>
           {!showReasonInput ? (
             <Box sx={{ py: 2 }}>
-              <Typography
-                variant="body2"
-                sx={{ mb: 4, fontSize: "1.1rem" }}
-              >
+              <Typography variant="body2" sx={{ mb: 3 }}>
                 Do you want to approve or reject this challenge?
               </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexDirection: "column",
-                  mb: 2,
-                }}
-              >
-                <Typography
-                  variant="paragraph1"
-                  sx={{
-                    fontWeight: 600,
-                    color: "text.primary",
-                    textTransform: "capitalize",
-                    textAlign: "center",
-                    mb: 2,
-                  }}
-                >
-                  {allChallenges?.title || "Challenge Title"}
+              <Box sx={{ textAlign: "center", mb: 3 }}>
+                <Typography variant="body1" fontWeight={600} sx={{ mb: 2 }}>
+                  {allChallenges?.title}
                 </Typography>
                 <Avatar
                   src={allChallenges?.banner}
                   sx={{
-                    width: 300,
-                    height: 150,
+                    width: 280,
+                    height: 140,
                     borderRadius: 2,
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    margin: "0 auto",
                   }}
                 />
               </Box>
             </Box>
           ) : (
             <Box sx={{ py: 2 }}>
-              <Typography
-                variant="body1"
-                sx={{
-                  mb: 3,
-                  fontSize: "1.1rem",
-                  fontWeight: 500,
-                }}
-              >
+              <Typography variant="body1" sx={{ mb: 2 }}>
                 Please provide a reason for{" "}
-                <span
-                  style={{
-                    fontWeight: 700,
-                    color:
-                      reviewAction === "approve"
-                        ? "#4CAF50"
-                        : "#F44336",
-                  }}
-                >
-                  {reviewAction === "approve"
-                    ? "approving"
-                    : "rejecting"}
+                <span style={{ fontWeight: 600, color: reviewAction === "approve" ? "#4CAF50" : "#F44336" }}>
+                  {reviewAction === "approve" ? "approving" : "rejecting"}
                 </span>{" "}
                 this challenge:
               </Typography>
@@ -774,17 +494,12 @@ export default function ChallengeCard3({
                 placeholder="Enter your reason here..."
                 value={reviewReason}
                 onChange={(e) => setReviewReason(e.target.value)}
-                sx={{
-                  mb: 3,
-                  "& .MuiOutlinedInput-input": {
-                    fontSize: "1rem",
-                  },
-                }}
               />
             </Box>
           )}
         </DialogContent>
-        <DialogActions>
+        
+        <DialogActions sx={{ px: 3, pb: 2 }}>
           {!showReasonInput ? (
             <>
               <DialogButton
@@ -820,19 +535,11 @@ export default function ChallengeCard3({
               </DialogButton>
               <DialogButton
                 onClick={handleSubmitReview}
-                variant={
-                  reviewAction === "approve" ? "success" : "error"
-                }
+                variant={reviewAction === "approve" ? "success" : "error"}
                 disabled={!reviewReason.trim() || isProcessing}
               >
                 {isProcessing ? (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                    }}
-                  >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <CircularProgress size={16} color="inherit" />
                     <span>Processing...</span>
                   </Box>

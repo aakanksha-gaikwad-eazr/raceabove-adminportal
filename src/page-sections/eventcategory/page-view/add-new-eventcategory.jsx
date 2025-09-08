@@ -6,32 +6,29 @@ import * as Yup from "yup";
 import Grid from "@mui/material/Grid";
 import { FlexBox } from "@/components/flexbox";
 
-import { Paragraph, Small } from "@/components/typography"; // CUSTOM UTILS METHOD
+import { Paragraph, Small } from "@/components/typography";
 import IconWrapper from "@/components/icon-wrapper/IconWrapper";
 import GroupSenior from "@/icons/GroupSenior";
 import Card from "@mui/material/Card";
-
-import {
-  createGearTypes,
-  getGearTypes,
-} from "@/store/apps/geartypes";
-
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { createEventCategory, getEventCategory } from "@/store/apps/eventscategory";
 
-export default function CreateGearTypesFormModal({ handleClose }) {
+export default function CreateEventCategoriesFormModal({ handleClose }) {
   const [uploading, setUploading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const initialValues = {
     name: "",
-    iconFile: null,
+    description: "",
+    isActive: true,
   };
 
   const validationSchema = Yup.object({
-    name: Yup.string().required("Gear Type name is required"),
-    iconFile: Yup.mixed().required("Icon is required"),
+    name: Yup.string().required("Event Category name is required"),
+    description: Yup.string().required("Description is required"),
+    isActive: Yup.boolean(),
   });
 
   const {
@@ -48,40 +45,36 @@ export default function CreateGearTypesFormModal({ handleClose }) {
     onSubmit: async (formValues) => {
       try {
         setUploading(true);
-        const formData = new FormData();
-        formData.append("name", formValues.name);
-        formData.append("iconFile", formValues.iconFile);
+                const payload = {
+          name: formValues.name,
+          description: formValues.description,
+          isActive: formValues.isActive,
+        };
 
+        console.log("payload", payload);
         const response = await dispatch(
-          createGearTypes(formData)
+          createEventCategory(payload)
         ).unwrap();
 
         if (response?.status === 200 || response?.status === 201) {
-          toast.success("Gear type created successfully!");
-          dispatch(getGearTypes());
-          navigate("/geartypes-list-2");
+          toast.success("Event Category created successfully!");
+          dispatch(getEventCategory());
+          navigate("/eventcategory-list-2");
         } else {
           toast.error(
-            response?.message || "Failed to create gear type."
+            response?.message || "Failed to create Event Category."
           );
         }
       } catch (error) {
         toast.error(
           error?.message ||
-            "An error occurred while creating the gear type."
+            "An error occurred while creating the Event Category."
         );
       } finally {
         setUploading(false);
       }
     },
   });
-
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFieldValue("iconFile", file);
-    }
-  };
 
   return (
     <div className="pt-2 pb-4">
@@ -94,7 +87,7 @@ export default function CreateGearTypesFormModal({ handleClose }) {
                   <GroupSenior sx={{ color: "primary.main" }} />
                 </IconWrapper>
                 <Paragraph fontSize={18} fontWeight="bold">
-                  Add New Gear Types
+                  Add New Event Category
                 </Paragraph>
               </FlexBox>
             </Grid>
@@ -103,7 +96,7 @@ export default function CreateGearTypesFormModal({ handleClose }) {
                 <Grid item xs={12}>
                   <Stack spacing={2} mb={2}>
                     <TextField
-                      label="Gear Type Name"
+                      label="Event Category Name"
                       name="name"
                       value={values.name}
                       onChange={handleChange}
@@ -113,46 +106,18 @@ export default function CreateGearTypesFormModal({ handleClose }) {
                       fullWidth
                     />
 
-                    <Box>
-                      <input
-                        accept=".svg"
-                        id="icon-upload"
-                        type="file"
-                        style={{ display: "none" }}
-                        onChange={handleFileChange}
-                      />
-                      <label htmlFor="icon-upload">
-                        <Button
-                          variant="outlined"
-                          component="span"
-                          disabled={uploading}
-                        >
-                          {uploading
-                            ? "Uploading..."
-                            : "Upload SVG Icon"}
-                        </Button>
-                      </label>
-
-                      {touched.iconFile && errors.iconFile && (
-                        <Box color="error.main" mt={1} fontSize={12}>
-                          {errors.iconFile}
-                        </Box>
-                      )}
-
-                      {values.iconFile && (
-                        <Box mt={1}>
-                          <img
-                            src={URL.createObjectURL(values.iconFile)}
-                            alt="Icon preview"
-                            style={{
-                              width: 60,
-                              height: 60,
-                              objectFit: "contain",
-                            }}
-                          />
-                        </Box>
-                      )}
-                    </Box>
+                    <TextField
+                      label="Description"
+                      name="description"
+                      value={values.description}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      error={touched.description && Boolean(errors.description)}
+                      helperText={touched.description && errors.description}
+                      multiline
+                      rows={3}
+                      fullWidth
+                    />
                   </Stack>
                 </Grid>
 

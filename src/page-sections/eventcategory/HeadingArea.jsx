@@ -48,7 +48,7 @@ export default function HeadingArea({ value, changeTab }) {
       <Button
         variant="contained"
         startIcon={<Add />}
-        onClick={() => navigate("/add-gearstype")}
+        onClick={() => navigate("/add-new-eventcategory")}
       >
         Add Event Category
       </Button>

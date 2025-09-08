@@ -44,6 +44,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { formatDate } from "@/utils/dateFormatter";
+import { getSingleOrganizers } from "@/store/apps/organisers";
+import ReactQuill from "react-quill";
 
 // TabPanel Component
 function TabPanel({ children, value, index, ...other }) {
@@ -107,27 +109,14 @@ export default function OrganizerDetailsPageView() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  // Mock function to simulate API call - replace with your actual API call
-  const getOrganizerById = (organizerId) => {
-    return new Promise((resolve) => {
-      // Replace this with your actual API call
-      setTimeout(() => {
-        resolve({
-          payload: organizerData, // Your JSON data here
-        });
-      }, 1000);
-    });
-  };
-
   useEffect(() => {
     if (id) {
       setLoading(true);
-      // Replace this with your actual API call
-      // dispatch(getOrganizerById(id))
-      getOrganizerById(id)
+      dispatch(getSingleOrganizers(id))
         .then((response) => {
           if (response?.payload) {
             setOrganizerData(response?.payload);
+            console.log("Organizer data loaded:", response.payload);
           }
         })
         .catch((error) => {
@@ -136,7 +125,7 @@ export default function OrganizerDetailsPageView() {
         })
         .finally(() => setLoading(false));
     } else {
-      toast.error("No organizer selected");
+      toast.error("No organizer ID provided");
       navigate("/organizers");
     }
   }, [dispatch, id, navigate]);
@@ -151,6 +140,24 @@ export default function OrganizerDetailsPageView() {
     );
   }
 
+  if (!organizerData) {
+    return (
+      <div style={{ padding: "20px" }}>
+        <Alert severity="warning">No organizer data found</Alert>
+      </div>
+    );
+  }
+
+  const formatCurrency = (amount) => `₹${Number(amount || 0).toLocaleString()}`;
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   return (
     <div className="pt-2 pb-4">
       <Grid container spacing={3}>
@@ -164,7 +171,7 @@ export default function OrganizerDetailsPageView() {
                 aria-label="organizer details tabs"
                 variant="scrollable"
                 scrollButtons="auto"
-                style={{padding:"10px 20px"}}
+                style={{ padding: "10px 20px" }}
               >
                 <Tab label="Overview" />
                 <Tab label="Events" />
@@ -197,6 +204,7 @@ export default function OrganizerDetailsPageView() {
                     </Box>
                   </FlexBox>
                   <StatusChip
+                    style={{ textTransform: "capitalize" }}
                     label={organizerData?.approvalStatus || "Pending"}
                     status={organizerData?.approvalStatus}
                     size="small"
@@ -478,6 +486,7 @@ export default function OrganizerDetailsPageView() {
                                 {event.title}
                               </Paragraph>
                               <StatusChip
+                                style={{ textTransform: "capitalize" }}
                                 label={event.approvalStatus}
                                 status={event.approvalStatus}
                                 size="small"
@@ -506,7 +515,13 @@ export default function OrganizerDetailsPageView() {
                               Date
                             </Paragraph>
                             <Paragraph fontSize={13} fontWeight={500}>
-                              {event.date}
+                              {new Date(event.startDateTime).toLocaleDateString(
+                                "en-GB"
+                              )}{" "}
+                              -{" "}
+                              {new Date(event.endDateTime).toLocaleDateString(
+                                "en-GB"
+                              )}
                             </Paragraph>
                           </Grid>
                           <Grid size={3}>
@@ -514,7 +529,15 @@ export default function OrganizerDetailsPageView() {
                               Time
                             </Paragraph>
                             <Paragraph fontSize={13} fontWeight={500}>
-                              {event.startTime} - {event.endTime}
+                              {new Date(event.startDateTime).toLocaleTimeString(
+                                [],
+                                { hour: "2-digit", minute: "2-digit" }
+                              )}{" "}
+                              -{" "}
+                              {new Date(event.endDateTime).toLocaleTimeString(
+                                [],
+                                { hour: "2-digit", minute: "2-digit" }
+                              )}
                             </Paragraph>
                           </Grid>
                           <Grid size={3}>
@@ -526,7 +549,7 @@ export default function OrganizerDetailsPageView() {
                               fontWeight={500}
                               color="primary.main"
                             >
-                              ₹{event.price}
+                              ₹{event.price ?? "N/A"}
                             </Paragraph>
                           </Grid>
                           <Grid size={3}>
@@ -540,14 +563,30 @@ export default function OrganizerDetailsPageView() {
                         </Grid>
 
                         <Box>
-                          <Paragraph
+                          {/* <Paragraph
                             fontSize={13}
                             color="text.secondary"
                             mb={1}
                           >
                             Location: {event.location?.address},{" "}
                             {event.location?.city}, {event.location?.state}
+                          </Paragraph> */}
+                          <Paragraph
+                            fontSize={13}
+                            color="text.secondary"
+                            mb={1}
+                            style={{ textTransform: "capitalize" }}
+                          >
+                            Location:{" "}
+                            {[
+                              event.location?.address?.trim(),
+                              event.location?.city?.trim(),
+                              event.location?.state?.trim(),
+                            ]
+                              .filter(Boolean)
+                              .join(", ") || "NA"}
                           </Paragraph>
+
                           <FlexBox alignItems="center" gap={1}>
                             <Chip
                               label={event.isActive ? "Active" : "Inactive"}
@@ -595,6 +634,7 @@ export default function OrganizerDetailsPageView() {
                                 {challenge.title}
                               </Paragraph>
                               <StatusChip
+                                style={{ textTransform: "capitalize" }}
                                 label={challenge.approvalStatus}
                                 status={challenge.approvalStatus}
                                 size="small"
@@ -617,10 +657,17 @@ export default function OrganizerDetailsPageView() {
                           </Box>
                         </FlexBetween>
 
-                        <Paragraph fontSize={13} color="text.secondary" mb={2}>
-                          {challenge.description}
+                        <Paragraph
+                          fontSize={13}
+                          color="text.secondary"
+                          mb={2}
+                          style={{ textTransform: "capitalize" }}
+                          dangerouslySetInnerHTML={{
+                            __html: challenge?.description || "",
+                          }}
+                        >
+                          {/* {challenge.description}  */}
                         </Paragraph>
-
                         <Grid container spacing={2} mb={2}>
                           <Grid size={3}>
                             <Paragraph fontSize={12} color="text.secondary">
@@ -639,7 +686,9 @@ export default function OrganizerDetailsPageView() {
                               Duration
                             </Paragraph>
                             <Paragraph fontSize={13} fontWeight={500}>
-                              {challenge.startDate} to {challenge.endDate}
+                              {new Date(challenge.startDate).toLocaleDateString("en-GB")} to{" "}
+{new Date(challenge.endDate).toLocaleDateString("en-GB")}
+
                             </Paragraph>
                           </Grid>
                           <Grid size={3}>
@@ -707,7 +756,7 @@ export default function OrganizerDetailsPageView() {
                                 <FlexBox gap={2}>
                                   {product.image && (
                                     <img
-                                      src={product.image}
+                                      src={product?.image}
                                       alt={product.name}
                                       style={{
                                         width: 80,
@@ -719,7 +768,7 @@ export default function OrganizerDetailsPageView() {
                                   )}
                                   <Box flex={1}>
                                     <FlexBetween mb={1}>
-                                      <Paragraph fontWeight={600} fontSize={16}>
+                                      <Paragraph fontWeight={600} fontSize={16} style={{textTransform:"capitalize"}}>
                                         {product.name}
                                       </Paragraph>
                                       <Box textAlign="right">
@@ -731,6 +780,7 @@ export default function OrganizerDetailsPageView() {
                                           ₹{product.price}
                                         </Paragraph>
                                         <StatusChip
+                                        style={{textTransform:"capitalize"}}
                                           label={product.approvalStatus}
                                           status={product.approvalStatus}
                                           size="small"
@@ -742,12 +792,14 @@ export default function OrganizerDetailsPageView() {
                                       fontSize={13}
                                       color="text.secondary"
                                       mb={1}
+                                      style={{textTransform:"capitalize"}}
                                     >
                                       {product.description}
                                     </Paragraph>
 
                                     <FlexBetween>
                                       <Chip
+                                      style={{textTransform:"capitalize"}}
                                         label={product.category?.name}
                                         size="small"
                                         variant="outlined"
@@ -808,6 +860,7 @@ export default function OrganizerDetailsPageView() {
                                       fontSize={13}
                                       color="text.secondary"
                                       mt={0.5}
+                                      style={{textTransform:"capitalize"}}
                                     >
                                       {coupon.description}
                                     </Paragraph>
@@ -817,12 +870,14 @@ export default function OrganizerDetailsPageView() {
                                       label={`${coupon.discountValue}% OFF`}
                                       color="secondary"
                                       size="small"
+                                      style={{textTransform:"capitalize"}}
                                     />
                                     <Box mt={1}>
                                       <StatusChip
                                         label={coupon.approvalStatus}
                                         status={coupon.approvalStatus}
                                         size="small"
+                                        style={{textTransform:"capitalize"}}  
                                       />
                                     </Box>
                                   </Box>
@@ -901,18 +956,20 @@ export default function OrganizerDetailsPageView() {
                               }}
                             >
                               <FlexBetween>
-                                <Box>
-                                  <Paragraph fontWeight={500}>
+                                <Box style={{height:"130px"}}>
+                                  <Paragraph fontWeight={500} style={{textTransform:"capitalize"}}>
                                     {category.name}
-                                  </Paragraph>
+                                  </Paragraph> 
                                   <Paragraph
                                     fontSize={12}
                                     color="text.secondary"
+                                    style={{textTransform:"capitalize"}}
                                   >
                                     {category.description}
                                   </Paragraph>
                                 </Box>
                                 <StatusChip
+                                style={{textTransform:"capitalize"}}
                                   label={category.approvalStatus}
                                   status={category.approvalStatus}
                                   size="small"
@@ -952,22 +1009,31 @@ export default function OrganizerDetailsPageView() {
                           <Box p={2}>
                             <FlexBetween mb={1}>
                               <Box>
-                                <Paragraph fontWeight={600} fontSize={15}>
+                                <Paragraph
+                                  fontWeight={600}
+                                  fontSize={15}
+                                  style={{ textTransform: "capitalize" }}
+                                >
                                   {template.ticketType?.title}
                                 </Paragraph>
-                                <Paragraph fontSize={13} color="text.secondary">
+                                <Paragraph
+                                  fontSize={13}
+                                  color="text.secondary"
+                                  style={{ textTransform: "capitalize" }}
+                                >
                                   {template.description}
                                 </Paragraph>
                               </Box>
                               <Box textAlign="right">
-                                <Paragraph
+                                {/* <Paragraph
                                   fontWeight={600}
                                   color="primary.main"
                                   fontSize={16}
                                 >
                                   ₹{template.price}
-                                </Paragraph>
+                                </Paragraph> */}
                                 <StatusChip
+                                  style={{ textTransform: "capitalize" }}
                                   label={template.approvalStatus}
                                   status={template.approvalStatus}
                                   size="small"
@@ -1488,6 +1554,7 @@ export default function OrganizerDetailsPageView() {
                         Approval Status:
                       </Paragraph>
                       <StatusChip
+                        style={{ textTransform: "capitalize" }}
                         label={organizerData?.approvalStatus || "Pending"}
                         status={organizerData?.approvalStatus}
                         size="small"
@@ -1529,7 +1596,12 @@ export default function OrganizerDetailsPageView() {
                             {event.title}
                           </Paragraph>
                         </FlexBox>
-                        <Paragraph fontSize={11} color="text.secondary" ml={2}>
+                        <Paragraph
+                          fontSize={11}
+                          color="text.secondary"
+                          ml={2}
+                          style={{ textTransform: "capitalize" }}
+                        >
                           {event.date} • {event.approvalStatus}
                         </Paragraph>
                         {index < 2 && <Divider sx={{ my: 1 }} />}

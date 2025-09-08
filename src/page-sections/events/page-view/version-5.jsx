@@ -101,13 +101,7 @@ const headCells = [
     label: "Price",
       width:"10%"
   },
-  {
-    id: "timestamp",
-    numeric: true,
-    disablePadding: false,
-    label: "TimeStamp",
-      width:"10%"
-  },
+
   {
     id: "approvalStatus",
     numeric: true,
@@ -119,7 +113,7 @@ const headCells = [
     id: "reviewedBy",
     numeric: true,
     disablePadding: false,
-    label: "reviewedBy",
+    label: "Reviewed By",
       width:"10%"
   },
     {
@@ -211,6 +205,62 @@ export default function EventsVersionFivePageView() {
     }
     navigate(`/events/details/${eventId}`);
   };
+
+  const formatDateTime = (dateString) => {
+  if (!dateString) return "N/A";
+  
+  const date = new Date(dateString);
+  
+  // Format: "Sep 10, 2025 • 8:00 PM"
+  const options = {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  };
+  
+  return date.toLocaleString('en-US', options).replace(',', ',').replace(' at', ' •');
+};
+const formatDateRange = (startDate, endDate) => {
+  if (!startDate || !endDate) return "N/A";
+  
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  const startOptions = {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  };
+  
+  const endOptions = {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  };
+  if (start.toDateString() === end.toDateString()) {
+    // Same day: "Sep 10 • 8:00 PM - 11:30 PM"
+    return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • ${start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} - ${end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+  } else {
+    // Different days: "Sep 10, 8:00 PM - Sep 12, 9:30 AM"
+    return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+  }
+};
+
+const formatLocation = (city, state, country) => {
+  const parts = [];
+  if (city) parts.push(city);
+  if (state) parts.push(state);
+  if (country) parts.push(country);
+  
+  return parts.length > 0 ? parts.join(', ') : "N/A";
+};
 
 
   const handleApprovalSubmit = async (formData) => {
@@ -359,7 +409,7 @@ export default function EventsVersionFivePageView() {
                               spacing={1}
                             >
                               <Avatar
-                                src={events.banner}
+                                src={events.mobileCoverImage}
                                 sx={{
                                   borderRadius: "20%",
                                   backgroundColor: "grey.100",
@@ -372,11 +422,11 @@ export default function EventsVersionFivePageView() {
                           </BodyTableCell>
                           <BodyTableCell align="center">
                             <H6 fontSize={12} color="text.primary">
-                              {events.date ?? "N/A"}
+                                {formatDateRange(events.startDateTime, events.endDateTime)}
                             </H6>
                           </BodyTableCell>
                           <BodyTableCell align="center">
-                            {limitWords(events?.location?.address,10)}
+    {formatLocation(events.city, events.state, events.country)}
                             {/* <Chip
                               label={
                                 events.discountType
@@ -396,14 +446,9 @@ export default function EventsVersionFivePageView() {
                             /> */}
                           </BodyTableCell>
                           <BodyTableCell align="center">
-                            ₹ {Math.floor(events.price)}
+                            ₹ {Math.floor(events?.startFromTicketPrice)}
                           </BodyTableCell>
-                          <BodyTableCell align="center">
-                            <div>
-                              <div> Start: {events.startTime}</div>
-                              <div> End: {events.endTime}</div>
-                            </div>
-                          </BodyTableCell>
+                    
                           <BodyTableCell alignItems="center">
                             {/* {addoncatgory.approvalStatus ?? "N/A"} */}
                             <Chip

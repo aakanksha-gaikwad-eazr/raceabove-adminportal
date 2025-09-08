@@ -1011,6 +1011,10 @@ export const DashboardRoutes = [
         element: <EventCategoryListView />,
       },
       {
+        path: "add-new-eventcategory",
+        element: <AddNewEventCategory />,
+      },
+      {
         path: "eventcategory-grid",
         element: <EventCategoryGridView />,
       },

@@ -22,6 +22,7 @@ import faq from './apps/faq'
 import employee from "./apps/employee";
 import Notification from "./apps/notification";
 import platformSettings from "./apps/platformsettings";
+import eventCategories from "./apps/eventscategory";
 
 export const store = configureStore({
   reducer: {
@@ -45,6 +46,7 @@ export const store = configureStore({
     employee,
     Notification,
     platformSettings,
+    eventCategories,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

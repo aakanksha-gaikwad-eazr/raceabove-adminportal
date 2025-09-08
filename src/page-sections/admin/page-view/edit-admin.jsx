@@ -20,6 +20,7 @@ import IconWrapper from "@/components/icon-wrapper/IconWrapper";
 import GroupSenior from "@/icons/GroupSenior";
 import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import { isDark } from "@/utils/constants";
+import { getAllAdmin } from "@/store/apps/admins";
 
 const ButtonWrapper = styled("div")(({ theme }) => ({
   width: 100,
@@ -127,6 +128,7 @@ export default function EditAdminPageView() {
       ).unwrap();
       if (response?.status === 200) {
         toast.success("Employee updated successfully!");
+        dispatch(getAllAdmin())
         navigate("/employee-list-2");
       } else {
         toast.error(response?.message || "Failed to update Employee");

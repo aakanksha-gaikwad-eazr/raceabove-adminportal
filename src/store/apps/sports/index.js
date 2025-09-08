@@ -120,10 +120,23 @@ export const updateSports = createAsyncThunk(
 
       let url = `${ip}/v2/sports/${req.id}`;
       console.log("req", req);
+      console.log("req.data type:", req.data.constructor.name);
+
+      const isFormData = req.data instanceof FormData;
+  if (isFormData) {
+        console.log("✅ Sending FormData");
+        // Debug FormData contents
+        for (let [key, value] of req.data.entries()) {
+          console.log(`FormData - ${key}:`, value);
+        }
+      }
 
       const response = await axiosInstance.patch(url, req?.data, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
+           ...(isFormData && {
+            'Content-Type': 'multipart/form-data'
+          })
         },
       });
 

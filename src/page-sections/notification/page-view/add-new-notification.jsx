@@ -192,12 +192,12 @@ export default function AddNewNotificationPageView() {
                     >
                       Create Notification
                     </Button>
-                    <Button
+                    {/* <Button
                       variant="outlined"
                       color="secondary"
                     >
                       Cancel
-                    </Button>
+                    </Button> */}
                   </FlexBox>
                 </Grid>
               </Grid>

@@ -87,7 +87,7 @@ export const navigations = [
   {
     name: "Notifications",
     icon: duotone.Apps,
-    path: "/notification",
+    path: "/add-notification",
   },
   {
     name: "Sports",

@@ -13,22 +13,15 @@ import TableHead from "@mui/material/TableHead";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
-import styled from "@mui/material/styles/styled"; // CUSTOM COMPONENTS
-
+import styled from "@mui/material/styles/styled";
+import toast from "react-hot-toast";
 import { H6 } from "@/components/typography";
 import Scrollbar from "@/components/scrollbar";
-import { TableDataNotFound } from "@/components/table"; // CUSTOM PAGE SECTION COMPONENTS
-
+import { TableDataNotFound } from "@/components/table";
 import SearchArea from "../SearchArea";
-import UserDetails from "../OrganizersDetails"; // CUSTOM DEFINED HOOK
-
-import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable"; // CUSTOM UTILS METHOD
-
-import { isDark } from "@/utils/constants"; // CUSTOM DUMMY DATA
-
+import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable";
+import { isDark } from "@/utils/constants";
 import { useDispatch, useSelector } from "react-redux";
-import SearchFilter from "../../challenge/SearchFilter";
-import StatusFilter from "../../challenge/StatusFilter";
 import { getOrganizers } from "@/store/apps/organisers";
 import HeadingArea from "../HeadingArea";
 import Edit from "@/icons/Edit";
@@ -64,6 +57,27 @@ const BodyTableRow = styled(TableRow, {
     backgroundColor: theme.palette.grey[isDark(theme) ? 700 : 100],
   }),
 }));
+
+const DisabledBodyTableRow = styled(BodyTableRow)(
+  ({ theme, active, disabled }) => ({
+    cursor: disabled ? "not-allowed" : "pointer",
+    opacity: disabled ? 0.5 : 1,
+    backgroundColor: disabled
+      ? theme.palette.action.disabledBackground
+      : active
+        ? theme.palette.grey[isDark(theme) ? 700 : 100]
+        : "transparent",
+    "&:hover": {
+      backgroundColor: disabled
+        ? theme.palette.action.disabledBackground
+        : theme.palette.action.hover,
+    },
+  })
+);
+
+const DisabledBodyTableCell = styled(BodyTableCell)(({ disabled }) => ({
+  color: disabled ? "rgba(0, 0, 0, 0.4)" : "inherit",
+}));
 const headCells = [
   {
     id: "name",
@@ -95,7 +109,7 @@ const headCells = [
     disablePadding: false,
     label: "Phone",
   },
-    {
+  {
     id: "action",
     numeric: true,
     disablePadding: false,
@@ -106,9 +120,9 @@ const headCells = [
 export default function OrganizersList2PageView() {
   const [searchFilter, setSearchFilter] = useState("");
   const [selectedOrganiser, setSelectedOrganiser] = useState();
-    const [openEditModal, setOpenEditModal] = useState(false);
-    const [openDeleteModal, setOpenDeleteModal] = useState(false);
-    const [organiserToEdit, setOrganiserToEdit] = useState(null);
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [organiserToEdit, setOrganiserToEdit] = useState(null);
 
   const {
     page,
@@ -124,10 +138,9 @@ export default function OrganizersList2PageView() {
   });
 
   const dispatch = useDispatch();
-    const navigate = useNavigate();
-  
+  const navigate = useNavigate();
 
-  const {  allOrganisers } = useSelector((state) => state.organisers);
+  const { allOrganisers } = useSelector((state) => state.organisers);
   console.log("organisers", allOrganisers);
 
   const filteredOrganiser = stableSort(
@@ -135,9 +148,7 @@ export default function OrganizersList2PageView() {
     getComparator(order, orderBy)
   ).filter((item) => {
     if (searchFilter)
-      return item?.name
-        ?.toLowerCase()
-        .includes(searchFilter?.toLowerCase());
+      return item?.name?.toLowerCase().includes(searchFilter?.toLowerCase());
     else return true;
   });
 
@@ -157,10 +168,10 @@ export default function OrganizersList2PageView() {
   }, [allOrganisers]);
 
   const handleEditClick = (e, organiser) => {
-      console.log("clciked",organiser)
+    console.log("clciked", organiser);
     e.stopPropagation();
     setOrganiserToEdit(organiser);
-  navigate(`/edit-organiser/${organiser.id}`);
+    navigate(`/edit-organiser/${organiser.id}`);
   };
 
   const handleDeleteClick = (e, organiser) => {
@@ -169,37 +180,35 @@ export default function OrganizersList2PageView() {
     setOpenDeleteModal(true);
   };
 
-    const handleDeleteConfirm = async () => {
-      try {
-        const response = await dispatch(
-          deleteOrganizer(userToEdit.id)
-        ).unwrap();
-        if (response?.status === 200) {
-          dispatch(getOrganizers());
-          setOpenDeleteModal(false);
-          toast.success("Organiser deleted successfully!");
-        }
-      } catch (error) {
-        console.error("Error deleting Organiser:", error);
-        toast.error(
-          error.message || "Something went wrong while deleting!"
-        );
+  const handleDeleteConfirm = async () => {
+    try {
+      console.log("organiserToEdit", organiserToEdit);
+      const response = await dispatch(
+        deleteOrganizer(organiserToEdit.id)
+      ).unwrap();
+      if (response?.status === 200) {
+        dispatch(getOrganizers());
+        setOpenDeleteModal(false);
+        toast.success("Organiser deleted successfully!");
       }
-    };
+    } catch (error) {
+      console.error("Error deleting Organiser:", error);
+      toast.error(error.message || "Something went wrong while deleting!");
+    }
+  };
 
-    const handleEditClose = () => {
+  const handleEditClose = () => {
     setOpenEditModal(false);
-    setUserToEdit(null);
+    setOrganiserToEdit(null);
   };
 
   const handleDeleteClose = () => {
     setOpenDeleteModal(false);
-    setUserToEdit(null);
+    setOrganiserToEdit(null);
   };
   const handleNavigationtoDetailsPage = (organiser) => {
-    navigate(`/organiser-details/${organiser?.id}`)
+    navigate(`/organiser-details/${organiser?.id}`);
   };
-  
 
   return (
     <div className="pt-2 pb-4">
@@ -238,23 +247,15 @@ export default function OrganizersList2PageView() {
                       {headCells.map((headCell) => (
                         <HeadTableCell
                           key={headCell.id}
-                          padding={
-                            headCell.disablePadding
-                              ? "none"
-                              : "normal"
-                          }
+                          padding={headCell.disablePadding ? "none" : "normal"}
                           sortDirection={
                             orderBy === headCell.id ? order : false
                           }
                         >
                           <TableSortLabel
                             active={orderBy === headCell.id}
-                            onClick={(e) =>
-                              handleRequestSort(e, headCell.id)
-                            }
-                            direction={
-                              orderBy === headCell.id ? order : "asc"
-                            }
+                            onClick={(e) => handleRequestSort(e, headCell.id)}
+                            direction={orderBy === headCell.id ? order : "asc"}
                           >
                             {headCell.label}
                           </TableSortLabel>
@@ -270,77 +271,91 @@ export default function OrganizersList2PageView() {
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
                       )
-                      .map((organiser) => (
-                        <BodyTableRow
-                          key={organiser.id}
-                          active={
-                            selectedOrganiser?.id === organiser.id
-                              ? 1
-                              : 0
-                          }
-                          onClick={() =>
-                         handleNavigationtoDetailsPage(organiser)
-                          }
-                        >
-                          <BodyTableCell>
-                            <Stack
-                              direction="row"
-                              alignItems="center"
-                              spacing={1}
+                      .map((organiser) => {
+                        const isDeleted = organiser.deletedAt !== null;
+
+                        return (
+                          <DisabledBodyTableRow
+                            key={organiser.id}
+                            active={
+                              selectedOrganiser?.id === organiser.id ? 1 : 0
+                            }
+                            disabled={isDeleted}
+                            onClick={() =>
+                              !isDeleted &&
+                              handleNavigationtoDetailsPage(organiser)
+                            }
+                          >
+                            <DisabledBodyTableCell disabled={isDeleted}>
+                              <Stack
+                                direction="row"
+                                alignItems="center"
+                                spacing={1}
+                              >
+                                <Avatar
+                                  src={organiser?.companyLogo}
+                                  sx={{
+                                    borderRadius: "20%",
+                                    backgroundColor: "grey.100",
+                                    opacity: isDeleted ? 0.5 : 1,
+                                  }}
+                                />
+
+                                <H6 fontSize={12} color="text.primary">
+                                  {organiser.name ?? "N/A"}{" "}
+                                  {isDeleted && "(Disabled)"}
+                                </H6>
+                              </Stack>
+                            </DisabledBodyTableCell>
+                            <DisabledBodyTableCell
+                              align="center"
+                              disabled={isDeleted}
                             >
-                              <Avatar
-                                src={organiser?.companyLogo}
+                              {organiser?.commission ?? "N/A"}
+                            </DisabledBodyTableCell>
+                            <DisabledBodyTableCell disabled={isDeleted}>
+                              {organiser?.companyName ?? "N/A"}
+                            </DisabledBodyTableCell>
+                            <DisabledBodyTableCell disabled={isDeleted}>
+                              {organiser.email ?? "N/A"}
+                            </DisabledBodyTableCell>
+                            <DisabledBodyTableCell disabled={isDeleted}>
+                              {organiser.phoneNumber ?? "N/A"}
+                            </DisabledBodyTableCell>
+                            <DisabledBodyTableCell
+                              disabled={isDeleted}
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <Edit
                                 sx={{
-                                  borderRadius: "20%",
-                                  backgroundColor: "grey.100",
+                                  marginRight: "15px",
+                                  cursor: isDeleted ? "not-allowed" : "pointer",
+                                  opacity: isDeleted ? 0.3 : 1,
+                                  pointerEvents: isDeleted ? "none" : "auto",
                                 }}
+                                onClick={(e) =>
+                                  !isDeleted && handleEditClick(e, organiser)
+                                }
                               />
+                              <Delete
+                                sx={{
+                                  cursor: isDeleted ? "not-allowed" : "pointer",
+                                  opacity: isDeleted ? 0.3 : 1,
+                                  pointerEvents: isDeleted ? "none" : "auto",
+                                }}
+                                onClick={(e) =>
+                                  !isDeleted && handleDeleteClick(e, organiser)
+                                }
+                              />
+                            </DisabledBodyTableCell>
+                          </DisabledBodyTableRow>
+                        );
+                      })}
 
-                              <H6 fontSize={12} color="text.primary">
-                                {organiser.name ?? "N/A"}
-                              </H6>
-                            </Stack>
-                          </BodyTableCell>
-                          <BodyTableCell align="center">
-                            {organiser?.commission ?? "N/A"}
-                          </BodyTableCell>
-                          <BodyTableCell>
-                            {organiser?.companyName ?? "N/A"}
-                          </BodyTableCell>
-                          <BodyTableCell>
-                            {organiser.email ?? "N/A"}
-                          </BodyTableCell>
-                          <BodyTableCell>
-                            {organiser.phoneNumber ?? "N/A"}
-                          </BodyTableCell>
-                           <BodyTableCell
-                                                      sx={{
-                                                        display: "flex",
-                                                        justifyContent: "center",
-                                                      }}
-                                                    >
-                                                      <Edit
-                                                        sx={{
-                                                          marginRight: "15px",
-                                                          cursor: "pointer",
-                                                        }}
-                                                        onClick={(e) =>
-                                                          handleEditClick(e, organiser)
-                                                        }
-                                                      />
-                                                      <Delete
-                                                        sx={{ cursor: "pointer" }}
-                                                        onClick={(e) =>
-                                                          handleDeleteClick(e, organiser)
-                                                        }
-                                                      />
-                                                    </BodyTableCell>
-                        </BodyTableRow>
-                      ))}
-
-                    {filteredOrganiser.length === 0 && (
-                      <TableDataNotFound />
-                    )}
+                    {filteredOrganiser.length === 0 && <TableDataNotFound />}
                   </TableBody>
                 </Table>
               </Scrollbar>
@@ -370,30 +385,30 @@ export default function OrganizersList2PageView() {
           {selectedOrganiser && <UserDetails data={selectedOrganiser} setSelectedUser={setSelectedOrganiser} />}
         </Grid> */}
 
-         {/* Delete Modal */}
-              <DeleteModal
-                open={openDeleteModal}
-                handleClose={handleDeleteClose}
-                title="Confirm Delete"
-                message={`Are you sure you want to delete ${organiserToEdit?.name}?`}
-                actions={[
-                  {
-                    label: "Cancel",
-                    props: {
-                      onClick: handleDeleteClose,
-                      variant: "outlined",
-                    },
-                  },
-                  {
-                    label: "Delete",
-                    props: {
-                      onClick: handleDeleteConfirm,
-                      variant: "contained",
-                      color: "error",
-                    },
-                  },
-                ]}
-              />
+        {/* Delete Modal */}
+        <DeleteModal
+          open={openDeleteModal}
+          handleClose={handleDeleteClose}
+          title="Confirm Delete"
+          message={`Are you sure you want to delete ${organiserToEdit?.name}?`}
+          actions={[
+            {
+              label: "Cancel",
+              props: {
+                onClick: handleDeleteClose,
+                variant: "outlined",
+              },
+            },
+            {
+              label: "Delete",
+              props: {
+                onClick: handleDeleteConfirm,
+                variant: "contained",
+                color: "error",
+              },
+            },
+          ]}
+        />
       </Grid>
     </div>
   );

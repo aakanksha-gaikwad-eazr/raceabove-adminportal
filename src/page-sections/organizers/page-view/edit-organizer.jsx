@@ -15,11 +15,9 @@ import * as Yup from "yup";
 import { useFormik } from "formik"; // CUSTOM COMPONENTS
 
 import { Paragraph, Small } from "@/components/typography"; // CUSTOM UTILS METHOD
-
 import { isDark } from "@/utils/constants"; // STYLED COMPONENTS
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { createUser, updateUser } from "../../../store/apps/user";
 import toast from "react-hot-toast";
 import {
   Navigate,
@@ -78,6 +76,7 @@ export default function EditOrganizerPageView() {
   const { singleOrganizer } = useSelector((state) => state.organisers);
 
   const { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (id) {
@@ -124,47 +123,15 @@ export default function EditOrganizerPageView() {
     commission: Yup.number().required("Commission is Required!"),
   });
 
-  //handle edit user
-  // const handleUpdateOrganizer = async (values, setSubmitting) => {
-  //   console.log("clciked", values);
-  //   try {
-  //     // const formData = new FormData();
-
-  //     // Append all form values
-  //     Object.keys(values).forEach((key) => {
-  //       if (key === "profilePhoto" && values[key] instanceof File) {
-  //         formData.append("profilePhoto", values[key]);
-  //       } else if (key === "phoneNumber") {
-  //         // Prepend +91 before submitting
-  //         formData.append("phoneNumber", `+91${values[key]}`);
-  //       } else {
-  //         formData.append(key, values[key]);
-  //       }
-  //     });
-
-  //     console.log("formdata", formData);
-
-  //     dispatch(updateOrganizer({ id: data?.id, data: formData })).then(
-  //       (response) => {
-  //         if (response?.payload?.status === 200) {
-  //           toast.success("Organizer updated successfully!");
-  //           dispatch(getOrganizers());
-  //           setUpdate();
-  //           localStorage.setItem("update", JSON.stringify({ updatekey: true }));
-  //         } else {
-  //           toast.error(response?.message || "Something went wrong.");
-  //         }
-  //       }
-  //     );
-  //   } catch (error) {
-  //     toast.error("Failed to update Organizer. Please try again.");
-  //   } finally {
-  //     setSubmitting(false);
-  //   }
-  // };
-
   const handleUpdateOrganizer = async (values, setSubmitting) => {
     console.log("clicked", values);
+    console.log("Organizer ID:", id); // Debug the ID
+
+    if (!id) {
+      toast.error("Organizer ID is missing!");
+      setSubmitting(false);
+      return;
+    }
     try {
       // ✅ Construct plain JSON instead of FormData
       const payload = {
@@ -177,19 +144,15 @@ export default function EditOrganizerPageView() {
         approvalStatus: "pending", // default or from form
         reviewReason: values.reviewReason || "N/A",
       };
+      const response = await dispatch(updateOrganizer({ id, data: payload }));
 
-      console.log("payload", payload)
-
-      dispatch(updateOrganizer({ id, data: payload })).then((response) => {
-        if (response?.payload?.status === 200) {
-          toast.success("Organizer updated successfully!");
-          dispatch(getOrganizers());
-          navigate('/organiser-list-2')
-          localStorage.setItem("update", JSON.stringify({ updatekey: true }));
-        } else {
-          toast.error(response?.message || "Something went wrong.");
-        }
-      });
+      if (response?.payload?.status === 200) {
+        toast.success("Organizer updated successfully!");
+        dispatch(getOrganizers());
+        navigate("/organiser-list-2");
+      } else {
+        toast.error(response?.message || "Something went wrong.");
+      }
     } catch (error) {
       toast.error("Failed to update Organizer. Please try again.");
     } finally {
@@ -197,7 +160,7 @@ export default function EditOrganizerPageView() {
     }
   };
 
-  const [edImage, selectedImage, setSelectedImage] = useState(
+  const [selectedImage, setSelectedImage] = useState(
     singleOrganizer?.profilePhoto || "/static/avatar/001-man.svg"
   );
 
@@ -217,8 +180,6 @@ export default function EditOrganizerPageView() {
       handleUpdateOrganizer(values, setSubmitting);
     },
   });
-
-  const navigate = useNavigate();
 
   return (
     <div className="pt-2 pb-4">
@@ -423,16 +384,16 @@ export default function EditOrganizerPageView() {
                   >
                     <SwitchWrapper>
                       <Paragraph display="block" fontWeight={600}>
-                       Approval Status
+                        Approval Status
                       </Paragraph>
 
                       <Switch
-                      checked={values.approvalStatus}
-                      onChange={(e) =>
-                        setFieldValue("approvalStatus", e.target.checked)
-                      }/>
+                        checked={values.approvalStatus}
+                        onChange={(e) =>
+                          setFieldValue("approvalStatus", e.target.checked)
+                        }
+                      />
                     </SwitchWrapper>
-        
                   </Grid>
 
                   <Grid

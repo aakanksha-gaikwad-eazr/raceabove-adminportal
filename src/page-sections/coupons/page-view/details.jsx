@@ -282,7 +282,10 @@ export default function CouponsDetailsPage() {
                       Discount Value
                     </Typography>
                     <Typography variant="body2">
-                      ₹{couponsData.discountValue || "0.00"}
+                      {couponsData.discountType === "percentage" 
+                        ? `${couponsData.discountValue || "0"}%`
+                        : `₹${couponsData.discountValue || "0.00"}`
+                      }
                     </Typography>
                   </Grid>
                   <Grid item xs={6}>
@@ -317,6 +320,81 @@ export default function CouponsDetailsPage() {
                       {couponsData.usageLimitPerUser || "N/A"}
                     </Typography>
                   </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" color="text.secondary">
+                      Usage Count
+                    </Typography>
+                    <Typography variant="body2">
+                      {couponsData.usageCount !== undefined ? couponsData.usageCount : "N/A"}
+                    </Typography>
+                  </Grid>
+                  
+                  {/* Quantity-based fields */}
+                  <Grid item xs={6}>
+                    <Typography variant="caption" color="text.secondary">
+                      Quantity Based
+                    </Typography>
+                     <Typography>
+
+                    <Chip
+                      label={couponsData.isQuantityBased ? "Yes" : "No"}
+                      color={couponsData.isQuantityBased ? "success" : "default"}
+                      size="small"
+                      sx={{ mt: 0.5 }}
+                      />
+                      </Typography>
+                  </Grid>
+                  
+                  {couponsData.isQuantityBased && (
+                    <>
+                      <Grid item xs={6}>
+                        <Typography variant="caption" color="text.secondary">
+                          Min Quantity Required
+                        </Typography>
+                        <Typography variant="body2">
+                          {couponsData.minQuantityRequired || "N/A"}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography variant="caption" color="text.secondary">
+                          Max Quantity Allowed
+                        </Typography>
+                        <Typography variant="body2">
+                          {couponsData.maxQuantityAllowed || "N/A"}
+                        </Typography>
+                      </Grid>
+                    </>
+                  )}
+
+                  {/* Age Restriction */}
+                  {couponsData.ageRestriction && (
+                    <Grid item xs={6}>
+                      <Typography variant="caption" color="text.secondary">
+                        Age Restriction
+                      </Typography>
+                      <Typography variant="body2">
+                        {couponsData.ageRestriction.minAge && couponsData.ageRestriction.maxAge
+                          ? `${couponsData.ageRestriction.minAge} - ${couponsData.ageRestriction.maxAge} years`
+                          : couponsData.ageRestriction.minAge
+                          ? `Minimum ${couponsData.ageRestriction.minAge} years`
+                          : couponsData.ageRestriction.maxAge
+                          ? `Maximum ${couponsData.ageRestriction.maxAge} years`
+                          : "N/A"
+                        }
+                      </Typography>
+                    </Grid>
+                  )}
+
+                  {/* Gender Restriction */}
+                  <Grid item xs={6}>
+                    <Typography variant="caption" color="text.secondary">
+                      Gender Restriction
+                    </Typography>
+                    <Typography variant="body2" style={{textTransform:"capitalize"}}>
+                      {couponsData.genderRestriction || "None"}
+                    </Typography>
+                  </Grid>
+
                   <Grid item xs={12}>
                     <Typography variant="caption" color="text.secondary">
                       Applicable Categories
@@ -520,8 +598,8 @@ export default function CouponsDetailsPage() {
                 onClick={handleReviewClick}
               >
                 {couponsData.approvalStatus !== "pending"
-                  ? "Re-review Terms & Conditions"
-                  : "Review Terms & Conditions"}
+                  ? "Re-review Coupon"
+                  : "Review Coupon"}
               </Button>
             </CardContent>
           </Card>
@@ -597,11 +675,12 @@ export default function CouponsDetailsPage() {
         </Grid>
       </Grid>
 
+
       {/* Approval Modal */}
       <ApprovalModal
         open={approvalModalOpen}
         handleClose={handleApprovalCancel}
-        title="Review Terms & Conditions"
+        title="Review Coupon"
         onSubmit={handleApprovalSubmit}
         initialData={{
           approvalStatus: couponsData?.approvalStatus || "",

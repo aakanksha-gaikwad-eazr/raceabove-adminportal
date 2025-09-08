@@ -262,10 +262,24 @@ export default function TicketTemplateDetailsPage() {
                       color="text.secondary"
                       gutterBottom
                     >
-                      Ticket Type
+                     Name
                     </Typography>
                     <Typography variant="body2" style={{textTransform:"capitalize"}}>
-                      {ticketTemplateData?.ticketType?.title || "N/A"}
+                      {ticketTemplateData?.name || "N/A"}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Box>
+                    <Typography
+                      variant="subtitle2"
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      Type
+                    </Typography>
+                    <Typography variant="body2" style={{textTransform:"capitalize"}}>
+                      {ticketTemplateData?.type || "N/A"}
                     </Typography>
                   </Box>
                 </Grid>
@@ -277,10 +291,24 @@ export default function TicketTemplateDetailsPage() {
                       color="text.secondary"
                       gutterBottom
                     >
-                      Price
+                      Max Per Booking
                     </Typography>
                     <Typography variant="body2" fontWeight={500}>
-                      {formatCurrency(ticketTemplateData?.price)}
+                      {ticketTemplateData?.maxPerBooking}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Box>
+                    <Typography
+                      variant="subtitle2"
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      Min Per Booking
+                    </Typography>
+                    <Typography variant="body2" fontWeight={500}>
+                      {ticketTemplateData?.minPerBooking}
                     </Typography>
                   </Box>
                 </Grid>
@@ -300,7 +328,7 @@ export default function TicketTemplateDetailsPage() {
                   </Box>
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                {/* <Grid item xs={12} sm={6}>
                   <Box>
                     <Typography
                       variant="subtitle2"
@@ -313,7 +341,7 @@ export default function TicketTemplateDetailsPage() {
                       {ticketTemplateData?.quantity || "N/A"} tickets
                     </Typography>
                   </Box>
-                </Grid>
+                </Grid> */}
               </Grid>
 
               {/* Review REASONS */}

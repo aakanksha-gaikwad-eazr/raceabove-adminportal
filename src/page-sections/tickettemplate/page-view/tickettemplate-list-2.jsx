@@ -78,34 +78,34 @@ const headCells = [
     label: "Description",
     width: "15%",
   },
-  {
-    id: "ticketType",
-    numeric: true,
-    disablePadding: false,
-    label: "Ticket type",
-    width: "12%",
-  },
+  // {
+  //   id: "ticketType",
+  //   numeric: true,
+  //   disablePadding: false,
+  //   label: "Ticket Type",
+  //   width: "12%",
+  // },
 
   {
     id: "organizer",
     numeric: false,
     disablePadding: false,
     label: "Organizer",
-    width: "12%",
+    width: "15%",
   },
   {
     id: "date",
     numeric: false,
     disablePadding: false,
     label: "Date",
-    width: "12%",
+    width: "15%",
   },
   {
     id: "reviewedby",
     numeric: false,
     disablePadding: false,
     label: "Reviewed By",
-    width: "12%",
+    width: "15%",
   },
 
   {
@@ -113,7 +113,7 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Status",
-    width: "10%",
+    width: "15%",
   },
 
   {
@@ -121,7 +121,7 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Actions",
-    width: "9%",
+    width: "15%",
   },
 ];
 
@@ -379,7 +379,7 @@ export default function TicketTemplate2PageView() {
                             handleRowClick(e, tickettemplate.id);
                           }}
                         >
-                          <BodyTableCell>
+                          <BodyTableCell align="left">
                             {page * rowsPerPage + ind + 1}
                           </BodyTableCell>
                           <BodyTableCell
@@ -397,7 +397,7 @@ export default function TicketTemplate2PageView() {
                               )}
                             </H6>
                           </BodyTableCell>
-                          <BodyTableCell
+                          {/* <BodyTableCell
                             align="left"
                             style={{ textTransform: "capitalize" }}
                           >
@@ -405,7 +405,7 @@ export default function TicketTemplate2PageView() {
                               tickettemplate?.ticketType?.title,
                               15
                             )}
-                          </BodyTableCell>
+                          </BodyTableCell> */}
 
                           <BodyTableCell align="center">
                             <Paragraph>

@@ -27,9 +27,10 @@ export default function EditSportsFormModal({ open, handleClose, sportId }) {
   const [selectedImage, setSelectedImage] = useState(null);
   const [sportsData, setSportsData] = useState(null);
 
-  useEffect(() => {
+   useEffect(() => {
     if (open && sportId?.id) {
       const sportsDetails = sports.find((type) => type.id === sportId.id);
+      console.log("sportsDetails", sportsDetails)
       if (sportsDetails) {
         setSportsData(sportsDetails);
         setSelectedImage(sportsDetails.icon);
@@ -49,18 +50,30 @@ export default function EditSportsFormModal({ open, handleClose, sportId }) {
     onSubmit: async (values) => {
       try {
         const formData = new FormData();
+          console.log("=== FORM SUBMISSION DEBUG ===");
+        console.log("Form values:", values);
+        console.log("SportId:", sportId?.id);
+        console.log("Selected file:", values.iconFile);
 
         // Append name
         formData.append('name', values.name);
         
         // Only append iconFile if a new file was selected
-        if (values.iconFile || values.icon) {
+        if (values.iconFile) {
+                    console.log("✅ Appending iconFile:", values.iconFile.name, values.iconFile.type, values.iconFile.size);
           formData.append('iconFile', values.iconFile);
         }
+        console.log("=== Dispatching updateSports ===");
 
         const response = await dispatch(
           updateSports({ id: sportId?.id, data: formData })
         );
+          console.log("=== Response ===");
+        console.log("Full response:", response);
+        console.log("Payload:", response?.payload);
+        console.log("Status:", response?.payload?.status);
+        console.log("Meta:", response?.meta);
+        
         
         if (
           response?.payload?.status === 200 ||
@@ -88,6 +101,46 @@ export default function EditSportsFormModal({ open, handleClose, sportId }) {
     setSportsData(null);
   };
 
+  const handleFileChange = (event) => {
+        console.log("=== FILE CHANGE DEBUG ===");
+
+    const file = event.currentTarget.files[0];
+      console.log("Selected file:", file);
+    if (file) {
+      // Validate file size (e.g., max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        formik.setFieldError('iconFile', 'File size must be less than 5MB');
+        return;
+      }
+      
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        formik.setFieldError('iconFile', 'Only JPG, PNG, and GIF files are allowed');
+        return;
+      }
+      
+      // Clear any previous errors
+      formik.setFieldError('iconFile', null);
+      
+      formik.setFieldValue("iconFile", file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleResetImage = () => {
+  setSelectedImage(sportsData?.icon || null);
+  formik.setFieldValue('iconFile', null);
+  // Added: Clear file input
+  const fileInput = document.getElementById('iconFile');
+  if (fileInput) {
+    fileInput.value = '';
+  }
+};
   return (
     <Dialog open={open} onClose={handleCloseModal} maxWidth="sm" fullWidth>
       <Box sx={{ 
@@ -146,30 +199,31 @@ export default function EditSportsFormModal({ open, handleClose, sportId }) {
                       type="file"
                       accept="image/*"
                       hidden
-                      onChange={(event) => {
-                        const file = event.currentTarget.files[0];
-                        if (file) {
-                          // Validate file size (e.g., max 5MB)
-                          if (file.size > 5 * 1024 * 1024) {
-                            formik.setFieldError('iconFile', 'File size must be less than 5MB');
-                            return;
-                          }
+                       onChange={handleFileChange}
+                      // onChange={(event) => {
+                      //   const file = event.currentTarget.files[0];
+                      //   if (file) {
+                      //     // Validate file size (e.g., max 5MB)
+                      //     if (file.size > 5 * 1024 * 1024) {
+                      //       formik.setFieldError('iconFile', 'File size must be less than 5MB');
+                      //       return;
+                      //     }
                           
-                          // Validate file type
-                          const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-                          if (!allowedTypes.includes(file.type)) {
-                            formik.setFieldError('iconFile', 'Only JPG, PNG, and GIF files are allowed');
-                            return;
-                          }
+                      //     // Validate file type
+                      //     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                      //     if (!allowedTypes.includes(file.type)) {
+                      //       formik.setFieldError('iconFile', 'Only JPG, PNG, and GIF files are allowed');
+                      //       return;
+                      //     }
                           
-                          formik.setFieldValue("iconFile", file);
-                          const reader = new FileReader();
-                          reader.onloadend = () => {
-                            setSelectedImage(reader.result);
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      }}
+                      //     formik.setFieldValue("iconFile", file);
+                      //     const reader = new FileReader();
+                      //     reader.onloadend = () => {
+                      //       setSelectedImage(reader.result);
+                      //     };
+                      //     reader.readAsDataURL(file);
+                      //   }
+                      // }}
                     />
                     <Button
                       variant="outlined"
@@ -185,10 +239,11 @@ export default function EditSportsFormModal({ open, handleClose, sportId }) {
                     <Button
                       size="small"
                       color="error"
-                      onClick={() => {
-                        setSelectedImage(sportsData?.icon || null);
-                        formik.setFieldValue('iconFile', null);
-                      }}
+                       onClick={handleResetImage}
+                      // onClick={() => {
+                      //   setSelectedImage(sportsData?.icon || null);
+                      //   formik.setFieldValue('iconFile', null);
+                      // }}
                       sx={{ mt: 1, display: 'block' }}
                     >
                       Reset to Original

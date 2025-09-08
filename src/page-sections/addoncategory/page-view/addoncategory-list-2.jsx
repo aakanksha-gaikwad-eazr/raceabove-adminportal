@@ -73,13 +73,6 @@ const headCells = [
     label: "Title",
     width: "17%",
   },
-  {
-    id: "description",
-    numeric: true,
-    disablePadding: false,
-    label: "Description",
-    width: "20%",
-  },
 
   {
     id: "createdBy",
@@ -383,12 +376,6 @@ export default function Addoncategory2PageView() {
                                 {addoncatgory.name ?? "N/A"}
                               </H6>
                             </Stack>
-                          </BodyTableCell>
-                          <BodyTableCell align="left">
-                            {limitWords(
-                              addoncatgory?.description,
-                              20
-                            )}
                           </BodyTableCell>
                           <BodyTableCell align="center">
                             {addoncatgory?.createdBy ?? "N/A"}

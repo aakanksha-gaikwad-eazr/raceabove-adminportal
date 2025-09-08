@@ -416,7 +416,7 @@ export default function AdminList2PageView() {
                                 }}
                               />
 
-                              <H6 fontSize={12} color="text.primary">
+                              <H6 fontSize={12} color="text.primary" style={{textTransform:"capitalize"}}>
                                 {admin.name ?? "N/A"}
                               </H6>
                             </Stack>

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-// MUI
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid2";
@@ -19,30 +18,26 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Switch from "@mui/material/Switch";
 import CircularProgress from "@mui/material/CircularProgress";
-import Chip from "@mui/material/Chip";
 import Tab from "@mui/material/Tab";
 import styled from "@mui/material/styles/styled";
 import { TabContext, TabList } from "@mui/lab";
-// CUSTOM COMPONENTS
 import { H6 } from "@/components/typography";
 import Scrollbar from "@/components/scrollbar";
 import { TableDataNotFound } from "@/components/table";
-// CUSTOM PAGE SECTION COMPONENTS
 import SearchArea from "../SearchArea";
 import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable";
-// CUSTOM UTILS METHOD
 import { isDark } from "@/utils/constants";
-// REDUX
 import { useDispatch, useSelector } from "react-redux";
-import { getGearTypes, updateGearTypes } from "@/store/apps/geartypes";
 import toast from "react-hot-toast";
-// COMPONENTS
 import EditEventCategoryFormModal from "../EditEventCategoryFormModal";
 import DeleteEventModal from "@/components/delete-modal-event";
 import HeadingArea from "../HeadingArea";
 import { formatDate } from "@/utils/dateFormatter";
-import { deleteGearTypes } from "@/store/apps/geartypes";
-import { getEventCategory } from "@/store/apps/events";
+import { getEventCategory } from "@/store/apps/eventscategory";
+import {
+  deleteEventCategory,
+  updateEventCategory,
+} from "@/store/apps/eventscategory";
 
 // STYLED COMPONENTS
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
@@ -111,14 +106,14 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Name",
-    width: "15s%",
+    width: "15%",
   },
   {
     id: "description",
     numeric: true,
     disablePadding: false,
     label: "Description",
-    width: "15s%",
+    width: "15%",
   },
   {
     id: "createdAt",
@@ -177,66 +172,59 @@ export default function EventCategoryList2PageView() {
   });
 
   const dispatch = useDispatch();
-  const  {eventsCategory}  = useSelector((state) => state.events);
+  const { eventCategory } = useSelector((state) => state.eventCategories);
 
-  console.log("EventsCategory",eventsCategory)
+  console.log("eventCategory", eventCategory);
 
   useEffect(() => {
     dispatch(getEventCategory());
   }, []);
 
-  // Handle tab change
   const handleChangeTab = (_, newTab) => {
     setSelectTab(newTab);
-    setPage(0); // Reset to first page when changing tabs
+    setPage(0);
   };
 
+  const filteredEventCategory = Array.isArray(eventCategory)
+    ? stableSort(eventCategory, getComparator(order, orderBy)).filter(
+        (item) => {
+          if (item?.deletedAt) return false;
 
+          if (selectTab === "active" && !item?.isActive) return false;
+          if (selectTab === "inactive" && item?.isActive) return false;
 
-  // Filter gear types based on tab selection and search
-const filteredEventCategory = Array.isArray(eventsCategory)
-  ? stableSort(eventsCategory, getComparator(order, orderBy)).filter((item) => {
-      // filter out deleted
-      if (item?.deletedAt) return false;
+          if (searchFilter) {
+            return item?.name
+              ?.toLowerCase()
+              .includes(searchFilter.toLowerCase());
+          }
 
-      // tab filters
-      if (selectTab === "active" && !item?.isActive) return false;
-      if (selectTab === "inactive" && item?.isActive) return false;
+          return true;
+        }
+      )
+    : [];
 
-      // search filter
-      if (searchFilter) {
-        return item?.name?.toLowerCase().includes(searchFilter.toLowerCase());
-      }
-
-      return true;
-    })
-  : [];
-
-
-  console.log("filteredEventCategory",filteredEventCategory)
+  console.log("filteredEventCategory", filteredEventCategory);
 
   useEffect(() => {
     if (selectedEventCategory) {
-      const updatedEventCategory = eventsCategory.find(
+      const updatedEventCategory = eventCategory.find(
         (eventCategory) => eventCategory.id === selectedEventCategory.id
       );
       if (updatedEventCategory) setSelectedEventCategory(updatedEventCategory);
     } else {
-      // Only select non-deleted items by default
-      const firstNonDeleted = eventsCategory.find(
+      const firstNonDeleted = eventCategory.find(
         (eventcategory) => eventcategory.deletedAt === null
       );
-      setSelectedEventCategory(firstNonDeleted || eventsCategory[0]);
+      setSelectedEventCategory(firstNonDeleted || eventCategory[0]);
     }
-  }, [eventsCategory]);
+  }, [eventCategory]);
 
-  // Fixed handleStatusToggle function
   const handleStatusToggle = async (
     eventsCategoryId,
     currentStatus,
     isDeleted
   ) => {
-    // Prevent toggling for deleted items
     if (isDeleted) {
       toast.error("Cannot update status of deleted items");
       return;
@@ -259,10 +247,8 @@ const filteredEventCategory = Array.isArray(eventsCategory)
       ) {
         toast.success("Status updated successfully");
 
-        // Force refresh the gear types list
         await dispatch(getEventCategory()).unwrap();
 
-        // Update selected gear type if it's the one being toggled
         if (selectedEventCategory?.id === eventsCategoryId) {
           setSelectedEventCategory((prevSelected) => ({
             ...prevSelected,
@@ -280,9 +266,7 @@ const filteredEventCategory = Array.isArray(eventsCategory)
     }
   };
 
-  // Modal handlers
   const handleOpenEditModal = (eventCategory) => {
-    // Prevent editing deleted items
     if (eventCategory.deletedAt !== null) {
       toast.error("Cannot edit deleted items");
       return;
@@ -297,7 +281,6 @@ const filteredEventCategory = Array.isArray(eventsCategory)
   };
 
   const handleOpenDeleteModal = (eventCategory) => {
-    // Prevent deleting already deleted items
     if (eventCategory.deletedAt !== null) {
       toast.error("Item is already deleted");
       return;
@@ -322,14 +305,13 @@ const filteredEventCategory = Array.isArray(eventsCategory)
         console.log("Event Category type deleted successfully");
         toast.success("Event Category type deleted successfully");
 
-        // Refresh the gear types list
         await dispatch(getEventCategory()).unwrap();
 
-        // If the deleted item was selected, clear selection or select another item
         if (selectedEventCategory?.id === eventCategoryId) {
           const remainingGearTypes = eventCategory.filter(
             (eventCategory) =>
-              eventCategory.id !== eventCategoryId && eventCategory.deletedAt === null
+              eventCategory.id !== eventCategoryId &&
+              eventCategory.deletedAt === null
           );
           setSelectedEventCategory(remainingGearTypes[0] || null);
         }
@@ -341,7 +323,6 @@ const filteredEventCategory = Array.isArray(eventsCategory)
       console.error("Error deleting eventCategory type:", error);
       toast.error("An error occurred while deleting the eventCategory type");
     } finally {
-      // Always close the modal regardless of success or failure
       handleCloseDeleteModal();
     }
   };
@@ -366,7 +347,7 @@ const filteredEventCategory = Array.isArray(eventsCategory)
         >
           <Tab label="All" value="all" />
           <Tab label="Active" value="active" />
-          <Tab label="Inactive" value="inactive" />
+          {/* <Tab label="Inactive" value="inactive" /> */}
         </TabList>
 
         <Grid container>
@@ -393,7 +374,6 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                 />
               </Box>
 
-              {/* TABLE HEAD & BODY ROWS */}
               <TableContainer
                 sx={{
                   overflowX: { xs: "auto", md: "unset" },
@@ -401,7 +381,6 @@ const filteredEventCategory = Array.isArray(eventsCategory)
               >
                 <Scrollbar autoHide={false}>
                   <Table sx={{ tableLayout: "fixed", minWidth: 800 }}>
-                    {/* TABLE HEADER */}
                     <TableHead>
                       <TableRow>
                         {headCells.map((headCell) => (
@@ -409,9 +388,7 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                             key={headCell.id}
                             align="center"
                             padding={
-                              headCell.disablePadding
-                                ? "none"
-                                : "normal"
+                              headCell.disablePadding ? "none" : "normal"
                             }
                             sortDirection={
                               orderBy === headCell.id ? order : false
@@ -428,9 +405,7 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                                   handleRequestSort(e, headCell.id)
                                 }
                                 direction={
-                                  orderBy === headCell.id
-                                    ? order
-                                    : "asc"
+                                  orderBy === headCell.id ? order : "asc"
                                 }
                               >
                                 {headCell.label}
@@ -441,7 +416,6 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                       </TableRow>
                     </TableHead>
 
-                    {/* TABLE BODY AND DATA */}
                     <TableBody>
                       {filteredEventCategory
                         .slice(
@@ -449,8 +423,7 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                           page * rowsPerPage + rowsPerPage
                         )
                         .map((eventCategory, ind) => {
-                          const isDeleted =
-                            eventCategory.deletedAt !== null;
+                          const isDeleted = eventCategory.deletedAt !== null;
 
                           return (
                             <BodyTableRow
@@ -476,53 +449,23 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                                   textTransform: "capitalize",
                                 }}
                               >
-                                <Stack
-                                  direction="row"
-                                  alignItems="center"
-                                  spacing={2}
-                                >
-                                  {/* <Avatar
-                                    src={eventCategory?.icon}
-                                    sx={{
-                                      borderRadius: "20%",
-                                      backgroundColor: "grey.100",
-                                      width: 32,
-                                      height: 32,
-                                      ...(isDeleted && {
-                                        opacity: 0.5,
-                                      }),
-                                    }}
-                                  /> */}
-                                  <Stack>
-                                    <H6 
-                                      fontSize={13}
-                                      color={
-                                        isDeleted
-                                          ? "text.disabled"
-                                          : "text.primary"
-                                      }
-                                      fontWeight={500}
-                                    >
-                                      {eventCategory.name ?? "N/A"}
-                                    </H6>
-                                    {/* {isDeleted && (
-                                      <Chip
-                                        label="Deleted"
-                                        size="small"
-                                        color="error"
-                                        variant="outlined"
-                                        sx={{
-                                          height: 20,
-                                          fontSize: 11,
-                                        }}
-                                      />
-                                    )} */}
-                                  </Stack>
+                                <Stack>
+                                  <H6
+                                    fontSize={13}
+                                    color={
+                                      isDeleted
+                                        ? "text.disabled"
+                                        : "text.primary"
+                                    }
+                                    fontWeight={500}
+                                  >
+                                    {eventCategory.name ?? "N/A"}
+                                  </H6>
                                 </Stack>
                               </BodyTableCell>
                               <BodyTableCell
+                                style={{ textTransform: "capitalize" }}
                                 align="center"
-                                // isDeleted={isDeleted}
                               >
                                 {eventCategory.description}
                               </BodyTableCell>
@@ -532,12 +475,7 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                               >
                                 {formatDate(eventCategory.createdAt)}
                               </BodyTableCell>
-                              {/* <BodyTableCell align="left" isDeleted={isDeleted}>
-                                {geartype.createdBy ?? "N/A"}
-                              </BodyTableCell>
-                              <BodyTableCell align="left" isDeleted={isDeleted}>
-                                {geartype.createdByRole ?? "N/A"}
-                              </BodyTableCell> */}
+
                               <BodyTableCell
                                 align="center"
                                 isDeleted={isDeleted}
@@ -548,14 +486,6 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                                 {eventCategory.updatedBy ?? "N/A"}
                               </BodyTableCell>
 
-                              {/* <BodyTableCell align="left" isDeleted={isDeleted}>
-                                {geartype.deletedBy ?? "N/A"}
-                              </BodyTableCell>
-                              <BodyTableCell align="left" isDeleted={isDeleted}>
-                                {geartype.deletedByRole ?? "N/A"}
-                              </BodyTableCell> */}
-
-                              {/* STATUS COLUMN */}
                               <BodyTableCell
                                 align="center"
                                 isDeleted={isDeleted}
@@ -586,28 +516,10 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                                         color="success"
                                         disabled={isDeleted}
                                       />
-                                      {/* {!isDeleted && (
-                                        <Chip
-                                          label={
-                                            geartype?.isActive
-                                              ? "Active"
-                                              : "Inactive"
-                                          }
-                                          size="small"
-                                          color={
-                                            geartype?.isActive
-                                              ? "success"
-                                              : "default"
-                                          }
-                                          variant="outlined"
-                                        />
-                                      )} */}
                                     </>
                                   )}
                                 </Stack>
                               </BodyTableCell>
-
-                              {/* ACTIONS COLUMN */}
                               <BodyTableCell
                                 align="center"
                                 isDeleted={isDeleted}
@@ -643,9 +555,7 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                                   </Tooltip>
                                   <Tooltip
                                     title={
-                                      isDeleted
-                                        ? "Already deleted"
-                                        : "Delete"
+                                      isDeleted ? "Already deleted" : "Delete"
                                     }
                                   >
                                     <span>
@@ -678,8 +588,6 @@ const filteredEventCategory = Array.isArray(eventsCategory)
                   </Table>
                 </Scrollbar>
               </TableContainer>
-
-              {/* TABLE PAGINATION SECTION */}
               <TablePagination
                 page={page}
                 component="div"
@@ -693,8 +601,6 @@ const filteredEventCategory = Array.isArray(eventsCategory)
           </Grid>
         </Grid>
       </TabContext>
-
-      {/* MODALS */}
       <EditEventCategoryFormModal
         open={openEditModal}
         handleClose={handleCloseEditModal}
@@ -705,7 +611,7 @@ const filteredEventCategory = Array.isArray(eventsCategory)
         open={openDeleteModal}
         handleClose={handleCloseDeleteModal}
         title="Delete Confirmation"
-        message="Are you sure you want to Delete this gear type?"
+        message="Are you sure you want to Delete this Event Category?"
         actions={[
           {
             label: "Cancel",

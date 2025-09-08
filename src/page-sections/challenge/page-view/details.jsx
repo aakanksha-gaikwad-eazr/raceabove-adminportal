@@ -17,14 +17,11 @@ import {
   Skeleton,
   Alert,
   Container,
-  Tooltip,
-  AvatarGroup,
   LinearProgress,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
   styled,
   Tabs,
   Tab,
@@ -33,21 +30,15 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import PendingIcon from "@mui/icons-material/Pending";
-import MoreHoriz from "@mui/icons-material/MoreHoriz";
-import Close from "@mui/icons-material/Close";
 import PeopleIcon from "@mui/icons-material/People";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import InfoIcon from "@mui/icons-material/Info";
 import { format } from "date-fns";
-import {
-  getChallengesById,
-  reviewChallenges,
-} from "@/store/apps/challenges";
+import { getChallengesById, reviewChallenges } from "@/store/apps/challenges";
 import toast from "react-hot-toast";
-import MoreButton from "@/components/more-button";
 import { H6, Paragraph } from "@/components/typography";
 import { FlexBox, FlexBetween } from "@/components/flexbox";
-import CircularProgress from "@mui/material/CircularProgress";
+import ApprovalModal from "@/components/approval-modal";
 
 // Styled Components
 const StyledAvatar = styled(Avatar)({
@@ -252,12 +243,7 @@ const DetailsSkeleton = () => (
             />
             <Skeleton variant="text" width="90%" height={16} />
             <Skeleton variant="text" width="95%" height={16} />
-            <Skeleton
-              variant="text"
-              width="30%"
-              height={20}
-              sx={{ mt: 3 }}
-            />
+            <Skeleton variant="text" width="30%" height={20} sx={{ mt: 3 }} />
             <Skeleton
               variant="text"
               width="100%"
@@ -272,18 +258,8 @@ const DetailsSkeleton = () => (
         <Card>
           <CardContent>
             <Skeleton variant="text" width="40%" height={20} />
-            <Skeleton
-              variant="rounded"
-              width={80}
-              height={24}
-              sx={{ mt: 1 }}
-            />
-            <Skeleton
-              variant="text"
-              width="100%"
-              height={16}
-              sx={{ mt: 2 }}
-            />
+            <Skeleton variant="rounded" width={80} height={24} sx={{ mt: 1 }} />
+            <Skeleton variant="text" width="100%" height={16} sx={{ mt: 2 }} />
           </CardContent>
         </Card>
       </Grid>
@@ -296,11 +272,7 @@ export default function ChallengeDetailsPage() {
   const navigate = useNavigate();
   const getChallengeID = localStorage.getItem("challengeId");
   const [isLoading, setIsLoading] = useState(true);
-  const [openReviewModal, setOpenReviewModal] = useState(false);
-  const [reviewAction, setReviewAction] = useState(""); // 'approve' or 'reject'
-  const [showReasonInput, setShowReasonInput] = useState(false);
-  const [reviewReason, setReviewReason] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [challengeData, setChallengeData] = useState({
     participants: [],
     qualifyingSports: [],
@@ -312,9 +284,7 @@ export default function ChallengeDetailsPage() {
     const fetchChallengeDetails = async () => {
       setIsLoading(true);
       try {
-        const response = await dispatch(
-          getChallengesById(getChallengeID)
-        );
+        const response = await dispatch(getChallengesById(getChallengeID));
         setChallengeData(response?.payload);
       } catch (error) {
         console.error("Error fetching Challenge details:", error);
@@ -333,22 +303,21 @@ export default function ChallengeDetailsPage() {
   };
 
   const handleReviewClick = () => {
-    setOpenReviewModal(true);
+     setApprovalModalOpen(true);
+  };
+
+    const handleApprovalCancel = () => {
+     setApprovalModalOpen(false);
   };
 
   const handleCloseReviewModal = () => {
-    setOpenReviewModal(false);
-    setShowReasonInput(false);
-    setReviewReason("");
-    setReviewAction("");
+    setApprovalModalOpen(false);
   };
 
   const handleSubmitReview = async () => {
     try {
-      setIsProcessing(true);
       const requestBody = {
-        approvalStatus:
-          reviewAction === "approve" ? "approved" : "rejected",
+        approvalStatus: reviewAction === "approve" ? "approved" : "rejected",
         reviewReason: reviewReason.trim(),
       };
       console.log(`Action: ${reviewAction}, Reason: ${reviewReason}`);
@@ -363,34 +332,23 @@ export default function ChallengeDetailsPage() {
       console.log("Full response:", response);
       // Check if the response was successful
       if (
-        response?.type ===
-          "appChallenges/reviewChallenges/fulfilled" &&
+        response?.type === "appChallenges/reviewChallenges/fulfilled" &&
         response?.payload?.status === 200
       ) {
-        const action =
-          reviewAction === "approve" ? "approved" : "rejected";
+        const action = reviewAction === "approve" ? "approved" : "rejected";
         if (reviewAction === "approve") {
           toast.success(`Challenge ${action} successfully!`);
         } else {
           toast.error(`Challenge ${action} successfully!`);
         }
         // Refresh the challenge data
-        const freshData = await dispatch(
-          getChallengesById(getChallengeID)
-        );
+        const freshData = await dispatch(getChallengesById(getChallengeID));
         setChallengeData(freshData?.payload);
         // Reset states and close modal
-        setShowReasonInput(false);
         setReviewReason("");
-        setReviewAction("");
-        setOpenReviewModal(false);
-      } else if (
-        response?.type === "appChallenges/reviewChallenges/rejected"
-      ) {
-        console.error(
-          "API rejected:",
-          response.payload || response.error
-        );
+        setApprovalModalOpen(false);
+      } else if (response?.type === "appChallenges/reviewChallenges/rejected") {
+        console.error("API rejected:", response.payload || response.error);
         toast.error("Failed to review challenge. Please try again.");
       } else {
         console.error("Unexpected response:", response);
@@ -400,9 +358,50 @@ export default function ChallengeDetailsPage() {
       console.error("Error in handleSubmitReview:", error);
       toast.error("Error reviewing challenge. Please try again.");
     } finally {
-      setIsProcessing(false);
     }
   };
+
+const handleApprovalSubmit = async (formData) => {
+  try {
+    const reviewData = {
+      challengeId: getChallengeID,
+      reviewData: {
+        approvalStatus: String(formData.approvalStatus).toLowerCase().trim(),
+        reviewReason: String(formData.reviewReason).trim(),
+      },
+    };
+
+    if (!["approved", "rejected"].includes(reviewData.reviewData.approvalStatus)) {
+      toast.error("Invalid approval status");
+      return;
+    }
+
+    if (!reviewData.reviewData.reviewReason) {
+      toast.error("Review reason is required");
+      return;
+    }
+
+    const result = await dispatch(reviewChallenges(reviewData));
+
+    if (result.meta?.requestStatus === "fulfilled") {
+      const response = await dispatch(getChallengesById(getChallengeID));
+      setChallengeData(response?.payload);
+
+      toast.success(
+        reviewData.reviewData.approvalStatus === "approved"
+          ? "Challenge approved successfully!"
+          : "Challenge rejected successfully!"
+      );
+
+      setApprovalModalOpen(false);
+    } else {
+      toast.error("Failed to review Challenge");
+    }
+  } catch (error) {
+    console.error("Error reviewing Challenge:", error);
+    toast.error("Failed to review Challenge. Please try again.");
+  }
+};
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -491,10 +490,7 @@ export default function ChallengeDetailsPage() {
       <Grid container spacing={3}>
         {/* Main Content with Tabs */}
         <Grid item xs={12} md={8}>
-          <Card
-            variant="outlined"
-            sx={{ borderRadius: 2, overflow: "hidden" }}
-          >
+          <Card variant="outlined" sx={{ borderRadius: 2, overflow: "hidden" }}>
             {/* Enhanced Tabs Header */}
             <StyledTabs
               value={activeTab}
@@ -537,9 +533,7 @@ export default function ChallengeDetailsPage() {
                             challengeData.challengeType.slice(1)
                           : "N/A"
                       }
-                      color={getChallengeTypeColor(
-                        challengeData.challengeType
-                      )}
+                      color={getChallengeTypeColor(challengeData.challengeType)}
                       size="small"
                     />
                   </FlexBetween>
@@ -547,6 +541,7 @@ export default function ChallengeDetailsPage() {
                   <Paragraph
                     lineHeight={1.75}
                     color="text.secondary"
+                    style={{ textTransform: "capitalize" }}
                     dangerouslySetInnerHTML={{
                       __html: challengeData?.description,
                     }}
@@ -562,10 +557,7 @@ export default function ChallengeDetailsPage() {
                     }}
                   >
                     <Box>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                      >
+                      <Typography variant="caption" color="text.secondary">
                         Start Date
                       </Typography>
                       <Typography variant="subtitle2">
@@ -573,10 +565,7 @@ export default function ChallengeDetailsPage() {
                       </Typography>
                     </Box>
                     <Box>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                      >
+                      <Typography variant="caption" color="text.secondary">
                         End Date
                       </Typography>
                       <Typography variant="subtitle2">
@@ -616,42 +605,40 @@ export default function ChallengeDetailsPage() {
                 <Box sx={{ mt: 3 }}>
                   <Grid container spacing={3}>
                     {/* TASKS */}
-                    <Grid item xs={12} sm={7}>
+                    <Grid item xs={12} sm={6}>
                       <Paragraph fontWeight={600} mb={2}>
                         Qualifying Sports
                       </Paragraph>
-                      {challengeData?.qualifyingSports?.map(
-                        (sport) => (
-                          <div
-                            key={sport.id}
-                            style={{
-                              display: "flex",
-                              justifyContent: "start",
-                              alignItems: "center",
-                              paddingBottom: "1rem",
-                              width: "100%",
-                            }}
+                      {challengeData?.qualifyingSports?.map((sport) => (
+                        <div
+                          key={sport.id}
+                          style={{
+                            display: "flex",
+                            justifyContent: "start",
+                            alignItems: "center",
+                            paddingBottom: "1rem",
+                            width: "100%",
+                          }}
+                        >
+                          <Paragraph
+                            lineHeight={1}
+                            fontWeight={500}
+                            style={{ marginRight: "15px" }}
                           >
-                            <Paragraph
-                              lineHeight={1}
-                              fontWeight={500}
-                              style={{ marginRight: "15px" }}
-                            >
-                              {sport.name}
-                            </Paragraph>
-                            <Avatar
-                              src={sport.icon}
-                              alt={sport.name}
-                              sx={{
-                                width: 24,
-                                height: 24,
-                                mt: 0.5,
-                                backgroundColor: "white",
-                              }}
-                            />
-                          </div>
-                        )
-                      )}
+                            {sport.name}
+                          </Paragraph>
+                          <Avatar
+                            src={sport.icon}
+                            alt={sport.name}
+                            sx={{
+                              width: 24,
+                              height: 24,
+                              mt: 0.5,
+                              backgroundColor: "white",
+                            }}
+                          />
+                        </div>
+                      ))}
                     </Grid>
 
                     {/* PARTICIPANTS */}
@@ -659,41 +646,18 @@ export default function ChallengeDetailsPage() {
                       <Paragraph fontWeight={600} mb={2}>
                         Participants
                       </Paragraph>
-                      <AvatarGroup max={4}>
-                        {challengeData?.participants?.length > 0 ? (
-                          challengeData.participants.map(
-                            (participant) => (
-                              <Tooltip
-                                key={participant?.participantId}
-                                title={participant?.participantName}
-                                arrow
-                                placement="top"
-                              >
-                                <Avatar
-                                  alt={participant?.participantName}
-                                  src={
-                                    participant?.participantProfilePhoto
-                                  }
-                                />
-                              </Tooltip>
-                            )
-                          )
-                        ) : (
-                          <Paragraph
-                            fontSize={14}
-                            style={{ width: "90px", border: "none" }}
-                            color="text.secondary"
-                          >
-                            No Participants
-                          </Paragraph>
-                        )}
-                      </AvatarGroup>
-                      <Box mt={2}>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                        >
-                          Participants Count
+                    <Box
+                        mt={2}
+                        style={{
+                          display: "flex",
+                          justifyContent: "start",
+                          alignItems: "center",
+                          paddingBottom: "1rem",
+                          width: "100%",
+                        }}
+                      >
+                        <Typography variant="caption" color="text.secondary">
+                          Participants Count :
                         </Typography>
                         <Typography variant="body2">
                           {challengeData.participantsCount || "0"}
@@ -735,21 +699,14 @@ export default function ChallengeDetailsPage() {
 
                 {/* Metadata */}
                 <Box sx={{ mt: 3 }}>
-                  <Typography
-                    variant="subtitle2"
-                    fontWeight={500}
-                    gutterBottom
-                  >
+                  <Typography variant="subtitle2" fontWeight={500} gutterBottom>
                     Information
                   </Typography>
                   <Grid container spacing={3} sx={{ mt: 0.5 }}>
                     <Grid item xs={12} sm={6}>
                       <Stack spacing={2}>
                         <Box>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
+                          <Typography variant="caption" color="text.secondary">
                             Created By
                           </Typography>
                           <Typography
@@ -773,10 +730,7 @@ export default function ChallengeDetailsPage() {
                           </Typography>
                         </Box>
                         <Box>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
+                          <Typography variant="caption" color="text.secondary">
                             Created On
                           </Typography>
                           <Typography variant="body2">
@@ -844,45 +798,41 @@ export default function ChallengeDetailsPage() {
 
                   {challengeData?.participants?.length > 0 ? (
                     <Grid container spacing={2}>
-                      {challengeData.participants.map(
-                        (participant) => (
-                          <Grid
-                            item
-                            xs={12}
-                            sm={6}
-                            md={4}
-                            key={participant.participantId}
+                      {challengeData.participants.map((participant) => (
+                        <Grid
+                          item
+                          xs={12}
+                          sm={6}
+                          md={4}
+                          key={participant.participantId}
+                        >
+                          <Card
+                            variant="outlined"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              p: 2,
+                            }}
                           >
-                            <Card
-                              variant="outlined"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                p: 2,
-                              }}
-                            >
-                              <Avatar
-                                src={
-                                  participant.participantProfilePhoto
-                                }
-                                alt={participant.participantName}
-                                sx={{ width: 50, height: 50, mr: 2 }}
-                              />
-                              <Box>
-                                <Typography variant="subtitle2">
-                                  {participant.participantName}
-                                </Typography>
-                                <Typography
+                            <Avatar
+                              src={participant.participantProfilePhoto}
+                              alt={participant.participantName}
+                              sx={{ width: 50, height: 50, mr: 2 }}
+                            />
+                            <Box>
+                              <Typography variant="subtitle2">
+                                {participant.participantName}
+                              </Typography>
+                              {/* <Typography
                                   variant="caption"
                                   color="text.secondary"
                                 >
                                   ID: {participant.participantId}
-                                </Typography>
-                              </Box>
-                            </Card>
-                          </Grid>
-                        )
-                      )}
+                                </Typography> */}
+                            </Box>
+                          </Card>
+                        </Grid>
+                      ))}
                     </Grid>
                   ) : (
                     <Box textAlign="center" py={5}>
@@ -896,12 +846,9 @@ export default function ChallengeDetailsPage() {
                       <Typography variant="h6" color="text.secondary">
                         No participants yet
                       </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                      >
-                        This challenge doesn't have any participants
-                        at the moment.
+                      <Typography variant="body2" color="text.secondary">
+                        This challenge doesn't have any participants at the
+                        moment.
                       </Typography>
                     </Box>
                   )}
@@ -909,93 +856,86 @@ export default function ChallengeDetailsPage() {
 
                 <Divider sx={{ my: 2 }} />
 
-                <Box>
-                  <H6 fontSize={18} mb={3}>
-                    Leaderboard
-                  </H6>
-
-                  {Object.keys(challengeData.leaderboard || {})
-                    .length > 0 ? (
-                    <Grid container spacing={2}>
-                      {Object.entries(challengeData.leaderboard).map(
-                        ([rank, participant], index) => (
-                          <Grid item xs={12} key={index}>
-                            <Card
-                              variant="outlined"
-                              sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                p: 2,
-                              }}
-                            >
-                              <Box
-                                sx={{
-                                  width: 40,
-                                  height: 40,
-                                  borderRadius: "50%",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  backgroundColor:
-                                    index === 0
-                                      ? "gold"
-                                      : index === 1
-                                        ? "silver"
-                                        : index === 2
-                                          ? "#cd7f32"
-                                          : "grey",
-                                  color: "white",
-                                  fontWeight: "bold",
-                                  mr: 2,
-                                }}
-                              >
-                                {index + 1}
-                              </Box>
-                              <Avatar
-                                src={
-                                  participant.participantProfilePhoto
-                                }
-                                alt={participant.participantName}
-                                sx={{ width: 50, height: 50, mr: 2 }}
-                              />
-                              <Box sx={{ flex: 1 }}>
-                                <Typography variant="subtitle2">
-                                  {participant.participantName}
-                                </Typography>
-                                <Typography
-                                  variant="body2"
-                                  color="text.secondary"
-                                >
-                                  Score: {participant.score || "N/A"}
-                                </Typography>
-                              </Box>
-                            </Card>
-                          </Grid>
-                        )
-                      )}
-                    </Grid>
-                  ) : (
-                    <Box textAlign="center" py={5}>
-                      <EmojiEventsIcon
-                        sx={{
-                          fontSize: 60,
-                          color: "text.secondary",
-                          mb: 2,
-                        }}
-                      />
-                      <Typography variant="h6" color="text.secondary">
-                        No leaderboard data
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                      >
-                        Leaderboard will be available once
-                        participants join the challenge.
-                      </Typography>
-                    </Box>
-                  )}
-                </Box>
+             <Box>
+  <H6 fontSize={18} mb={3}>
+    Leaderboard
+  </H6>
+  {challengeData.leaderboard && challengeData.leaderboard.length > 0 ? (
+    <Grid container spacing={2}>
+      {challengeData.leaderboard
+        .sort((a, b) => parseFloat(b.progress) - parseFloat(a.progress)) // Sort by progress descending
+        .map((participant, index) => (
+          <Grid item xs={12} key={participant.id}>
+            <Card
+              variant="outlined"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                p: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor:
+                    index === 0
+                      ? "gold"
+                      : index === 1
+                        ? "silver"
+                        : index === 2
+                          ? "#cd7f32"
+                          : "grey",
+                  color: "white",
+                  fontWeight: "bold",
+                  mr: 2,
+                }}
+              >
+                {index + 1}
+              </Box>
+              <Avatar
+                src={participant.user.profilePhoto}
+                alt={participant.user.name}
+                sx={{ width: 50, height: 50, mr: 2 }}
+              />
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="subtitle2">
+                  {participant.user.name}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                >
+                  Score: {participant.progress || "N/A"}
+                </Typography>
+              </Box>
+            </Card>
+          </Grid>
+        ))}
+    </Grid>
+  ) : (
+    <Box textAlign="center" py={5}>
+      <EmojiEventsIcon
+        sx={{
+          fontSize: 60,
+          color: "text.secondary",
+          mb: 2,
+        }}
+      />
+      <Typography variant="h6" color="text.secondary">
+        No leaderboard data
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        Leaderboard will be available once participants join the
+        challenge.
+      </Typography>
+    </Box>
+  )}
+</Box>
               </TabPanel>
 
               {/* Rewards Tab */}
@@ -1006,112 +946,246 @@ export default function ChallengeDetailsPage() {
                   </H6>
 
                   <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6}>
-                      <Card variant="outlined" sx={{ p: 3 }}>
-                        <Typography
-                          variant="subtitle2"
-                          fontWeight={500}
-                          gutterBottom
+                    {/* Left Column - Reward Structure */}
+                    <Grid item xs={12} md={6}>
+                      <Card
+                        variant="outlined"
+                        sx={{
+                          p: 3,
+                          height: "100%",
+                          borderRadius: 2,
+                          border: "1px solid",
+                          borderColor: "divider",
+                          transition: "box-shadow 0.2s",
+                          "&:hover": {
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                          },
+                        }}
+                      >
+                        <Box display="flex" alignItems="center" mb={3}>
+                          <Typography variant="h6" fontWeight={600}>
+                            Reward Structure
+                          </Typography>
+                        </Box>
+
+                        <Grid container spacing={2}>
+                          <Grid item xs={6}>
+                            <Box
+                              sx={{
+                                p: 2,
+                                borderRadius: 1.5,
+                                backgroundColor: "grey.50",
+                                height: "80px",
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                gutterBottom
+                              >
+                                Coins Interval
+                              </Typography>
+                              <Typography
+                                variant="h6"
+                                fontWeight={600}
+                                color="primary"
+                              >
+                                {challengeData.rewardCoinsInterval || "0"}
+                              </Typography>
+                            </Box>
+                          </Grid>
+
+                          <Grid item xs={6}>
+                            <Box
+                              sx={{
+                                p: 2,
+                                borderRadius: 1.5,
+                                backgroundColor: "grey.50",
+                                height: "80px",
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                gutterBottom
+                              >
+                                Coins Per Interval
+                              </Typography>
+                              <Typography
+                                variant="h6"
+                                fontWeight={600}
+                                color="primary"
+                              >
+                                {challengeData.rewardCoinsPerInterval || "0"}
+                              </Typography>
+                            </Box>
+                          </Grid>
+
+                          <Grid item xs={6}>
+                            <Box
+                              sx={{
+                                p: 2,
+                                borderRadius: 1.5,
+                                backgroundColor: "grey.50",
+                                height: "80px",
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                gutterBottom
+                              >
+                                Coins Multiplier
+                              </Typography>
+                              <Typography
+                                variant="h6"
+                                fontWeight={600}
+                                color="primary"
+                              >
+                                {challengeData.rewardCoinsMultiplier || "1x"}
+                              </Typography>
+                            </Box>
+                          </Grid>
+
+                          <Grid item xs={6}>
+                            <Box
+                              sx={{
+                                p: 2,
+                                borderRadius: 1.5,
+                                backgroundColor: "grey.50",
+                                height: "80px",
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                                gutterBottom
+                              >
+                                Max Reward Coins
+                              </Typography>
+                              <Typography
+                                variant="h6"
+                                fontWeight={600}
+                                color="primary"
+                              >
+                                {challengeData.maxRewardCoins || "0"}
+                              </Typography>
+                            </Box>
+                          </Grid>
+                        </Grid>
+
+                        <Box
+                          sx={{
+                            mt: 3,
+                            p: 2,
+                            borderRadius: 1.5,
+                            backgroundColor: "primary.50",
+                            border: "1px solid",
+                            borderColor: "primary.100",
+                          }}
                         >
-                          Reward Structure
-                        </Typography>
-
-                        <Box mt={2}>
                           <Typography
                             variant="caption"
-                            color="text.secondary"
+                            color="primary.main"
+                            fontWeight={600}
                           >
-                            Reward Coins Interval
+                            REWARD DESCRIPTION
                           </Typography>
-                          <Typography variant="body2">
-                            {challengeData.rewardCoinsInterval ||
-                              "N/A"}
-                          </Typography>
-                        </Box>
-
-                        <Box mt={2}>
                           <Typography
-                            variant="caption"
-                            color="text.secondary"
+                            variant="body2"
+                            sx={{ mt: 1 }}
+                            style={{ textTransform: "capitalize" }}
                           >
-                            Reward Coins Per Interval
-                          </Typography>
-                          <Typography variant="body2">
-                            {challengeData.rewardCoinsPerInterval ||
-                              "N/A"}
-                          </Typography>
-                        </Box>
-
-                        <Box mt={2}>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
-                            Reward Coins Multiplier
-                          </Typography>
-                          <Typography variant="body2">
-                            {challengeData.rewardCoinsMultiplier ||
-                              "N/A"}
-                          </Typography>
-                        </Box>
-
-                        <Box mt={2}>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
-                            Max Reward Coins
-                          </Typography>
-                          <Typography variant="body2">
-                            {challengeData.maxRewardCoins || "N/A"}
+                            {challengeData.reward ||
+                              "No reward description available"}
                           </Typography>
                         </Box>
                       </Card>
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
-                      <Card variant="outlined" sx={{ p: 3 }}>
-                        <Typography
-                          variant="subtitle2"
-                          fontWeight={500}
-                          gutterBottom
-                        >
-                          Reward Description
+                    {/* Right Column - Badge & Visual */}
+                    <Grid item xs={12} md={6}>
+                      <Card
+                        variant="outlined"
+                        sx={{
+                          p: 3,
+                          height: "100%",
+                          borderRadius: 2,
+                          border: "1px solid",
+                          borderColor: "divider",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background:
+                            "linear-gradient(135deg, #f5f7fa 0%, #f0f2f5 100%)",
+                          transition: "box-shadow 0.2s",
+                          "&:hover": {
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                          },
+                        }}
+                      >
+                        <Typography variant="h6" fontWeight={600} mb={3}>
+                          Challenge Badge
                         </Typography>
 
-                        <Box mt={2}>
-                          <Typography variant="body1">
-                            {challengeData.reward ||
-                              "No reward description available"}
-                          </Typography>
+                        <Box
+                          sx={{
+                            position: "relative",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            mb: 3,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              position: "absolute",
+                              width: 140,
+                              height: 140,
+                              borderRadius: "50%",
+                              background:
+                                "linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(102, 126, 234, 0.05) 100%)",
+                              animation: "pulse 2s infinite",
+                            }}
+                          />
+                          <Avatar
+                            src={challengeData.badge}
+                            alt="Challenge Badge"
+                            sx={{
+                              width: 120,
+                              height: 120,
+                              border: "3px solid white",
+                              boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                            }}
+                          />
                         </Box>
 
-                        <Box mt={3}>
-                          <Typography
-                            variant="subtitle2"
-                            fontWeight={500}
-                            gutterBottom
-                          >
-                            Challenge Badge
-                          </Typography>
-                          <Box
-                            display="flex"
-                            justifyContent="center"
-                            mt={2}
-                          >
-                            <Avatar
-                              src={challengeData.badge}
-                              alt="Challenge Badge"
-                              sx={{ width: 100, height: 100 }}
-                            />
-                          </Box>
-                        </Box>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          textAlign="center"
+                        >
+                          Complete the challenge to earn this exclusive badge
+                        </Typography>
                       </Card>
                     </Grid>
                   </Grid>
                 </Box>
 
-                <Divider sx={{ my: 2 }} />
+                <Divider sx={{ my: 4 }} />
 
                 <Box>
                   <H6 fontSize={18} mb={3}>
@@ -1119,138 +1193,295 @@ export default function ChallengeDetailsPage() {
                   </H6>
 
                   <Grid container spacing={3}>
-                    <Grid item xs={12} sm={6}>
-                      <Card variant="outlined" sx={{ p: 3 }}>
-                        <Typography
-                          variant="subtitle2"
-                          fontWeight={500}
-                          gutterBottom
-                        >
-                          Basic Information
-                        </Typography>
-
-                        <Box mt={2}>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
-                            Target Value
-                          </Typography>
-                          <Typography variant="body2">
-                            {challengeData.targetValue || "N/A"}
-                          </Typography>
-                        </Box>
-
-                        <Box mt={2}>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
-                            Target Unit
-                          </Typography>
-                          <Typography variant="body2">
-                            {challengeData.targetUnit || "N/A"}
-                          </Typography>
-                        </Box>
-
-                        <Box mt={2}>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
-                            Target Description
-                          </Typography>
-                          <Typography variant="body2">
-                            {challengeData.targetDescription || "N/A"}
-                          </Typography>
-                        </Box>
-                      </Card>
-                    </Grid>
-
-                    <Grid item xs={12} sm={6}>
-                      <Card variant="outlined" sx={{ p: 3 }}>
-                        <Typography
-                          variant="subtitle2"
-                          fontWeight={500}
-                          gutterBottom
-                        >
-                          Challenge Settings
-                        </Typography>
-
-                        {challengeData.dailyTargetValue && (
-                          <Box mt={2}>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
+                    {/* Target Information Card */}
+                    <Grid item xs={12}>
+                      <Card
+                        variant="outlined"
+                        sx={{
+                          p: 3,
+                          borderRadius: 2,
+                          border: "1px solid",
+                          borderColor: "divider",
+                          transition: "box-shadow 0.2s",
+                          "&:hover": {
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                          },
+                        }}
+                      >
+                        <Grid container spacing={3}>
+                          {/* Basic Target Info */}
+                          <Grid item xs={12} md={4}>
+                            <Box
+                              sx={{
+                                height: "100%",
+                                p: 2,
+                                borderRadius: 1.5,
+                                backgroundColor: "grey.50",
+                              }}
                             >
-                              Daily Target Value
-                            </Typography>
-                            <Typography variant="body2">
-                              {challengeData.dailyTargetValue}
-                            </Typography>
-                          </Box>
-                        )}
+                              <Typography
+                                variant="subtitle2"
+                                fontWeight={600}
+                                gutterBottom
+                              >
+                                Target Goals
+                              </Typography>
 
-                        {challengeData.minActiveDays && (
-                          <Box mt={2}>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
+                              <Box mt={2}>
+                                <Box
+                                  display="flex"
+                                  justifyContent="space-between"
+                                  mb={1.5}
+                                >
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                  >
+                                    Target Value
+                                  </Typography>
+                                  <Typography variant="body2" fontWeight={600}>
+                                    {challengeData.targetValue || "N/A"}
+                                  </Typography>
+                                </Box>
+
+                                <Box
+                                  display="flex"
+                                  justifyContent="space-between"
+                                  mb={1.5}
+                                >
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                  >
+                                    Target Unit
+                                  </Typography>
+                                  <Typography variant="body2" fontWeight={600}>
+                                    {challengeData.targetUnit || "N/A"}
+                                  </Typography>
+                                </Box>
+
+                                <Divider sx={{ my: 2 }} />
+
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                  display="block"
+                                  mb={1}
+                                >
+                                  Target Description
+                                </Typography>
+                                <Typography variant="body2">
+                                  {challengeData.targetDescription ||
+                                    "No description available"}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Grid>
+
+                          {/* Daily Settings */}
+                          <Grid item xs={12} md={4}>
+                            <Box
+                              sx={{
+                                height: "100%",
+                                p: 2,
+                                borderRadius: 1.5,
+                                backgroundColor: "grey.50",
+                              }}
                             >
-                              Minimum Active Days
-                            </Typography>
-                            <Typography variant="body2">
-                              {challengeData.minActiveDays}
-                            </Typography>
-                          </Box>
-                        )}
+                              <Typography
+                                variant="subtitle2"
+                                fontWeight={600}
+                                gutterBottom
+                              >
+                                Daily Requirements
+                              </Typography>
 
-                        {challengeData.totalDays && (
-                          <Box mt={2}>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
+                              <Box mt={2}>
+                                {challengeData.dailyTargetValue && (
+                                  <Box
+                                    display="flex"
+                                    justifyContent="space-between"
+                                    mb={1.5}
+                                  >
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      Daily Target
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      fontWeight={600}
+                                    >
+                                      {challengeData.dailyTargetValue}
+                                    </Typography>
+                                  </Box>
+                                )}
+
+                                {challengeData.dailyCompletionThreshold && (
+                                  <Box
+                                    display="flex"
+                                    justifyContent="space-between"
+                                    mb={1.5}
+                                  >
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      Completion Threshold
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      fontWeight={600}
+                                    >
+                                      {challengeData.dailyCompletionThreshold}%
+                                    </Typography>
+                                  </Box>
+                                )}
+
+                                <Box
+                                  display="flex"
+                                  justifyContent="space-between"
+                                  mb={1.5}
+                                >
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                  >
+                                    Consecutive Days
+                                  </Typography>
+                                  <Chip
+                                    label={
+                                      challengeData.requireConsecutiveDays
+                                        ? "Required"
+                                        : "Not Required"
+                                    }
+                                    size="small"
+                                    color={
+                                      challengeData.requireConsecutiveDays
+                                        ? "warning"
+                                        : "default"
+                                    }
+                                    sx={{ height: 20 }}
+                                  />
+                                </Box>
+                              </Box>
+                            </Box>
+                          </Grid>
+
+                          {/* Duration Settings */}
+                          <Grid item xs={12} md={4}>
+                            <Box
+                              sx={{
+                                height: "100%",
+                                p: 2,
+                                borderRadius: 1.5,
+                                backgroundColor: "grey.50",
+                              }}
                             >
-                              Total Days
-                            </Typography>
-                            <Typography variant="body2">
-                              {challengeData.totalDays}
-                            </Typography>
-                          </Box>
-                        )}
+                              <Typography
+                                variant="subtitle2"
+                                fontWeight={600}
+                                gutterBottom
+                              >
+                                Duration Settings
+                              </Typography>
 
-                        {challengeData.dailyCompletionThreshold && (
-                          <Box mt={2}>
-                            <Typography
-                              variant="caption"
-                              color="text.secondary"
-                            >
-                              Daily Completion Threshold
-                            </Typography>
-                            <Typography variant="body2">
-                              {challengeData.dailyCompletionThreshold}
-                              %
-                            </Typography>
-                          </Box>
-                        )}
+                              <Box mt={2}>
+                                {challengeData.totalDays && (
+                                  <Box
+                                    display="flex"
+                                    justifyContent="space-between"
+                                    mb={1.5}
+                                  >
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      Total Days
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      fontWeight={600}
+                                    >
+                                      {challengeData.totalDays} days
+                                    </Typography>
+                                  </Box>
+                                )}
 
-                        <Box mt={2}>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
-                            Require Consecutive Days
-                          </Typography>
-                          <Typography variant="body2">
-                            {challengeData.requireConsecutiveDays
-                              ? "Yes"
-                              : "No"}
-                          </Typography>
-                        </Box>
+                                {challengeData.minActiveDays && (
+                                  <Box
+                                    display="flex"
+                                    justifyContent="space-between"
+                                    mb={1.5}
+                                  >
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      Min Active Days
+                                    </Typography>
+                                    <Typography
+                                      variant="body2"
+                                      fontWeight={600}
+                                    >
+                                      {challengeData.minActiveDays} days
+                                    </Typography>
+                                  </Box>
+                                )}
+
+                                <Box mt={2}>
+                                  <LinearProgress
+                                    variant="determinate"
+                                    value={
+                                      (challengeData.minActiveDays /
+                                        challengeData.totalDays) *
+                                        100 || 0
+                                    }
+                                    sx={{
+                                      height: 6,
+                                      borderRadius: 3,
+                                      backgroundColor: "grey.300",
+                                      "& .MuiLinearProgress-bar": {
+                                        borderRadius: 3,
+                                        backgroundColor: "primary.main",
+                                      },
+                                    }}
+                                  />
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                    sx={{ mt: 0.5 }}
+                                  >
+                                    Activity Requirement
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </Box>
+                          </Grid>
+                        </Grid>
                       </Card>
                     </Grid>
                   </Grid>
                 </Box>
+
+                {/* Add keyframe animation for badge pulse effect */}
+                <style jsx>{`
+                  @keyframes pulse {
+                    0% {
+                      transform: scale(1);
+                      opacity: 0.3;
+                    }
+                    50% {
+                      transform: scale(1.05);
+                      opacity: 0.1;
+                    }
+                    100% {
+                      transform: scale(1);
+                      opacity: 0.3;
+                    }
+                  }
+                `}</style>
               </TabPanel>
             </Box>
           </Card>
@@ -1262,11 +1493,7 @@ export default function ChallengeDetailsPage() {
             {/* Status Card */}
             <Card variant="outlined">
               <CardContent sx={{ p: 3 }}>
-                <Typography
-                  variant="subtitle2"
-                  fontWeight={500}
-                  gutterBottom
-                >
+                <Typography variant="subtitle2" fontWeight={500} gutterBottom>
                   Approval Status
                 </Typography>
                 <Stack
@@ -1278,24 +1505,17 @@ export default function ChallengeDetailsPage() {
                   <Chip
                     label={
                       challengeData.approvalStatus
-                        ? challengeData.approvalStatus
-                            .charAt(0)
-                            .toUpperCase() +
+                        ? challengeData.approvalStatus.charAt(0).toUpperCase() +
                           challengeData.approvalStatus.slice(1)
                         : "N/A"
                     }
-                    color={getStatusColor(
-                      challengeData.approvalStatus
-                    )}
+                    color={getStatusColor(challengeData.approvalStatus)}
                     size="small"
                   />
                 </Stack>
                 {challengeData.reviewedBy && (
                   <Box mb={2}>
-                    <Typography
-                      variant="caption"
-                      color="text.secondary"
-                    >
+                    <Typography variant="caption" color="text.secondary">
                       Reviewed By
                     </Typography>
                     <Typography variant="body2">
@@ -1320,11 +1540,7 @@ export default function ChallengeDetailsPage() {
             {challengeData.organizer && (
               <Card variant="outlined" sx={{ mb: 2 }}>
                 <CardContent sx={{ p: 3 }}>
-                  <Typography
-                    variant="subtitle2"
-                    fontWeight={500}
-                    gutterBottom
-                  >
+                  <Typography variant="subtitle2" fontWeight={500} gutterBottom>
                     Organizer Details
                   </Typography>
                   <div
@@ -1337,10 +1553,7 @@ export default function ChallengeDetailsPage() {
                       <Box display="flex" my={2}>
                         <Avatar
                           src={challengeData.organizer.companyLogo}
-                          alt={
-                            challengeData.organizer.name ||
-                            "Organizer"
-                          }
+                          alt={challengeData.organizer.name || "Organizer"}
                           sx={{
                             width: 60,
                             height: 60,
@@ -1354,10 +1567,7 @@ export default function ChallengeDetailsPage() {
                     <Stack spacing={1.5}>
                       {challengeData.organizer.name && (
                         <Box>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
+                          <Typography variant="caption" color="text.secondary">
                             Name
                           </Typography>
                           <Typography variant="body2">
@@ -1368,10 +1578,7 @@ export default function ChallengeDetailsPage() {
 
                       {challengeData.organizer.companyName && (
                         <Box>
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                          >
+                          <Typography variant="caption" color="text.secondary">
                             Company
                           </Typography>
                           <Typography variant="body2">
@@ -1388,20 +1595,12 @@ export default function ChallengeDetailsPage() {
             {/* Activity Status */}
             <Card variant="outlined">
               <CardContent sx={{ p: 3 }}>
-                <Typography
-                  variant="subtitle2"
-                  fontWeight={500}
-                  gutterBottom
-                >
+                <Typography variant="subtitle2" fontWeight={500} gutterBottom>
                   Status
                 </Typography>
                 <Chip
-                  label={
-                    challengeData.isActive ? "Active" : "Inactive"
-                  }
-                  color={
-                    challengeData.isActive ? "success" : "default"
-                  }
+                  label={challengeData.isActive ? "Active" : "Inactive"}
+                  color={challengeData.isActive ? "success" : "default"}
                   variant="outlined"
                   size="small"
                   sx={{ mt: 1 }}
@@ -1413,192 +1612,18 @@ export default function ChallengeDetailsPage() {
       </Grid>
 
       {/* Review Dialog */}
-      <StyledDialog
-        open={openReviewModal}
-        onClose={handleCloseReviewModal}
-      >
-        <IconButton
-          onClick={handleCloseReviewModal}
-          sx={{
-            color: "text.secondary",
-            position: "absolute",
-            top: "8px",
-            right: "8px",
-            border: "0.1px solid #f5f5dbff",
-            "&:hover": {
-              color: "text.primary",
-              backgroundColor: "rgba(0, 0, 0, 0.04)",
-            },
-          }}
-        >
-          <Close />
-        </IconButton>
-        <DialogTitle>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Typography
-              sx={{
-                fontWeight: 700,
-                fontSize: "1.4rem",
-                color: "primary.main",
-                textAlign: "center",
-                flex: 1,
-              }}
-            >
-              Review Challenge
-            </Typography>
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          {!showReasonInput ? (
-            <Box sx={{ py: 2 }}>
-              <Typography
-                variant="body2"
-                sx={{ mb: 4, fontSize: "1.1rem" }}
-              >
-                Do you want to approve or reject this challenge?
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexDirection: "column",
-                  mb: 2,
-                }}
-              >
-                <Typography
-                  variant="paragraph1"
-                  sx={{
-                    fontWeight: 600,
-                    color: "text.primary",
-                    textTransform: "capitalize",
-                    textAlign: "center",
-                    mb: 2,
-                  }}
-                >
-                  {challengeData?.title || "Challenge Title"}
-                </Typography>
-                <Avatar
-                  src={challengeData?.banner}
-                  sx={{
-                    width: 300,
-                    height: 150,
-                    borderRadius: 2,
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                  }}
-                />
-              </Box>
-            </Box>
-          ) : (
-            <Box sx={{ py: 2 }}>
-              <Typography
-                variant="body1"
-                sx={{
-                  mb: 3,
-                  fontSize: "1.1rem",
-                  fontWeight: 500,
-                }}
-              >
-                Please provide a reason for{" "}
-                <span
-                  style={{
-                    fontWeight: 700,
-                    color:
-                      reviewAction === "approve"
-                        ? "#4CAF50"
-                        : "#F44336",
-                  }}
-                >
-                  {reviewAction === "approve"
-                    ? "approving"
-                    : "rejecting"}
-                </span>{" "}
-                this challenge:
-              </Typography>
-              <TextField
-                fullWidth
-                multiline
-                rows={4}
-                variant="outlined"
-                placeholder="Enter your reason here..."
-                value={reviewReason}
-                onChange={(e) => setReviewReason(e.target.value)}
-                sx={{
-                  mb: 3,
-                  "& .MuiOutlinedInput-input": {
-                    fontSize: "1rem",
-                  },
-                }}
-              />
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          {!showReasonInput ? (
-            <>
-              <DialogButton
-                onClick={() => {
-                  setReviewAction("reject");
-                  setShowReasonInput(true);
-                }}
-                variant="error"
-              >
-                Reject
-              </DialogButton>
-              <DialogButton
-                onClick={() => {
-                  setReviewAction("approve");
-                  setShowReasonInput(true);
-                }}
-                variant="success"
-              >
-                Approve
-              </DialogButton>
-            </>
-          ) : (
-            <>
-              <DialogButton
-                onClick={() => {
-                  setShowReasonInput(false);
-                  setReviewReason("");
-                  setReviewAction("");
-                }}
-                variant="outlined"
-              >
-                Back
-              </DialogButton>
-              <DialogButton
-                onClick={handleSubmitReview}
-                variant={
-                  reviewAction === "approve" ? "success" : "error"
-                }
-                disabled={!reviewReason.trim() || isProcessing}
-              >
-                {isProcessing ? (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                    }}
-                  >
-                    <CircularProgress size={16} color="inherit" />
-                    <span>Processing...</span>
-                  </Box>
-                ) : (
-                  `Submit ${reviewAction === "approve" ? "Approval" : "Rejection"}`
-                )}
-              </DialogButton>
-            </>
-          )}
-        </DialogActions>
-      </StyledDialog>
+
+      {/* Approval Modal */}
+<ApprovalModal
+  open={approvalModalOpen}
+  handleClose={handleApprovalCancel}
+  title="Review Challenge"
+  onSubmit={handleApprovalSubmit}
+  initialData={{
+    approvalStatus: challengeData?.approvalStatus || "",
+    reviewReason: challengeData?.reviewReason || "",
+  }}
+/>
     </Container>
   );
 }

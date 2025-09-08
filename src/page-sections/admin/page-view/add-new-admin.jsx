@@ -352,7 +352,7 @@ export default function AddNewAdminPageView() {
 
                   <Grid size={12}>
                     <Button type="submit" variant="contained">
-                      Create User
+                      Create Employee
                     </Button>
                   </Grid>
                 </Grid>
