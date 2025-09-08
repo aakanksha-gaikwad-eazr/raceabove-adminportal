@@ -310,7 +310,7 @@ const AddNewPlatformSettings = Loadable(
 );
 
 const PlatformSettingsListView2 = Loadable(
-  lazy(() => import("@/pages/dashboard/platformsettings/platformsettings-list-2"))
+  lazy(() => import("@/pages/dashboard/platformsettings/platformSettings-list-2"))
 );
 
 
