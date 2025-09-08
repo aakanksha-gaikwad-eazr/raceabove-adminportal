@@ -37,7 +37,7 @@ import {
   deleteEventCategory,
   updateEventCategory,
 } from "@/store/apps/eventscategory";
-import EditEventCategoryFormModal from "../EditeventcategoryFormModal";
+import EditEventCategoryFormModal from "./EditeventcategoryFormModal";
 
 // STYLED COMPONENTS
 const HeadTableCell = styled(TableCell)(({ theme }) => ({

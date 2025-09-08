@@ -9,7 +9,7 @@ import IconButton from "@mui/material/IconButton";
 import useTheme from "@mui/material/styles/useTheme";
 import DeleteOutline from "@mui/icons-material/DeleteOutline"; // CUSTOM COMPONENTS
 
-import EditEventcategoryFormModal from "./EditEventcategoryFormModal";
+import EditEventcategoryFormModal from "./page-view/EditeventcategoryFormModal";
 import { TableMoreMenuItem } from "@/components/table";
 import { H6, Paragraph } from "@/components/typography";
 import FlexBetween from "@/components/flexbox/FlexBetween"; // CUSTOM ICON COMPONENTS
