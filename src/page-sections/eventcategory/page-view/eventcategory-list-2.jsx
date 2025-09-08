@@ -29,7 +29,6 @@ import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable";
 import { isDark } from "@/utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import EditEventCategoryFormModal from "../EditEventCategoryFormModal";
 import DeleteEventModal from "@/components/delete-modal-event";
 import HeadingArea from "../HeadingArea";
 import { formatDate } from "@/utils/dateFormatter";
@@ -38,6 +37,7 @@ import {
   deleteEventCategory,
   updateEventCategory,
 } from "@/store/apps/eventscategory";
+import EditEventCategoryFormModal from "../EditeventcategoryFormModal";
 
 // STYLED COMPONENTS
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
