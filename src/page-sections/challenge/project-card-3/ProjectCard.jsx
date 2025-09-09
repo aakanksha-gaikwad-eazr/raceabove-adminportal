@@ -218,7 +218,7 @@ export default function ChallengeCard3({
 
   const handleChallengeDetailsClick = (id) => {
     localStorage.setItem("challengeId", id);
-    navigate("/challenges/details");
+    navigate(`/challenges/details/${id}`);
   };
 
   const handleOpenReviewModal = () => {
