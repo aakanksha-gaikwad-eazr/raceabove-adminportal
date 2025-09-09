@@ -36,7 +36,11 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import SettingsIcon from "@mui/icons-material/Settings";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import PeopleIcon from "@mui/icons-material/People";
-
+import { Pagination, Select, MenuItem, Button } from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 // CUSTOM COMPONENTS
 import MoreButton from "@/components/more-button";
 import { H6, Paragraph } from "@/components/typography";
@@ -48,6 +52,17 @@ import { useContext, useEffect, useState } from "react";
 import { getEventsById } from "../../../store/apps/events";
 import { toast } from "react-hot-toast";
 import { PROJECT_FILES } from "@/__fakeData__/projects";
+import IconButton from "@mui/material/IconButton";
+import {
+  TextFields,
+  Email,
+  ArrowDropDown,
+  CalendarToday,
+  Numbers,
+  Visibility,
+  Edit,
+  Add
+} from '@mui/icons-material';
 import {
   CardContent,
   CardHeader,
@@ -154,6 +169,9 @@ export default function EventsDetailsPageView() {
 
   const navigate = useNavigate();
   const { id } = useParams();
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   function TabPanel({ children, value, index, ...other }) {
     return (
@@ -267,6 +285,9 @@ export default function EventsDetailsPageView() {
                         label={eventsData?.approvalStatus || "Pending"}
                         status={eventsData?.approvalStatus}
                         size="small"
+                        style={{
+                                              textTransform: "capitalize",
+                                            }}
                       />
                     </FlexBetween>
 
@@ -305,7 +326,10 @@ export default function EventsDetailsPageView() {
                         <InfoRow>
                           <CategoryIcon fontSize="small" color="action" />
                           <span className="label">Type:</span>
-                          <span className="value" style={{ textTransform: "capitalize" }}>
+                          <span
+                            className="value"
+                            style={{ textTransform: "capitalize" }}
+                          >
                             {eventsData?.type?.replace("_", " ") || "N/A"}
                           </span>
                         </InfoRow>
@@ -314,14 +338,19 @@ export default function EventsDetailsPageView() {
                         <InfoRow>
                           <LanguageIcon fontSize="small" color="action" />
                           <span className="label">Language:</span>
-                          <span className="value">{eventsData?.language || "N/A"}</span>
+                          <span className="value">
+                            {eventsData?.language || "N/A"}
+                          </span>
                         </InfoRow>
                       </Grid>
                       <Grid size={6}>
                         <InfoRow>
                           <VisibilityIcon fontSize="small" color="action" />
                           <span className="label">Visibility:</span>
-                          <span className="value" style={{ textTransform: "capitalize" }}>
+                          <span
+                            className="value"
+                            style={{ textTransform: "capitalize" }}
+                          >
                             {eventsData?.visibility || "N/A"}
                           </span>
                         </InfoRow>
@@ -342,7 +371,11 @@ export default function EventsDetailsPageView() {
                           <Chip
                             label={eventsData?.status || "Draft"}
                             size="small"
-                            color={eventsData?.status === "published" ? "success" : "default"}
+                            color={
+                              eventsData?.status === "published"
+                                ? "success"
+                                : "default"
+                            }
                           />
                         </InfoRow>
                       </Grid>
@@ -370,7 +403,9 @@ export default function EventsDetailsPageView() {
                           </Paragraph>
                           <Paragraph fontWeight={500}>
                             {eventsData?.startDateTime
-                              ? new Date(eventsData.startDateTime).toLocaleString("en-IN", {
+                              ? new Date(
+                                  eventsData.startDateTime
+                                ).toLocaleString("en-IN", {
                                   day: "2-digit",
                                   month: "short",
                                   year: "numeric",
@@ -386,13 +421,16 @@ export default function EventsDetailsPageView() {
                           </Paragraph>
                           <Paragraph fontWeight={500}>
                             {eventsData?.endDateTime
-                              ? new Date(eventsData.endDateTime).toLocaleString("en-IN", {
-                                  day: "2-digit",
-                                  month: "short",
-                                  year: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })
+                              ? new Date(eventsData.endDateTime).toLocaleString(
+                                  "en-IN",
+                                  {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )
                               : "N/A"}
                           </Paragraph>
                         </Grid>
@@ -410,7 +448,10 @@ export default function EventsDetailsPageView() {
                           <Paragraph fontSize={12} color="text.secondary">
                             Platform Fee Paid By
                           </Paragraph>
-                          <Paragraph fontWeight={500} style={{ textTransform: "capitalize" }}>
+                          <Paragraph
+                            fontWeight={500}
+                            style={{ textTransform: "capitalize" }}
+                          >
                             {eventsData?.platformFeePayBy || "N/A"}
                           </Paragraph>
                         </Grid>
@@ -418,7 +459,10 @@ export default function EventsDetailsPageView() {
                           <Paragraph fontSize={12} color="text.secondary">
                             Gateway Fee Paid By
                           </Paragraph>
-                          <Paragraph fontWeight={500} style={{ textTransform: "capitalize" }}>
+                          <Paragraph
+                            fontWeight={500}
+                            style={{ textTransform: "capitalize" }}
+                          >
                             {eventsData?.gatewayFeePayBy || "N/A"}
                           </Paragraph>
                         </Grid>
@@ -445,7 +489,8 @@ export default function EventsDetailsPageView() {
                             <InfoRow>
                               <span className="label">Refund Policy:</span>
                               <span className="value">
-                                {eventsData.settings.refundPolicy || "No refund policy"}
+                                {eventsData.settings.refundPolicy ||
+                                  "No refund policy"}
                               </span>
                             </InfoRow>
                           </Grid>
@@ -453,31 +498,44 @@ export default function EventsDetailsPageView() {
                             <InfoRow>
                               <span className="label">Reminder Days:</span>
                               <span className="value">
-                                {eventsData.settings.reminderDays?.join(", ") || "None"} days before
+                                {eventsData.settings.reminderDays?.join(", ") ||
+                                  "None"}{" "}
+                                days before
                               </span>
                             </InfoRow>
                           </Grid>
                           <Grid size={6}>
                             <InfoRow>
-                              <span className="label">Cancellation Deadline:</span>
+                              <span className="label">
+                                Cancellation Deadline:
+                              </span>
                               <span className="value">
-                                {eventsData.settings.cancellationDeadline || 0} hours
+                                {eventsData.settings.cancellationDeadline || 0}{" "}
+                                hours
                               </span>
                             </InfoRow>
                           </Grid>
                           <Grid size={6}>
                             <InfoRow>
-                              <span className="label">Send Reminder Email:</span>
+                              <span className="label">
+                                Send Reminder Email:
+                              </span>
                               <span className="value">
-                                {eventsData.settings.sendReminderEmail ? "Yes" : "No"}
+                                {eventsData.settings.sendReminderEmail
+                                  ? "Yes"
+                                  : "No"}
                               </span>
                             </InfoRow>
                           </Grid>
                           <Grid size={6}>
                             <InfoRow>
-                              <span className="label">Send Confirmation Email:</span>
+                              <span className="label">
+                                Send Confirmation Email:
+                              </span>
                               <span className="value">
-                                {eventsData.settings.sendConfirmationEmail ? "Yes" : "No"}
+                                {eventsData.settings.sendConfirmationEmail
+                                  ? "Yes"
+                                  : "No"}
                               </span>
                             </InfoRow>
                           </Grid>
@@ -494,10 +552,12 @@ export default function EventsDetailsPageView() {
                       <Grid container spacing={2}>
                         <Grid size={12}>
                           <Paragraph fontWeight={500}>
-                            {eventsData?.location?.address || "Location not specified"}
+                            {eventsData?.location?.address ||
+                              "Location not specified"}
                           </Paragraph>
                           <Paragraph fontSize={13} color="text.secondary">
-                            {eventsData?.location?.city}, {eventsData?.location?.state}
+                            {eventsData?.location?.city},{" "}
+                            {eventsData?.location?.state}
                           </Paragraph>
                         </Grid>
                         {eventsData?.location?.additionalInstructions && (
@@ -514,7 +574,9 @@ export default function EventsDetailsPageView() {
                           <Grid size={6}>
                             <InfoRow>
                               <span className="label">Platform:</span>
-                              <span className="value">{eventsData.location.platform}</span>
+                              <span className="value">
+                                {eventsData.location.platform}
+                              </span>
                             </InfoRow>
                           </Grid>
                         )}
@@ -523,7 +585,11 @@ export default function EventsDetailsPageView() {
                             <InfoRow>
                               <span className="label">Link:</span>
                               <span className="value">
-                                <a href={eventsData.location.link} target="_blank" rel="noopener noreferrer">
+                                <a
+                                  href={eventsData.location.link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
                                   Join Event
                                 </a>
                               </span>
@@ -564,7 +630,9 @@ export default function EventsDetailsPageView() {
                         color="text.secondary"
                         style={{ whiteSpace: "pre-line" }}
                       >
-                        {eventsData?.participation?.content || eventsData?.participation || "No participation guidelines available."}
+                        {eventsData?.participation?.content ||
+                          eventsData?.participation ||
+                          "No participation guidelines available."}
                       </Paragraph>
                     </Div>
                   </Grid>
@@ -583,7 +651,9 @@ export default function EventsDetailsPageView() {
                         color="text.secondary"
                         style={{ whiteSpace: "pre-line" }}
                       >
-                        {eventsData?.obstacles?.content || eventsData?.obstacles || "No obstacle information available."}
+                        {eventsData?.obstacles?.content ||
+                          eventsData?.obstacles ||
+                          "No obstacle information available."}
                       </Paragraph>
                     </Div>
                   </Grid>
@@ -602,7 +672,9 @@ export default function EventsDetailsPageView() {
                         color="text.secondary"
                         style={{ whiteSpace: "pre-line" }}
                       >
-                        {eventsData?.enduranceLevel?.content || eventsData?.enduranceLevel || "No endurance level information available."}
+                        {eventsData?.enduranceLevel?.content ||
+                          eventsData?.enduranceLevel ||
+                          "No endurance level information available."}
                       </Paragraph>
                     </Div>
                   </Grid>
@@ -621,7 +693,8 @@ export default function EventsDetailsPageView() {
                         color="text.secondary"
                         style={{ whiteSpace: "pre-line" }}
                       >
-                        {eventsData?.termsAndCondition?.content || "No terms and conditions available."}
+                        {eventsData?.termsAndCondition?.content ||
+                          "No terms and conditions available."}
                       </Paragraph>
                     </Div>
                   </Grid>
@@ -640,7 +713,8 @@ export default function EventsDetailsPageView() {
                         color="text.secondary"
                         style={{ whiteSpace: "pre-line" }}
                       >
-                        {eventsData?.privacyPolicy?.content || "No privacy policy available."}
+                        {eventsData?.privacyPolicy?.content ||
+                          "No privacy policy available."}
                       </Paragraph>
                     </Div>
                   </Grid>
@@ -658,10 +732,14 @@ export default function EventsDetailsPageView() {
                       eventsData.frequentlyAskedQuestions.map((faq, index) => (
                         <Accordion key={faq.id} sx={{ mb: 1 }}>
                           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                            <Paragraph fontWeight={500}>{faq.question}</Paragraph>
+                            <Paragraph fontWeight={500}>
+                              {faq.question}
+                            </Paragraph>
                           </AccordionSummary>
                           <AccordionDetails>
-                            <Paragraph color="text.secondary">{faq.answer}</Paragraph>
+                            <Paragraph color="text.secondary">
+                              {faq.answer}
+                            </Paragraph>
                           </AccordionDetails>
                         </Accordion>
                       ))
@@ -676,7 +754,11 @@ export default function EventsDetailsPageView() {
                 {/* META DATA */}
                 <Grid size={12}>
                   <CardContent sx={{ p: 3 }}>
-                    <Typography variant="subtitle2" fontWeight={500} gutterBottom>
+                    <Typography
+                      variant="subtitle2"
+                      fontWeight={500}
+                      gutterBottom
+                    >
                       Information
                     </Typography>
 
@@ -684,10 +766,16 @@ export default function EventsDetailsPageView() {
                       <Grid item xs={12} sm={6}>
                         <Stack spacing={2}>
                           <Box>
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
                               Created By
                             </Typography>
-                            <Typography variant="body2" style={{ textTransform: "capitalize" }}>
+                            <Typography
+                              variant="body2"
+                              style={{ textTransform: "capitalize" }}
+                            >
                               {eventsData.createdBy || "System"}
                               {eventsData.createdByRole && (
                                 <Typography
@@ -704,7 +792,10 @@ export default function EventsDetailsPageView() {
                           </Box>
 
                           <Box>
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
                               Created On
                             </Typography>
                             <Typography variant="body2">
@@ -718,10 +809,16 @@ export default function EventsDetailsPageView() {
                         <Stack spacing={2}>
                           {eventsData.updatedBy && (
                             <Box>
-                              <Typography variant="caption" color="text.secondary">
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
                                 Updated By
                               </Typography>
-                              <Typography variant="body2" style={{ textTransform: "capitalize" }}>
+                              <Typography
+                                variant="body2"
+                                style={{ textTransform: "capitalize" }}
+                              >
                                 {eventsData.updatedBy}
                                 {eventsData.updatedByRole && (
                                   <Typography
@@ -740,7 +837,10 @@ export default function EventsDetailsPageView() {
 
                           {eventsData?.updatedAt && (
                             <Box>
-                              <Typography variant="caption" color="text.secondary">
+                              <Typography
+                                variant="caption"
+                                color="text.secondary"
+                              >
                                 Updated On
                               </Typography>
                               <Typography variant="body2">
@@ -767,28 +867,38 @@ export default function EventsDetailsPageView() {
                 {eventsData?.slots?.length > 0 ? (
                   eventsData.slots.map((slot, index) => (
                     <InfoCard key={slot.id} sx={{ mb: 2 }}>
-                      <Box p={2} style={{ cursor: "pointer" }} onClick={() => handleClickonSlots(slot.id)}>
+                      <Box
+                        p={2}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => handleClickonSlots(slot.id)}
+                      >
                         <FlexBetween mb={2}>
                           <Box>
                             <Paragraph fontWeight={600} fontSize={16}>
                               {slot.name || `Slot ${index + 1}`}
                             </Paragraph>
                             <Paragraph color="text.secondary" fontSize={14}>
-                              {new Date(slot.startDateTime).toLocaleString("en-IN", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}{" "}
+                              {new Date(slot.startDateTime).toLocaleString(
+                                "en-IN",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}{" "}
                               -{" "}
-                              {new Date(slot.endDateTime).toLocaleString("en-IN", {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
+                              {new Date(slot.endDateTime).toLocaleString(
+                                "en-IN",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
                             </Paragraph>
                           </Box>
                           <Box textAlign="right">
@@ -801,7 +911,11 @@ export default function EventsDetailsPageView() {
                             <Box mt={1}>
                               <Chip
                                 label={slot.approvalStatus || "Pending"}
-                                color={slot.approvalStatus === "approved" ? "success" : "warning"}
+                                color={
+                                  slot.approvalStatus === "approved"
+                                    ? "success"
+                                    : "warning"
+                                }
                                 size="small"
                               />
                             </Box>
@@ -828,25 +942,43 @@ export default function EventsDetailsPageView() {
                                   >
                                     <FlexBetween mb={1}>
                                       <Box>
-                                        <Paragraph fontWeight={500} fontSize={15}>
+                                        <Paragraph
+                                          fontWeight={500}
+                                          fontSize={15}
+                                        >
                                           {ticket.name}
                                         </Paragraph>
                                         <Chip
-                                          label={ticket.type === "free" ? "FREE" : "PAID"}
-                                          color={ticket.type === "free" ? "success" : "primary"}
+                                          label={
+                                            ticket.type === "free"
+                                              ? "FREE"
+                                              : "PAID"
+                                          }
+                                          color={
+                                            ticket.type === "free"
+                                              ? "success"
+                                              : "primary"
+                                          }
                                           size="small"
                                           sx={{ mt: 0.5 }}
                                         />
                                       </Box>
                                       <Box textAlign="right">
-                                        <Paragraph fontWeight={600} color="primary.main" fontSize={16}>
+                                        <Paragraph
+                                          fontWeight={600}
+                                          color="primary.main"
+                                          fontSize={16}
+                                        >
                                           ₹{ticket.price}
                                         </Paragraph>
-                                        {ticket.discountedPrice !== ticket.price && (
+                                        {ticket.discountedPrice !==
+                                          ticket.price && (
                                           <Paragraph
                                             fontSize={12}
                                             color="text.secondary"
-                                            sx={{ textDecoration: "line-through" }}
+                                            sx={{
+                                              textDecoration: "line-through",
+                                            }}
                                           >
                                             ₹{ticket.discountedPrice}
                                           </Paragraph>
@@ -855,48 +987,83 @@ export default function EventsDetailsPageView() {
                                     </FlexBetween>
 
                                     <Box mb={1}>
-                                      <Paragraph fontSize={13} color="text.secondary" mb={0.5}>
+                                      <Paragraph
+                                        fontSize={13}
+                                        color="text.secondary"
+                                        mb={0.5}
+                                      >
                                         {ticket.description}
                                       </Paragraph>
                                       <Grid container spacing={1}>
                                         <Grid size={6}>
-                                          <Paragraph fontSize={12} color="text.secondary">
-                                            Age Limit: {ticket.minAge} - {ticket.maxAge} years
+                                          <Paragraph
+                                            fontSize={12}
+                                            color="text.secondary"
+                                          >
+                                            Age Limit: {ticket.minAge} -{" "}
+                                            {ticket.maxAge} years
                                           </Paragraph>
                                         </Grid>
                                         <Grid size={6}>
-                                          <Paragraph fontSize={12} color="text.secondary">
-                                            Booking Limit: {ticket.minPerBooking} - {ticket.maxPerBooking}
+                                          <Paragraph
+                                            fontSize={12}
+                                            color="text.secondary"
+                                          >
+                                            Booking Limit:{" "}
+                                            {ticket.minPerBooking} -{" "}
+                                            {ticket.maxPerBooking}
                                           </Paragraph>
                                         </Grid>
                                       </Grid>
                                     </Box>
 
                                     <Box mb={1}>
-                                      <Paragraph fontSize={12} color="text.secondary">
+                                      <Paragraph
+                                        fontSize={12}
+                                        color="text.secondary"
+                                      >
                                         Sale Period:
                                       </Paragraph>
                                       <Paragraph fontSize={12}>
-                                        {new Date(ticket.saleStartDateTime).toLocaleDateString("en-IN")} -{" "}
-                                        {new Date(ticket.saleEndDateTime).toLocaleDateString("en-IN")}
+                                        {new Date(
+                                          ticket.saleStartDateTime
+                                        ).toLocaleDateString("en-IN")}{" "}
+                                        -{" "}
+                                        {new Date(
+                                          ticket.saleEndDateTime
+                                        ).toLocaleDateString("en-IN")}
                                       </Paragraph>
                                     </Box>
 
                                     <FlexBetween>
                                       <Box>
-                                        <Paragraph fontSize={13} color="text.secondary">
-                                          Booked: {ticket.bookedCount} / {ticket.quantity}
+                                        <Paragraph
+                                          fontSize={13}
+                                          color="text.secondary"
+                                        >
+                                          Booked: {ticket.bookedCount} /{" "}
+                                          {ticket.quantity}
                                         </Paragraph>
                                         <LinearProgress
                                           variant="determinate"
-                                          value={(ticket.bookedCount / ticket.quantity) * 100}
+                                          value={
+                                            (ticket.bookedCount /
+                                              ticket.quantity) *
+                                            100
+                                          }
                                           sx={{ width: 100, mt: 0.5 }}
                                         />
                                       </Box>
                                       <Box textAlign="right">
                                         <Chip
-                                          label={ticket.approvalStatus || "Pending"}
-                                          color={ticket.approvalStatus === "approved" ? "success" : "warning"}
+                                          label={
+                                            ticket.approvalStatus || "Pending"
+                                          }
+                                          color={
+                                            ticket.approvalStatus === "approved"
+                                              ? "success"
+                                              : "warning"
+                                          }
                                           size="small"
                                           variant="outlined"
                                         />
@@ -906,19 +1073,25 @@ export default function EventsDetailsPageView() {
                                     {/* Applicable Coupons */}
                                     {ticket.applicableCoupons?.length > 0 && (
                                       <Box mt={2}>
-                                        <Paragraph fontSize={12} color="text.secondary" mb={1}>
+                                        <Paragraph
+                                          fontSize={12}
+                                          color="text.secondary"
+                                          mb={1}
+                                        >
                                           Applicable Coupons:
                                         </Paragraph>
                                         <FlexBox gap={1} flexWrap="wrap">
-                                          {ticket.applicableCoupons.map((coupon) => (
-                                            <Chip
-                                              key={coupon.id}
-                                              label={`${coupon.code} (${coupon.discountValue}% OFF)`}
-                                              size="small"
-                                              variant="outlined"
-                                              color="secondary"
-                                            />
-                                          ))}
+                                          {ticket.applicableCoupons.map(
+                                            (coupon) => (
+                                              <Chip
+                                                key={coupon.id}
+                                                label={`${coupon.code} (${coupon.discountValue}% OFF)`}
+                                                size="small"
+                                                variant="outlined"
+                                                color="secondary"
+                                              />
+                                            )
+                                          )}
                                         </FlexBox>
                                       </Box>
                                     )}
@@ -957,20 +1130,33 @@ export default function EventsDetailsPageView() {
                     {eventsData?.coupons?.length > 0 ? (
                       <Grid container spacing={2}>
                         {eventsData.coupons.map((coupon, idx) => {
-                          const { statusText, statusColor, style } = getCouponStatus(coupon);
+                          const { statusText, statusColor, style } =
+                            getCouponStatus(coupon);
                           return (
                             <Grid size={12} key={coupon?.id || idx}>
                               <InfoCard style={style}>
                                 <Box p={2}>
                                   <FlexBetween mb={2}>
                                     <Box>
-                                      <Paragraph fontWeight={600} color="primary.main" fontSize={16}>
+                                      <Paragraph
+                                        fontWeight={600}
+                                        color="primary.main"
+                                        fontSize={16}
+                                      >
                                         {coupon?.code}
                                       </Paragraph>
-                                      <Paragraph fontSize={14} fontWeight={500} mt={0.5}>
+                                      <Paragraph
+                                        fontSize={14}
+                                        fontWeight={500}
+                                        mt={0.5}
+                                      >
                                         {coupon?.title}
                                       </Paragraph>
-                                      <Paragraph fontSize={13} color="text.secondary" mt={0.5}>
+                                      <Paragraph
+                                        fontSize={13}
+                                        color="text.secondary"
+                                        mt={0.5}
+                                      >
                                         {coupon?.description}
                                       </Paragraph>
                                     </Box>
@@ -982,8 +1168,15 @@ export default function EventsDetailsPageView() {
                                       />
                                       <Box mt={1}>
                                         <Chip
-                                          label={coupon?.approvalStatus || "Pending"}
-                                          color={coupon?.approvalStatus === "approved" ? "success" : "warning"}
+                                          label={
+                                            coupon?.approvalStatus || "Pending"
+                                          }
+                                          color={
+                                            coupon?.approvalStatus ===
+                                            "approved"
+                                              ? "success"
+                                              : "warning"
+                                          }
                                           size="small"
                                           variant="outlined"
                                         />
@@ -993,15 +1186,25 @@ export default function EventsDetailsPageView() {
 
                                   <Grid container spacing={2}>
                                     <Grid size={3}>
-                                      <Paragraph fontSize={12} color="text.secondary">
+                                      <Paragraph
+                                        fontSize={12}
+                                        color="text.secondary"
+                                      >
                                         Discount Type
                                       </Paragraph>
-                                      <Paragraph fontSize={13} fontWeight={500} style={{ textTransform: "capitalize" }}>
+                                      <Paragraph
+                                        fontSize={13}
+                                        fontWeight={500}
+                                        style={{ textTransform: "capitalize" }}
+                                      >
                                         {coupon?.discountType}
                                       </Paragraph>
                                     </Grid>
                                     <Grid size={3}>
-                                      <Paragraph fontSize={12} color="text.secondary">
+                                      <Paragraph
+                                        fontSize={12}
+                                        color="text.secondary"
+                                      >
                                         Max Discount
                                       </Paragraph>
                                       <Paragraph fontSize={13} fontWeight={500}>
@@ -1009,7 +1212,10 @@ export default function EventsDetailsPageView() {
                                       </Paragraph>
                                     </Grid>
                                     <Grid size={3}>
-                                      <Paragraph fontSize={12} color="text.secondary">
+                                      <Paragraph
+                                        fontSize={12}
+                                        color="text.secondary"
+                                      >
                                         Min Purchase
                                       </Paragraph>
                                       <Paragraph fontSize={13} fontWeight={500}>
@@ -1017,22 +1223,31 @@ export default function EventsDetailsPageView() {
                                       </Paragraph>
                                     </Grid>
                                     <Grid size={3}>
-                                      <Paragraph fontSize={12} color="text.secondary">
+                                      <Paragraph
+                                        fontSize={12}
+                                        color="text.secondary"
+                                      >
                                         Usage
                                       </Paragraph>
                                       <Paragraph fontSize={13} fontWeight={500}>
-                                        {coupon?.usageCount || 0} / {coupon?.usageLimit || "∞"}
+                                        {coupon?.usageCount || 0} /{" "}
+                                        {coupon?.usageLimit || "∞"}
                                       </Paragraph>
                                     </Grid>
                                   </Grid>
 
                                   <Grid container spacing={2} mt={1}>
                                     <Grid size={4}>
-                                      <Paragraph fontSize={12} color="text.secondary">
+                                      <Paragraph
+                                        fontSize={12}
+                                        color="text.secondary"
+                                      >
                                         Start Date
                                       </Paragraph>
                                       <Paragraph fontSize={13} fontWeight={500}>
-                                        {new Date(coupon?.startTimeStamp).toLocaleDateString("en-IN", {
+                                        {new Date(
+                                          coupon?.startTimeStamp
+                                        ).toLocaleDateString("en-IN", {
                                           day: "2-digit",
                                           month: "short",
                                           year: "numeric",
@@ -1040,11 +1255,16 @@ export default function EventsDetailsPageView() {
                                       </Paragraph>
                                     </Grid>
                                     <Grid size={4}>
-                                      <Paragraph fontSize={12} color="text.secondary">
+                                      <Paragraph
+                                        fontSize={12}
+                                        color="text.secondary"
+                                      >
                                         End Date
                                       </Paragraph>
                                       <Paragraph fontSize={13} fontWeight={500}>
-                                        {new Date(coupon?.endTimeStamp).toLocaleDateString("en-IN", {
+                                        {new Date(
+                                          coupon?.endTimeStamp
+                                        ).toLocaleDateString("en-IN", {
                                           day: "2-digit",
                                           month: "short",
                                           year: "numeric",
@@ -1052,7 +1272,10 @@ export default function EventsDetailsPageView() {
                                       </Paragraph>
                                     </Grid>
                                     <Grid size={4}>
-                                      <Paragraph fontSize={12} color="text.secondary">
+                                      <Paragraph
+                                        fontSize={12}
+                                        color="text.secondary"
+                                      >
                                         Per User Limit
                                       </Paragraph>
                                       <Paragraph fontSize={13} fontWeight={500}>
@@ -1086,13 +1309,22 @@ export default function EventsDetailsPageView() {
                                         />
                                       )}
                                       {coupon?.isVisible && (
-                                        <Chip label="Visible" size="small" color="success" variant="outlined" />
+                                        <Chip
+                                          label="Visible"
+                                          size="small"
+                                          color="success"
+                                          variant="outlined"
+                                        />
                                       )}
                                     </FlexBox>
                                   </Box>
 
                                   <Box mt={2}>
-                                    <Paragraph fontSize={12} color={statusColor} fontWeight={500}>
+                                    <Paragraph
+                                      fontSize={12}
+                                      color={statusColor}
+                                      fontWeight={500}
+                                    >
                                       {statusText}
                                     </Paragraph>
                                   </Box>
@@ -1143,12 +1375,20 @@ export default function EventsDetailsPageView() {
                                       <Paragraph fontWeight={600} fontSize={16}>
                                         {addon?.product?.name}
                                       </Paragraph>
-                                      <Paragraph fontWeight={600} color="primary.main" fontSize={18}>
+                                      <Paragraph
+                                        fontWeight={600}
+                                        color="primary.main"
+                                        fontSize={18}
+                                      >
                                         ₹{addon?.product?.price}
                                       </Paragraph>
                                     </FlexBetween>
 
-                                    <Paragraph fontSize={13} color="text.secondary" mb={1}>
+                                    <Paragraph
+                                      fontSize={13}
+                                      color="text.secondary"
+                                      mb={1}
+                                    >
                                       {addon?.product?.description}
                                     </Paragraph>
 
@@ -1159,35 +1399,61 @@ export default function EventsDetailsPageView() {
                                         variant="outlined"
                                       />
                                       <Chip
-                                        label={addon?.approvalStatus || "Pending"}
-                                        color={addon?.approvalStatus === "approved" ? "success" : "warning"}
+                                        label={
+                                          addon?.approvalStatus || "Pending"
+                                        }
+                                        color={
+                                          addon?.approvalStatus === "approved"
+                                            ? "success"
+                                            : "warning"
+                                        }
                                         size="small"
                                       />
                                     </FlexBetween>
 
                                     <Grid container spacing={2} mt={1}>
                                       <Grid size={4}>
-                                        <Paragraph fontSize={12} color="text.secondary">
+                                        <Paragraph
+                                          fontSize={12}
+                                          color="text.secondary"
+                                        >
                                           Total Quantity
                                         </Paragraph>
-                                        <Paragraph fontSize={14} fontWeight={500}>
+                                        <Paragraph
+                                          fontSize={14}
+                                          fontWeight={500}
+                                        >
                                           {addon?.quantity}
                                         </Paragraph>
                                       </Grid>
                                       <Grid size={4}>
-                                        <Paragraph fontSize={12} color="text.secondary">
+                                        <Paragraph
+                                          fontSize={12}
+                                          color="text.secondary"
+                                        >
                                           Sold Quantity
                                         </Paragraph>
-                                        <Paragraph fontSize={14} fontWeight={500}>
+                                        <Paragraph
+                                          fontSize={14}
+                                          fontWeight={500}
+                                        >
                                           {addon?.soldQuantity}
                                         </Paragraph>
                                       </Grid>
                                       <Grid size={4}>
-                                        <Paragraph fontSize={12} color="text.secondary">
+                                        <Paragraph
+                                          fontSize={12}
+                                          color="text.secondary"
+                                        >
                                           Available
                                         </Paragraph>
-                                        <Paragraph fontSize={14} fontWeight={500} color="success.main">
-                                          {addon?.quantity - addon?.soldQuantity}
+                                        <Paragraph
+                                          fontSize={14}
+                                          fontWeight={500}
+                                          color="success.main"
+                                        >
+                                          {addon?.quantity -
+                                            addon?.soldQuantity}
                                         </Paragraph>
                                       </Grid>
                                     </Grid>
@@ -1195,11 +1461,24 @@ export default function EventsDetailsPageView() {
                                     <Box mt={2}>
                                       <LinearProgress
                                         variant="determinate"
-                                        value={(addon?.soldQuantity / addon?.quantity) * 100}
+                                        value={
+                                          (addon?.soldQuantity /
+                                            addon?.quantity) *
+                                          100
+                                        }
                                         sx={{ height: 8, borderRadius: 1 }}
                                       />
-                                      <Paragraph fontSize={11} color="text.secondary" mt={0.5}>
-                                        {Math.round((addon?.soldQuantity / addon?.quantity) * 100)}% sold
+                                      <Paragraph
+                                        fontSize={11}
+                                        color="text.secondary"
+                                        mt={0.5}
+                                      >
+                                        {Math.round(
+                                          (addon?.soldQuantity /
+                                            addon?.quantity) *
+                                            100
+                                        )}
+                                        % sold
                                       </Paragraph>
                                     </Box>
                                   </Box>
@@ -1225,6 +1504,392 @@ export default function EventsDetailsPageView() {
                 {/* FORMS SECTION */}
                 <Grid size={12}>
                   <Div>
+                    <SectionHeader sx={{ mb: 3 }}>
+                      <Box display="flex" alignItems="center" gap={1.5}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: 40,
+                            height: 40,
+                            borderRadius: "12px",
+                            background:
+                              "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                            boxShadow: "0 4px 12px rgba(102, 126, 234, 0.2)",
+                          }}
+                        >
+                          <AssignmentIcon
+                            sx={{ color: "white", fontSize: 20 }}
+                          />
+                        </Box>
+                        <Box>
+                          <H6 fontSize={18} fontWeight={600} mb={0.5}>
+                            Registration Forms
+                          </H6>
+                          <Paragraph fontSize={13} color="text.secondary">
+                            Manage and preview your event registration forms
+                          </Paragraph>
+                        </Box>
+                      </Box>
+                    </SectionHeader>
+
+                    {eventsData?.forms?.length > 0 ? (
+                      <Stack spacing={3}>
+                        {eventsData.forms.map((form, idx) => (
+                          <InfoCard
+                            key={form.id}
+                            sx={{
+                              border: "none",
+                              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                              transition: "all 0.3s ease",
+                              "&:hover": {
+                                boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+                                transform: "translateY(-2px)",
+                              },
+                            }}
+                          >
+                            <Box p={3}>
+                              {/* Form Header */}
+                              <FlexBetween mb={3}>
+                                <Box display="flex" alignItems="center" gap={2}>
+                                  <Box
+                                    sx={{
+                                      width: 48,
+                                      height: 48,
+                                      borderRadius: "10px",
+                                      background:
+                                        form.approvalStatus === "approved"
+                                          ? "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)"
+                                          : "linear-gradient(135deg, #fa742b 0%, #ff9b70 100%)",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      boxShadow: "0 3px 10px rgba(0,0,0,0.1)",
+                                    }}
+                                  >
+                                    <AssignmentIcon
+                                      sx={{ color: "white", fontSize: 24 }}
+                                    />
+                                  </Box>
+                                  <Box>
+                                    <Paragraph
+                                      fontWeight={600}
+                                      fontSize={17}
+                                      style={{ textTransform: "capitalize" }}
+                                      mb={0.5}
+                                    >
+                                      {form.formType?.replace("_", " ")} Form
+                                    </Paragraph>
+                                    <Box
+                                      display="flex"
+                                      alignItems="center"
+                                      gap={1}
+                                    >
+                                      <AccessTimeIcon
+                                        sx={{
+                                          fontSize: 14,
+                                          color: "text.secondary",
+                                        }}
+                                      />
+                                      <Paragraph
+                                        fontSize={13}
+                                        color="text.secondary"
+                                      >
+                                        Display:{" "}
+                                        {form.showTiming?.replace("_", " ")}
+                                      </Paragraph>
+                                    </Box>
+                                  </Box>
+                                </Box>
+                                <Chip
+                                  label={form.approvalStatus || "Pending"}
+                                  sx={{
+                                    fontWeight: 600,
+                                    fontSize: 12,
+                                    height: 28,
+                                    borderRadius: "6px",
+                                    backgroundColor:
+                                      form.approvalStatus === "approved"
+                                        ? "#e8f5e9"
+                                        : "#fff3e0",
+                                    color:
+                                      form.approvalStatus === "approved"
+                                        ? "#2e7d32"
+                                        : "#ef6c00",
+                                    border: "none",
+                                  }}
+                                  style={{
+                                              textTransform: "capitalize",
+                                            }}
+                                />
+                              </FlexBetween>
+
+                              <Divider sx={{ my: 3, borderColor: "#f0f0f0" }} />
+
+                              {/* Form Fields Section */}
+                              <Box>
+                                <Box
+                                  display="flex"
+                                  alignItems="center"
+                                  gap={1}
+                                  mb={2.5}
+                                >
+                                  <TextFields
+                                    sx={{
+                                      fontSize: 18,
+                                      color: "text.secondary",
+                                    }}
+                                  />
+                                  <Paragraph fontSize={15} fontWeight={600}>
+                                    Form Fields
+                                  </Paragraph>
+                                  <Chip
+                                    label={`${form.fields?.length || 0} fields`}
+                                    size="small"
+                                    sx={{
+                                      height: 22,
+                                      fontSize: 11,
+                                      backgroundColor: "#f5f5f5",
+                                      color: "text.secondary",
+                                      ml: 1,
+                                    }}
+                                  />
+                                </Box>
+
+                                <Grid container spacing={2}>
+                                  {form.fields?.map((field, fieldIdx) => (
+                                    <Grid size={6} key={fieldIdx}>
+                                      <Box
+                                        sx={{
+                                          border: "1.5px solid",
+                                          borderColor: field.required
+                                            ? "#e3f2fd"
+                                            : "#f5f5f5",
+                                          borderRadius: "8px",
+                                          p: 2,
+                                          backgroundColor: field.required
+                                            ? "#fafcff"
+                                            : "#fafafa",
+                                          transition: "all 0.2s ease",
+                                          position: "relative",
+                                          overflow: "hidden",
+                                          "&:hover": {
+                                            borderColor: field.required
+                                              ? "#90caf9"
+                                              : "#e0e0e0",
+                                            transform: "translateY(-1px)",
+                                            boxShadow:
+                                              "0 4px 12px rgba(0,0,0,0.05)",
+                                          },
+                                        }}
+                                      >
+                                        {/* Field Type Icon */}
+                                        <Box
+                                          sx={{
+                                            position: "absolute",
+                                            top: -1,
+                                            right: -1,
+                                            width: 32,
+                                            height: 32,
+                                           background: field.required 
+                              ? '#667eea'
+                              : '#e0e0e0',
+                                            borderRadius: "0 8px 0 12px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                          }}
+                                        >
+                                          {field.type === "text" && (
+                                            <TextFields
+                                              sx={{
+                                                fontSize: 14,
+                                                color: "white",
+                                              }}
+                                            />
+                                          )}
+                                          {field.type === "email" && (
+                                            <EmailIcon
+                                              sx={{
+                                                fontSize: 14,
+                                                color: "white",
+                                              }}
+                                            />
+                                          )}
+                                          {field.type === "select" && (
+                                            <ArrowDropDown
+                                              sx={{
+                                                fontSize: 14,
+                                                color: "white",
+                                              }}
+                                            />
+                                          )}
+                                          {field.type === "date" && (
+                                            <CalendarTodayIcon
+                                              sx={{
+                                                fontSize: 14,
+                                                color: "white",
+                                              }}
+                                            />
+                                          )}
+                                          {field.type === "number" && (
+                                            <Numbers
+                                              sx={{
+                                                fontSize: 14,
+                                                color: "white",
+                                              }}
+                                            />
+                                          )}
+                                          {![
+                                            "text",
+                                            "email",
+                                            "select",
+                                            "date",
+                                            "number",
+                                          ].includes(field.type) && (
+                                            <TextFields
+                                              sx={{
+                                                fontSize: 14,
+                                                color: "white",
+                                              }}
+                                            />
+                                          )}
+                                        </Box>
+
+                                        <Box pr={3}>
+                                          <Box
+                                            display="flex"
+                                            alignItems="center"
+                                            gap={1}
+                                            mb={1}
+                                          >
+                                            <Paragraph
+                                              fontSize={14}
+                                              fontWeight={600}
+                                              sx={{ color: "#2c3e50" }}
+                                            >
+                                              {field.label}
+                                            </Paragraph>
+                                            {field.required && (
+                                              <Box
+                                                component="span"
+                                                sx={{
+                                                  color: "#f44336",
+                                                  fontSize: 16,
+                                                  fontWeight: "bold",
+                                                  lineHeight: 1,
+                                                }}
+                                              >
+                                                *
+                                              </Box>
+                                            )}
+                                          </Box>
+
+                                          <Box
+                                            display="flex"
+                                            alignItems="center"
+                                            gap={0.5}
+                                            mb={0.5}
+                                          >
+                                            <Box
+                                              sx={{
+                                                width: 4,
+                                                height: 4,
+                                                borderRadius: "50%",
+                                                backgroundColor:
+                                                  "text.secondary",
+                                              }}
+                                            />
+                                            <Paragraph
+                                              fontSize={12}
+                                              color="text.secondary"
+                                              style={{
+                                                textTransform: "capitalize",
+                                              }}
+                                            >
+                                              {field.type} field
+                                            </Paragraph>
+                                          </Box>
+
+                                          {field.helpText && (
+                                            <Box
+                                              sx={{
+                                                mt: 1,
+                                                p: 1,
+                                                backgroundColor: "#f8f9fa",
+                                                borderRadius: "4px",
+                                                borderLeft: "3px solid #90caf9",
+                                              }}
+                                            >
+                                              <Paragraph
+                                                fontSize={11}
+                                                color="text.secondary"
+                                                sx={{ lineHeight: 1.4 }}
+                                              >
+                                                {field.helpText}
+                                              </Paragraph>
+                                            </Box>
+                                          )}
+                                        </Box>
+                                      </Box>
+                                    </Grid>
+                                  ))}
+                                </Grid>
+                              </Box>
+
+                            </Box>
+                          </InfoCard>
+                        ))}
+                      </Stack>
+                    ) : (
+                      <Box
+                        sx={{
+                          textAlign: "center",
+                          py: 8,
+                          px: 3,
+                          backgroundColor: "#fafafa",
+                          borderRadius: "12px",
+                          border: "2px dashed #e0e0e0",
+                        }}
+                      >
+                        <AssignmentIcon
+                          sx={{ fontSize: 48, color: "text.disabled", mb: 2 }}
+                        />
+                        <Paragraph
+                          fontSize={16}
+                          fontWeight={500}
+                          color="text.secondary"
+                          mb={1}
+                        >
+                          No forms configured yet
+                        </Paragraph>
+                        <Paragraph fontSize={14} color="text.disabled" mb={3}>
+                          Create your first registration form to start
+                          collecting attendee information
+                        </Paragraph>
+                        <Button
+                          variant="contained"
+                          startIcon={<AddIcon />}
+                          sx={{
+                            borderRadius: "6px",
+                            textTransform: "none",
+                            background:
+                              "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                            boxShadow: "0 2px 8px rgba(102, 126, 234, 0.3)",
+                            "&:hover": {
+                              boxShadow: "0 4px 16px rgba(102, 126, 234, 0.4)",
+                            },
+                          }}
+                        >
+                          Create Form
+                        </Button>
+                      </Box>
+                    )}
+                  </Div>
+                </Grid>
+                {/* <Grid size={12}>
+                  <Div>
                     <SectionHeader>
                       <AssignmentIcon color="action" />
                       <H6 fontSize={16}>Registration Forms</H6>
@@ -1236,7 +1901,11 @@ export default function EventsDetailsPageView() {
                           <Box p={2}>
                             <FlexBetween mb={2}>
                               <Box>
-                                <Paragraph fontWeight={600} fontSize={16} style={{ textTransform: "capitalize" }}>
+                                <Paragraph
+                                  fontWeight={600}
+                                  fontSize={16}
+                                  style={{ textTransform: "capitalize" }}
+                                >
                                   {form.formType?.replace("_", " ")} Form
                                 </Paragraph>
                                 <Paragraph fontSize={13} color="text.secondary">
@@ -1245,7 +1914,11 @@ export default function EventsDetailsPageView() {
                               </Box>
                               <Chip
                                 label={form.approvalStatus || "Pending"}
-                                color={form.approvalStatus === "approved" ? "success" : "warning"}
+                                color={
+                                  form.approvalStatus === "approved"
+                                    ? "success"
+                                    : "warning"
+                                }
                                 size="small"
                               />
                             </FlexBetween>
@@ -1271,14 +1944,27 @@ export default function EventsDetailsPageView() {
                                         {field.label}
                                       </Paragraph>
                                       {field.required && (
-                                        <Chip label="Required" size="small" color="error" variant="outlined" />
+                                        <Chip
+                                          label="Required"
+                                          size="small"
+                                          color="error"
+                                          variant="outlined"
+                                        />
                                       )}
                                     </FlexBetween>
-                                    <Paragraph fontSize={12} color="text.secondary" mt={0.5}>
+                                    <Paragraph
+                                      fontSize={12}
+                                      color="text.secondary"
+                                      mt={0.5}
+                                    >
                                       Type: {field.type}
                                     </Paragraph>
                                     {field.helpText && (
-                                      <Paragraph fontSize={11} color="text.secondary" mt={0.5}>
+                                      <Paragraph
+                                        fontSize={11}
+                                        color="text.secondary"
+                                        mt={0.5}
+                                      >
                                         {field.helpText}
                                       </Paragraph>
                                     )}
@@ -1295,81 +1981,337 @@ export default function EventsDetailsPageView() {
                       </Paragraph>
                     )}
                   </Div>
-                </Grid>
+                </Grid> */}
 
                 {/* PARTICIPANTS SECTION */}
-                <Grid size={12}>
-                  <Div>
-                    <SectionHeader>
-                      <PeopleIcon color="action" />
-                      <H6 fontSize={16}>
-                        Participants ({eventsData?.participationsCount || 0})
-                      </H6>
-                    </SectionHeader>
 
-                    {eventsData?.participations?.length > 0 ? (
-                      <TableContainer component={Paper}>
-                        <Table>
-                          <TableHead>
-                            <TableRow>
-                              <TableCell>Participant Name</TableCell>
-                              <TableCell>Contact</TableCell>
-                              <TableCell>Slot</TableCell>
-                              <TableCell>Ticket Type</TableCell>
-                              <TableCell>Status</TableCell>
-                              <TableCell>Check-in</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {eventsData.participations.map((participation) =>
-                              participation.participants?.map((participant) => (
-                                <TableRow key={participant.id}>
-                                  <TableCell>
-                                    {participation.user?.name || "N/A"}
-                                  </TableCell>
-                                  <TableCell>
-                                    <Box>
-                                      <Paragraph fontSize={13}>
-                                        {participation.user?.email}
-                                      </Paragraph>
-                                      <Paragraph fontSize={12} color="text.secondary">
-                                        {participation.user?.phoneNumber}
-                                      </Paragraph>
-                                    </Box>
-                                  </TableCell>
-                                  <TableCell>
-                                    {participation.slot?.name || "N/A"}
-                                  </TableCell>
-                                  <TableCell>
-                                    {participant.ticket?.name || "N/A"}
-                                  </TableCell>
-                                  <TableCell>
+                <Grid size={12}>
+                  <Box
+                    sx={{
+                      bgcolor: "background.paper",
+                      borderRadius: 2,
+                      overflow: "hidden",
+                      border: "1px solid",
+                      borderColor: "divider",
+                    }}
+                  >
+                    {/* Header */}
+                    <Box
+                      sx={{
+                        p: 2.5,
+                        borderBottom: "1px solid",
+                        borderColor: "divider",
+                        bgcolor: "grey.50",
+                      }}
+                    >
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <Avatar
+                          sx={{
+                            bgcolor: "primary.main",
+                            width: 36,
+                            height: 36,
+                          }}
+                        >
+                          <PeopleIcon fontSize="small" />
+                        </Avatar>
+                        <Box flex={1}>
+                          <Typography variant="h6" fontWeight={600}>
+                            Participants
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {eventsData?.participationsCount || 0} registered
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </Box>
+
+                    {/* Content */}
+                    <Box sx={{ p: 2 }}>
+                      {eventsData?.participations?.length > 0 ? (
+                        (() => {
+                          // Flatten all participants with their participation data
+                          const allParticipants =
+                            eventsData.participations.flatMap(
+                              (participation) =>
+                                participation.participants?.map(
+                                  (participant) => ({
+                                    ...participant,
+                                    participation,
+                                  })
+                                ) || []
+                            );
+
+                          // Calculate pagination
+                          const totalPages = Math.ceil(
+                            allParticipants.length / itemsPerPage
+                          );
+                          const indexOfLastItem = currentPage * itemsPerPage;
+                          const indexOfFirstItem =
+                            indexOfLastItem - itemsPerPage;
+                          const currentItems = allParticipants.slice(
+                            indexOfFirstItem,
+                            indexOfLastItem
+                          );
+
+                          const handlePrevious = () => {
+                            setCurrentPage((prev) => Math.max(prev - 1, 1));
+                          };
+
+                          const handleNext = () => {
+                            setCurrentPage((prev) =>
+                              Math.min(prev + 1, totalPages)
+                            );
+                          };
+
+                          return (
+                            <>
+                              <Stack spacing={2}>
+                                {currentItems.map((item, index) => (
+                                  <Card
+                                    key={item.id || `participant-${index}`}
+                                    variant="outlined"
+                                    sx={{
+                                      p: 2,
+                                      "&:hover": {
+                                        bgcolor: "action.hover",
+                                        borderColor: "primary.main",
+                                      },
+                                      transition: "all 0.2s",
+                                    }}
+                                  >
+                                    <Grid
+                                      container
+                                      spacing={2}
+                                      alignItems="center"
+                                    >
+                                      {/* Participant Info */}
+                                      <Grid size={{ xs: 12, sm: 4 }}>
+                                        <Stack spacing={0.5}>
+                                          <Typography
+                                            variant="subtitle2"
+                                            fontWeight={600}
+                                          >
+                                            {item.participation.user?.name ||
+                                              "Unknown Participant"}
+                                          </Typography>
+                                          <Typography
+                                            variant="caption"
+                                            color="text.secondary"
+                                          >
+                                            {item.participation.user?.email}
+                                          </Typography>
+                                          {item.participation.user
+                                            ?.phoneNumber && (
+                                            <Typography
+                                              variant="caption"
+                                              color="text.secondary"
+                                            >
+                                              {
+                                                item.participation.user
+                                                  ?.phoneNumber
+                                              }
+                                            </Typography>
+                                          )}
+                                        </Stack>
+                                      </Grid>
+
+                                      {/* Event Details */}
+                                      <Grid size={{ xs: 12, sm: 4 }}>
+                                        <Stack spacing={1}>
+                                          <Box>
+                                            <Typography
+                                              variant="caption"
+                                              color="text.secondary"
+                                            >
+                                              Slot
+                                            </Typography>
+                                            <Typography variant="body2">
+                                              {item.participation.slot?.name ||
+                                                "Any slot"}
+                                            </Typography>
+                                          </Box>
+                                          <Box>
+                                            <Typography
+                                              variant="caption"
+                                              color="text.secondary"
+                                            >
+                                              Ticket
+                                            </Typography>
+                                            <Typography variant="body2">
+                                              {item.ticket?.name || "Standard"}
+                                            </Typography>
+                                          </Box>
+                                        </Stack>
+                                      </Grid>
+
+                                      {/* Status Badges */}
+                                      <Grid size={{ xs: 12, sm: 4 }}>
+                                        <Stack
+                                          direction="row"
+                                          spacing={1}
+                                          justifyContent={{
+                                            xs: "flex-start",
+                                            sm: "flex-end",
+                                          }}
+                                        >
+                                          <Chip
+                                            label={
+                                              item.participation
+                                                .participationStatus ||
+                                              "Pending"
+                                            }
+                                            size="small"
+                                            style={{
+                                              textTransform: "capitalize",
+                                            }}
+                                            sx={{
+                                              bgcolor:
+                                                item.participation
+                                                  .participationStatus ===
+                                                "confirmed"
+                                                  ? "success.light"
+                                                  : "warning.light",
+                                              color:
+                                                item.participation
+                                                  .participationStatus ===
+                                                "confirmed"
+                                                  ? "success.dark"
+                                                  : "warning.dark",
+                                              fontWeight: 500,
+                                            }}
+                                          />
+                                          <Chip
+                                            icon={
+                                              item.isCheckedIn ? (
+                                                <CheckCircleIcon fontSize="small" />
+                                              ) : null
+                                            }
+                                            style={{
+                                              textTransform: "capitalize",
+                                            }}
+                                            label={
+                                              item.isCheckedIn
+                                                ? "Checked In"
+                                                : "Not Checked"
+                                            }
+                                            size="small"
+                                            variant={
+                                              item.isCheckedIn
+                                                ? "filled"
+                                                : "outlined"
+                                            }
+                                            color={
+                                              item.isCheckedIn
+                                                ? "success"
+                                                : "default"
+                                            }
+                                          />
+                                        </Stack>
+                                      </Grid>
+                                    </Grid>
+                                  </Card>
+                                ))}
+                              </Stack>
+
+                              {/* Pagination */}
+                              {totalPages > 1 && (
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    gap: 2,
+                                    mt: 3,
+                                    pt: 2,
+                                    borderTop: "1px solid",
+                                    borderColor: "divider",
+                                  }}
+                                >
+                                  <IconButton
+                                    onClick={handlePrevious}
+                                    disabled={currentPage === 1}
+                                    size="small"
+                                    sx={{
+                                      border: "1px solid",
+                                      borderColor: "divider",
+                                      "&:hover": { bgcolor: "action.hover" },
+                                    }}
+                                  >
+                                    <ChevronLeftIcon />
+                                  </IconButton>
+
+                                  <Stack
+                                    direction="row"
+                                    spacing={1}
+                                    alignItems="center"
+                                  >
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                    >
+                                      Page
+                                    </Typography>
                                     <Chip
-                                      label={participation.participationStatus || "Pending"}
-                                      color={participation.participationStatus === "confirmed" ? "success" : "warning"}
+                                      label={currentPage}
                                       size="small"
+                                      color="primary"
+                                      sx={{ minWidth: 32 }}
+                                      
                                     />
-                                  </TableCell>
-                                  <TableCell>
-                                    <Chip
-                                      label={participant.isCheckedIn ? "Checked In" : "Not Checked"}
-                                      color={participant.isCheckedIn ? "success" : "default"}
-                                      size="small"
-                                      variant="outlined"
-                                    />
-                                  </TableCell>
-                                </TableRow>
-                              ))
-                            )}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    ) : (
-                      <Paragraph fontSize={14} color="text.secondary">
-                        No participants yet
-                      </Paragraph>
-                    )}
-                  </Div>
+                                    <Typography
+                                      variant="body2"
+                                      color="text.secondary"
+                                    >
+                                      of {totalPages}
+                                    </Typography>
+                                  </Stack>
+
+                                  <IconButton
+                                    onClick={handleNext}
+                                    disabled={currentPage === totalPages}
+                                    size="small"
+                                    sx={{
+                                      border: "1px solid",
+                                      borderColor: "divider",
+                                      "&:hover": { bgcolor: "action.hover" },
+                                    }}
+                                  >
+                                    <ChevronRightIcon />
+                                  </IconButton>
+                                </Box>
+                              )}
+                            </>
+                          );
+                        })()
+                      ) : (
+                        <Box
+                          sx={{
+                            textAlign: "center",
+                            py: 6,
+                            px: 3,
+                          }}
+                        >
+                          <PeopleOutlineIcon
+                            sx={{
+                              fontSize: 48,
+                              color: "text.disabled",
+                              mb: 2,
+                            }}
+                          />
+                          <Typography variant="body1" color="text.secondary">
+                            No participants yet
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mt: 1 }}
+                          >
+                            Participants will appear here once they register
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
                 </Grid>
               </Grid>
             </TabPanel>
@@ -1391,9 +2333,14 @@ export default function EventsDetailsPageView() {
                   {eventsData?.organizer ? (
                     <Box>
                       <FlexBox alignItems="center" gap={1.5} mb={2}>
-                        <StyledAvatar alt="Organizer" src={eventsData?.organizer?.companyLogo} />
+                        <StyledAvatar
+                          alt="Organizer"
+                          src={eventsData?.organizer?.companyLogo}
+                        />
                         <div>
-                          <Paragraph fontWeight={500}>{eventsData?.organizer?.name}</Paragraph>
+                          <Paragraph fontWeight={500}>
+                            {eventsData?.organizer?.name}
+                          </Paragraph>
                           <Paragraph fontSize={13} color="text.secondary">
                             {eventsData?.organizer?.companyName}
                           </Paragraph>
@@ -1402,7 +2349,9 @@ export default function EventsDetailsPageView() {
                       <Box>
                         <InfoRow>
                           <span className="label">Phone:</span>
-                          <span className="value">{eventsData?.organizer?.phoneNumber}</span>
+                          <span className="value">
+                            {eventsData?.organizer?.phoneNumber}
+                          </span>
                         </InfoRow>
                         <InfoRow>
                           <span className="label">Email:</span>
@@ -1412,13 +2361,23 @@ export default function EventsDetailsPageView() {
                         </InfoRow>
                         <InfoRow>
                           <span className="label">Commission:</span>
-                          <span className="value">{eventsData?.organizer?.commission}%</span>
+                          <span className="value">
+                            {eventsData?.organizer?.commission}%
+                          </span>
                         </InfoRow>
                         <InfoRow>
                           <span className="label">Status:</span>
                           <Chip
-                            label={eventsData?.organizer?.approvalStatus || "Pending"}
-                            color={eventsData?.organizer?.approvalStatus === "approved" ? "success" : "warning"}
+                            label={
+                              eventsData?.organizer?.approvalStatus || "Pending"
+                            }
+                            style={{ textTransform: "capitalize" }}
+                            color={
+                              eventsData?.organizer?.approvalStatus ===
+                              "approved"
+                                ? "success"
+                                : "warning"
+                            }
                             size="small"
                           />
                         </InfoRow>
@@ -1443,8 +2402,16 @@ export default function EventsDetailsPageView() {
                   </SectionHeader>
                   <Grid container spacing={2}>
                     <Grid size={6}>
-                      <Box textAlign="center" p={1} sx={{ backgroundColor: "#f5f5f5", borderRadius: 1 }}>
-                        <Paragraph fontSize={24} fontWeight={600} color="primary.main">
+                      <Box
+                        textAlign="center"
+                        p={1}
+                        sx={{ backgroundColor: "#f5f5f5", borderRadius: 1 }}
+                      >
+                        <Paragraph
+                          fontSize={24}
+                          fontWeight={600}
+                          color="primary.main"
+                        >
                           {eventsData?.participationsCount || 0}
                         </Paragraph>
                         <Paragraph fontSize={12} color="text.secondary">
@@ -1453,8 +2420,16 @@ export default function EventsDetailsPageView() {
                       </Box>
                     </Grid>
                     <Grid size={6}>
-                      <Box textAlign="center" p={1} sx={{ backgroundColor: "#f5f5f5", borderRadius: 1 }}>
-                        <Paragraph fontSize={24} fontWeight={600} color="success.main">
+                      <Box
+                        textAlign="center"
+                        p={1}
+                        sx={{ backgroundColor: "#f5f5f5", borderRadius: 1 }}
+                      >
+                        <Paragraph
+                          fontSize={24}
+                          fontWeight={600}
+                          color="success.main"
+                        >
                           {eventsData?.slots?.length || 0}
                         </Paragraph>
                         <Paragraph fontSize={12} color="text.secondary">
@@ -1463,8 +2438,16 @@ export default function EventsDetailsPageView() {
                       </Box>
                     </Grid>
                     <Grid size={6}>
-                      <Box textAlign="center" p={1} sx={{ backgroundColor: "#f5f5f5", borderRadius: 1 }}>
-                        <Paragraph fontSize={24} fontWeight={600} color="secondary.main">
+                      <Box
+                        textAlign="center"
+                        p={1}
+                        sx={{ backgroundColor: "#f5f5f5", borderRadius: 1 }}
+                      >
+                        <Paragraph
+                          fontSize={24}
+                          fontWeight={600}
+                          color="secondary.500"
+                        >
                           {eventsData?.coupons?.length || 0}
                         </Paragraph>
                         <Paragraph fontSize={12} color="text.secondary">
@@ -1473,8 +2456,16 @@ export default function EventsDetailsPageView() {
                       </Box>
                     </Grid>
                     <Grid size={6}>
-                      <Box textAlign="center" p={1} sx={{ backgroundColor: "#f5f5f5", borderRadius: 1 }}>
-                        <Paragraph fontSize={24} fontWeight={600} color="warning.main">
+                      <Box
+                        textAlign="center"
+                        p={1}
+                        sx={{ backgroundColor: "#f5f5f5", borderRadius: 1 }}
+                      >
+                        <Paragraph
+                          fontSize={24}
+                          fontWeight={600}
+                          color="warning.main"
+                        >
                           {eventsData?.addOns?.length || 0}
                         </Paragraph>
                         <Paragraph fontSize={12} color="text.secondary">
