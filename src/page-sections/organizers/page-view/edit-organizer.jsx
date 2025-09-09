@@ -70,6 +70,8 @@ const UploadButton = styled("div")(({ theme }) => ({
 
 export default function EditOrganizerPageView() {
   const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedImage, setSelectedImage] = useState("/static/avatar/001-man.svg"); // Default fallback image
+  
   //store
   const dispatch = useDispatch();
   const { organisers } = useSelector((state) => state.organisers);
@@ -84,10 +86,37 @@ export default function EditOrganizerPageView() {
     }
   }, [id, dispatch]);
 
+  // Update selectedImage when singleOrganizer data is loaded
+  useEffect(() => {
+    if (singleOrganizer?.profilePhoto) {
+      setSelectedImage(singleOrganizer.profilePhoto);
+    } else if (singleOrganizer?.companyLogo) {
+      // In case the image field name is different
+      setSelectedImage(singleOrganizer.companyLogo);
+    } else {
+      // Reset to default if no image
+      setSelectedImage("/static/avatar/001-man.svg");
+    }
+  }, [singleOrganizer]);
+
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (!file) {
       toast.error("Please select an image to upload!");
+      return;
+    }
+
+    // Validate file size (3.1 MB limit)
+    const maxSize = 3.1 * 1024 * 1024; // 3.1 MB in bytes
+    if (file.size > maxSize) {
+      toast.error("File size exceeds 3.1 MB limit!");
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Only JPEG, JPG, PNG, and GIF files are allowed!");
       return;
     }
 
@@ -118,7 +147,6 @@ export default function EditOrganizerPageView() {
     phoneNumber: Yup.string()
       .matches(/^\d{10}$/, "Phone Number must be 10 digits")
       .required("Phone Number is required"),
-
     companyName: Yup.string().required("Company Name is Required!"),
     commission: Yup.number().required("Commission is Required!"),
   });
@@ -132,18 +160,32 @@ export default function EditOrganizerPageView() {
       setSubmitting(false);
       return;
     }
+    
     try {
-      // ✅ Construct plain JSON instead of FormData
-      const payload = {
+      // If there's a new image file, you might want to handle it here
+      let payload = {
         name: values.name,
         email: values.email,
         phoneNumber: `+91${values.phoneNumber}`, // backend expects full number
         companyName: values.companyName,
         commission: Number(values.commission),
         isActive: values.isActive ?? true, // bind this to your Switch
-        approvalStatus: "pending", // default or from form
+        approvalStatus: values.approvalStatus === true ? "approved" : "pending", // Convert boolean to string
         reviewReason: values.reviewReason || "N/A",
       };
+
+      // If there's a new image file, handle it appropriately
+      if (selectedFile) {
+        // You might need to upload the image first or include it in FormData
+        // This depends on your backend implementation
+        const formData = new FormData();
+        Object.keys(payload).forEach(key => {
+          formData.append(key, payload[key]);
+        });
+        formData.append('profilePhoto', selectedFile);
+        // Use formData instead of payload if your backend expects FormData
+      }
+
       const response = await dispatch(updateOrganizer({ id, data: payload }));
 
       if (response?.payload?.status === 200) {
@@ -154,15 +196,12 @@ export default function EditOrganizerPageView() {
         toast.error(response?.message || "Something went wrong.");
       }
     } catch (error) {
+      console.error("Update error:", error);
       toast.error("Failed to update Organizer. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
-
-  const [selectedImage, setSelectedImage] = useState(
-    singleOrganizer?.profilePhoto || "/static/avatar/001-man.svg"
-  );
 
   const {
     values,
@@ -180,6 +219,10 @@ export default function EditOrganizerPageView() {
       handleUpdateOrganizer(values, setSubmitting);
     },
   });
+
+  // Debug: Log the current image URL
+  console.log("Current selectedImage:", selectedImage);
+  console.log("singleOrganizer profilePhoto:", singleOrganizer?.profilePhoto);
 
   return (
     <div className="pt-2 pb-4">
@@ -225,29 +268,38 @@ export default function EditOrganizerPageView() {
                   </label>
                 </UploadButton>
               </ButtonWrapper>
-              {selectedImage ? (
-                <Box
-                  mt={2}
-                  width={150}
-                  height={150}
-                  borderRadius="50%"
-                  overflow="hidden"
-                >
-                  <img
-                    src={selectedImage}
-                    alt="Preview"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                </Box>
-              ) : (
-                <Paragraph mt={2} color="text.secondary">
-                  No image uploaded
-                </Paragraph>
-              )}
+              
+              <Box
+                mt={2}
+                width={150}
+                height={150}
+                borderRadius="50%"
+                overflow="hidden"
+                sx={{
+                  border: '2px solid #e0e0e0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#f5f5f5'
+                }}
+              >
+                <img
+                  src={selectedImage}
+                  alt="Organizer Profile"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                  onError={(e) => {
+                    console.log("Image failed to load:", selectedImage);
+                    e.target.src = "/static/avatar/001-man.svg"; // Fallback image
+                  }}
+                  onLoad={() => {
+                    console.log("Image loaded successfully:", selectedImage);
+                  }}
+                />
+              </Box>
 
               <Paragraph
                 marginTop={2}
@@ -282,6 +334,7 @@ export default function EditOrganizerPageView() {
                       label="Full Name"
                       value={values.name}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       helperText={touched.name && errors.name}
                       error={Boolean(touched.name && errors.name)}
                     />
@@ -299,6 +352,7 @@ export default function EditOrganizerPageView() {
                       label="Email Address"
                       value={values.email}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       helperText={touched.email && errors.email}
                       error={Boolean(touched.email && errors.email)}
                     />
@@ -316,6 +370,7 @@ export default function EditOrganizerPageView() {
                       label="Phone Number"
                       value={values.phoneNumber}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       helperText={touched.phoneNumber && errors.phoneNumber}
                       error={Boolean(touched.phoneNumber && errors.phoneNumber)}
                       InputProps={{
@@ -338,6 +393,7 @@ export default function EditOrganizerPageView() {
                       label="Company Name"
                       value={values.companyName}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       helperText={touched.companyName && errors.companyName}
                       error={Boolean(touched.companyName && errors.companyName)}
                     />
@@ -351,11 +407,21 @@ export default function EditOrganizerPageView() {
                     <TextField
                       fullWidth
                       name="commission"
-                      label="Commission"
+                      label="Commission (%)"
+                      type="number"
                       value={values.commission}
                       onChange={handleChange}
-                      helperText={touched.commission && errors.commission}
+                      onBlur={handleBlur}
+                      helperText={touched.commission && errors.commission ? errors.commission : "Enter commission percentage (0-100)"}
                       error={Boolean(touched.commission && errors.commission)}
+                      InputProps={{
+                        inputProps: {
+                          min: 0,
+                          max: 100,
+                          step: 0.1
+                        },
+                        endAdornment: <span style={{ marginLeft: "8px", color: "#666" }}>%</span>
+                      }}
                     />
                   </Grid>
                   <Grid
@@ -367,9 +433,10 @@ export default function EditOrganizerPageView() {
                     <TextField
                       fullWidth
                       name="reviewReason"
-                      label="reviewReason"
+                      label="Review Reason"
                       value={values.reviewReason}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       helperText={touched.reviewReason && errors.reviewReason}
                       error={Boolean(
                         touched.reviewReason && errors.reviewReason
@@ -388,9 +455,9 @@ export default function EditOrganizerPageView() {
                       </Paragraph>
 
                       <Switch
-                        checked={values.approvalStatus}
+                        checked={values.approvalStatus === "approved" || values.approvalStatus === true}
                         onChange={(e) =>
-                          setFieldValue("approvalStatus", e.target.checked)
+                          setFieldValue("approvalStatus", e.target.checked ? "approved" : "pending")
                         }
                       />
                     </SwitchWrapper>
@@ -407,7 +474,10 @@ export default function EditOrganizerPageView() {
                         Is Active
                       </Paragraph>
 
-                      <Switch defaultChecked />
+                      <Switch 
+                        checked={values.isActive}
+                        onChange={(e) => setFieldValue("isActive", e.target.checked)}
+                      />
                     </SwitchWrapper>
                   </Grid>
                   <Grid size={12}>

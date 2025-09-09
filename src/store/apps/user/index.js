@@ -129,6 +129,43 @@ export const updateUser = createAsyncThunk(
     }
   }
 );
+//update the active status of user
+export const toggleUser = createAsyncThunk(
+  "appUsers/toggleUser",
+  async (req) => {
+    console.log("data:::", req);
+    try {
+      const adminData = JSON.parse(localStorage.getItem("raceabove"));
+      const accessToken = adminData.accessToken;
+
+      // console.log("accessToken",accessToken)
+
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+
+      let url = `${ip}/v2/users/${req.id}/toggle`;
+      console.log(req, "req");
+
+      const response = await axiosInstance.patch(url, req?.data, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("update user status", response.data);
+
+      return response?.data;
+    } catch (error) {
+      console.error(
+        "❌ API Request Failed:",
+        error.response?.data || error.message
+      );
+      throw new Error("Failed to update user status");
+    }
+  }
+);
 
 //get single user's all the data
 export const getAllDataOfUser = createAsyncThunk(
@@ -187,6 +224,9 @@ export const appUsersSlice = createSlice({
       state.success = true
     })
     .addCase(updateUser.fulfilled, (state, action) => {
+      state.success = true
+    })
+    .addCase(toggleUser.fulfilled, (state, action) => {
       state.success = true
     })
     .addCase(getAllDataOfUser.fulfilled, (state, action) => {

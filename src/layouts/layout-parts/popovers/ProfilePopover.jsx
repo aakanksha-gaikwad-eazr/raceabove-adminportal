@@ -104,11 +104,11 @@ export default function ProfilePopover() {
             />
 
             <div>
-              <H6 fontSize={14}>{adminDetails?.name || "N/A"}</H6>
+              <H6 fontSize={14} style={{textTransform:"capitalize"}}>{adminDetails?.name || "N/A"}</H6>
               {/* <Small color="text.secondary" display="block">
                 {adminDetails?.email}
               </Small> */}
-              <Small color="text.secondary" display="block">
+              <Small color="text.secondary" display="block" style={{textTransform:"capitalize"}}>
                 {adminDetails?.companyName || "N/A"}
               </Small>
             </div>

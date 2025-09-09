@@ -270,7 +270,8 @@ const DetailsSkeleton = () => (
 export default function ChallengeDetailsPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const getChallengeID = localStorage.getItem("challengeId");
+   const { id } = useParams()
+  // const getChallengeID = localStorage.getItem("challengeId");
   const [isLoading, setIsLoading] = useState(true);
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [challengeData, setChallengeData] = useState({
@@ -284,7 +285,7 @@ export default function ChallengeDetailsPage() {
     const fetchChallengeDetails = async () => {
       setIsLoading(true);
       try {
-        const response = await dispatch(getChallengesById(getChallengeID));
+        const response = await dispatch(getChallengesById(id));
         setChallengeData(response?.payload);
       } catch (error) {
         console.error("Error fetching Challenge details:", error);
@@ -293,10 +294,10 @@ export default function ChallengeDetailsPage() {
         setIsLoading(false);
       }
     };
-    if (getChallengeID) {
+    if (id) {
       fetchChallengeDetails();
     }
-  }, [getChallengeID, dispatch]);
+  }, [id, dispatch]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -342,7 +343,7 @@ export default function ChallengeDetailsPage() {
           toast.error(`Challenge ${action} successfully!`);
         }
         // Refresh the challenge data
-        const freshData = await dispatch(getChallengesById(getChallengeID));
+        const freshData = await dispatch(getChallengesById(id));
         setChallengeData(freshData?.payload);
         // Reset states and close modal
         setReviewReason("");
@@ -364,7 +365,7 @@ export default function ChallengeDetailsPage() {
 const handleApprovalSubmit = async (formData) => {
   try {
     const reviewData = {
-      challengeId: getChallengeID,
+      challengeId: id,
       reviewData: {
         approvalStatus: String(formData.approvalStatus).toLowerCase().trim(),
         reviewReason: String(formData.reviewReason).trim(),
@@ -384,7 +385,7 @@ const handleApprovalSubmit = async (formData) => {
     const result = await dispatch(reviewChallenges(reviewData));
 
     if (result.meta?.requestStatus === "fulfilled") {
-      const response = await dispatch(getChallengesById(getChallengeID));
+      const response = await dispatch(getChallengesById(id));
       setChallengeData(response?.payload);
 
       toast.success(

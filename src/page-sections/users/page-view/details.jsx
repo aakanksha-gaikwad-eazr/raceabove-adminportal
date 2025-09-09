@@ -68,6 +68,7 @@ import InputLabel from "@mui/material/InputLabel";
 import { getAllDataOfUser } from "@/store/apps/user";
 import { limitWords } from "@/utils/wordLimiter";
 import Pagination from "@mui/material/Pagination";
+import { toggleUser } from "@/store/apps/user";
 
 const SimpleCouponCard = styled(Box)(({ theme, isActive }) => ({
   border: `2px dashed ${isActive ? theme.palette.primary.main : "#ccc"}`,
@@ -304,7 +305,7 @@ export default function UserDetailsPageView() {
   const ITEMS_PER_PAGE = 5;
 
   const paginateData = (data, page, itemsPerPage = ITEMS_PER_PAGE) => {
-      const safeData = data || [];
+    const safeData = data || [];
     const startIndex = (page - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return {
@@ -404,6 +405,18 @@ export default function UserDetailsPageView() {
       [couponId]: !prev[couponId],
     }));
   };
+
+const handleToggleUser = async (id, currentStatus) => {
+  if (!id) return;
+  try {
+    await dispatch(toggleUser({ id, isActive: !currentStatus })).unwrap();
+    await dispatch(getAllDataOfUser(id));
+    toast.success("User status updated successfully");
+  } catch (error) {
+    console.error("Failed to toggle user:", error);
+    toast.error("Failed to update user status");
+  }
+};
 
   const renderFormField = (field) => {
     const getFieldIcon = (type) => {
@@ -720,17 +733,15 @@ export default function UserDetailsPageView() {
                           </Paragraph>
                         </Box>
                       </FlexBox>
-                      <StatusChip
-                        label={
-                          allDataOfSingleUser?.isActive ? "Active" : "Inactive"
-                        }
-                        status={
-                          allDataOfSingleUser?.isActive
-                            ? "approved"
-                            : "rejected"
-                        }
-                        size="small"
-                      />
+                     <StatusChip
+  label={allDataOfSingleUser?.isActive ? "Active" : "Inactive"}
+  status={allDataOfSingleUser?.isActive ? "approved" : "rejected"}
+  size="small"
+  onClick={() =>
+    handleToggleUser(allDataOfSingleUser?.id, allDataOfSingleUser?.isActive)
+  }
+  sx={{ cursor: "pointer" }}
+/>
                     </FlexBetween>
 
                     <Grid container spacing={2} mb={2}>
@@ -931,68 +942,80 @@ export default function UserDetailsPageView() {
                   <Divider sx={{ my: 2 }} />
 
                   {/* Targets */}
-                <Box mb={3}>
-  <Accordion>
-    <AccordionSummary
-      expandIcon={<ExpandMoreIcon />}
-      aria-controls="targets-content"
-      id="targets-header"
-    >
-      <H6 fontSize={16}>
-        User Targets ({allDataOfSingleUser?.targets?.length || 0})
-      </H6>
-    </AccordionSummary>
-    <AccordionDetails>
-      {targetsData.totalItems > 0 ? (
-        <>
-          {targetsData.items.map((target) => (
-            <InfoCard key={target.id} sx={{ mb: 2 }}>
-              <Box p={2}>
-                <FlexBox alignItems="center" gap={2}>
-                  <img
-                    src={target.banner}
-                    alt={target.name}
-                    style={{
-                      width: 60,
-                      height: 60,
-                      borderRadius: 8,
-                      objectFit: "cover",
-                    }}
-                  />
-                  <Box flex={1}>
-                    <Paragraph fontWeight={500} fontSize={14}>
-                      {target.name}
-                    </Paragraph>
-                    <Paragraph fontSize={12} color="text.secondary">
-                      Created: {formatDate(target.createdAt)}
-                    </Paragraph>
-                    <Chip
-                      label={target.isActive ? "Active" : "Inactive"}
-                      color={target.isActive ? "success" : "default"}
-                      size="small"
-                    />
-                  </Box>
-                </FlexBox>
-              </Box>
-            </InfoCard>
-          ))}
+                  <Box mb={3}>
+                    <Accordion>
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="targets-content"
+                        id="targets-header"
+                      >
+                        <H6 fontSize={16}>
+                          User Targets (
+                          {allDataOfSingleUser?.targets?.length || 0})
+                        </H6>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        {targetsData.totalItems > 0 ? (
+                          <>
+                            {targetsData.items.map((target) => (
+                              <InfoCard key={target.id} sx={{ mb: 2 }}>
+                                <Box p={2}>
+                                  <FlexBox alignItems="center" gap={2}>
+                                    <img
+                                      src={target.banner}
+                                      alt={target.name}
+                                      style={{
+                                        width: 60,
+                                        height: 60,
+                                        borderRadius: 8,
+                                        objectFit: "cover",
+                                      }}
+                                    />
+                                    <Box flex={1}>
+                                      <Paragraph fontWeight={500} fontSize={14}>
+                                        {target.name}
+                                      </Paragraph>
+                                      <Paragraph
+                                        fontSize={12}
+                                        color="text.secondary"
+                                      >
+                                        Created: {formatDate(target.createdAt)}
+                                      </Paragraph>
+                                      <Chip
+                                        label={
+                                          target.isActive
+                                            ? "Active"
+                                            : "Inactive"
+                                        }
+                                        color={
+                                          target.isActive
+                                            ? "success"
+                                            : "default"
+                                        }
+                                        size="small"
+                                      />
+                                    </Box>
+                                  </FlexBox>
+                                </Box>
+                              </InfoCard>
+                            ))}
 
-          <PaginationContainer
-            totalPages={targetsData.totalPages}
-            currentPage={targetsPage}
-            onPageChange={setTargetsPage}
-            totalItems={targetsData.totalItems}
-            itemName="targets"
-          />
-        </>
-      ) : (
-        <Paragraph fontSize={13} color="text.secondary">
-          No targets set by user.
-        </Paragraph>
-      )}
-    </AccordionDetails>
-  </Accordion>
-</Box>
+                            <PaginationContainer
+                              totalPages={targetsData.totalPages}
+                              currentPage={targetsPage}
+                              onPageChange={setTargetsPage}
+                              totalItems={targetsData.totalItems}
+                              itemName="targets"
+                            />
+                          </>
+                        ) : (
+                          <Paragraph fontSize={13} color="text.secondary">
+                            No targets set by user.
+                          </Paragraph>
+                        )}
+                      </AccordionDetails>
+                    </Accordion>
+                  </Box>
                 </Div>
               </TabPanel>
 
@@ -2467,7 +2490,10 @@ export default function UserDetailsPageView() {
                   <SectionHeader>
                     <Paragraph fontWeight={600}>User Status</Paragraph>
                   </SectionHeader>
-                  <Switch checked={usersData?.isActive} />
+                 <Switch 
+  checked={allDataOfSingleUser?.isActive} 
+  onClick={() => handleToggleUser(allDataOfSingleUser?.id)}
+/>
                 </Div>
               </Card>
             </Grid>
