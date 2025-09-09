@@ -1525,10 +1525,10 @@ export default function EventsDetailsPageView() {
                         </Box>
                         <Box>
                           <H6 fontSize={18} fontWeight={600} mb={0.5}>
-                            Registration Forms
+                            Forms
                           </H6>
                           <Paragraph fontSize={13} color="text.secondary">
-                            Manage and preview your event registration forms
+                            Manage and preview your event forms
                           </Paragraph>
                         </Box>
                       </Box>
