@@ -1036,6 +1036,7 @@ const paginatedPrivacy = organizerData?.privacyPolicies?.slice(
                                   <Typography
                                     fontSize={13}
                                     color="text.secondary"
+                                    style={{textTransform:"capitalize"}}
                                   >
                                     {[
                                       event.location?.address?.trim(),

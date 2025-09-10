@@ -52,7 +52,7 @@ const HeadTableCell = styled(TableCell)(({ theme }) => ({
     paddingRight: 24,
   },
 }));
-const BodyTableCell = styled(HeadTableCell,)({
+const BodyTableCell = styled(HeadTableCell)({
   fontSize: 12,
   fontWeight: 400,
   backgroundColor: "transparent",
@@ -71,35 +71,35 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Id",
-    width:"4%"
+    width: "4%",
   },
   {
     id: "name",
     numeric: true,
     disablePadding: false,
     label: "Title",
-    width:"20%"
+    width: "20%",
   },
   {
     id: "date",
     numeric: true,
     disablePadding: false,
     label: "Date",
-      width:"15%"
+    width: "25%",
   },
   {
     id: "location",
     numeric: true,
     disablePadding: false,
     label: "Location",
-      width:"15%"
+    width: "15%",
   },
   {
     id: "price",
     numeric: true,
     disablePadding: false,
     label: "Price",
-      width:"10%"
+    width: "10%",
   },
 
   {
@@ -107,21 +107,21 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Approval Status",
-      width:"10%"
+    width: "10%",
   },
   {
     id: "reviewedBy",
     numeric: true,
     disablePadding: false,
     label: "Reviewed By",
-      width:"10%"
+    width: "10%",
   },
-    {
+  {
     id: "actions",
     numeric: true,
     disablePadding: false,
     label: "Actions",
-      width:"6%"
+    width: "6%",
   },
 ];
 
@@ -152,7 +152,6 @@ export default function EventsVersionFivePageView() {
 
   const EventsArray = Array.isArray(allEvents) ? allEvents : [];
 
-
   const filteredEvents = stableSort(
     EventsArray,
     getComparator(order, orderBy)
@@ -178,8 +177,10 @@ export default function EventsVersionFivePageView() {
   }, [EventsArray]);
 
   const handleReviewClick = (event) => {
+    console.log("eventID", event)
     setEventToReview(event);
-    setApprovalModalOpen(true);
+    // setApprovalModalOpen(true);
+    navigate(`/events/details/${event?.id}`)
   };
 
   const handleApprovalCancel = () => {
@@ -187,19 +188,19 @@ export default function EventsVersionFivePageView() {
     setEventToReview(null);
   };
   const handleNavigationEventDetailsPage = (eventId) => {
-    navigate(`/events/details/${eventId}`)
+    navigate(`/events/details/${eventId}`);
   };
 
-    const handleRowClick = (event, eventId) => {
+  const handleRowClick = (event, eventId) => {
     // Check if the click originated from a button, icon button, or chip
     const clickedElement = event.target;
-    const isInteractiveElement = 
-      clickedElement.closest('button') || 
+    const isInteractiveElement =
+      clickedElement.closest("button") ||
       clickedElement.closest('[role="button"]') ||
-      clickedElement.closest('.MuiChip-root') ||
-      clickedElement.closest('.MuiIconButton-root') ||
-      clickedElement.closest('.MuiButton-root');
-    
+      clickedElement.closest(".MuiChip-root") ||
+      clickedElement.closest(".MuiIconButton-root") ||
+      clickedElement.closest(".MuiButton-root");
+
     if (isInteractiveElement) {
       return;
     }
@@ -207,121 +208,129 @@ export default function EventsVersionFivePageView() {
   };
 
   const formatDateTime = (dateString) => {
-  if (!dateString) return "N/A";
-  
-  const date = new Date(dateString);
-  
-  // Format: "Sep 10, 2025 • 8:00 PM"
-  const options = {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  };
-  
-  return date.toLocaleString('en-US', options).replace(',', ',').replace(' at', ' •');
-};
-const formatDateRange = (startDate, endDate) => {
-  if (!startDate || !endDate) return "N/A";
-  
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  
-  const startOptions = {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  };
-  
-  const endOptions = {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  };
-  if (start.toDateString() === end.toDateString()) {
-    // Same day: "Sep 10 • 8:00 PM - 11:30 PM"
-    return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} • ${start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} - ${end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
-  } else {
-    // Different days: "Sep 10, 8:00 PM - Sep 12, 9:30 AM"
-    return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
-  }
-};
+    if (!dateString) return "N/A";
 
-const formatLocation = (city, state, country) => {
-  const parts = [];
-  if (city) parts.push(city);
-  if (state) parts.push(state);
-  if (country) parts.push(country);
-  
-  return parts.length > 0 ? parts.join(', ') : "N/A";
-};
+    const date = new Date(dateString);
 
+    // Format: "Sep 10, 2025 • 8:00 PM"
+    const options = {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    };
+
+    return date
+      .toLocaleString("en-US", options)
+      .replace(",", ",")
+      .replace(" at", " •");
+  };
+  const formatDateRange = (startDate, endDate) => {
+    if (!startDate || !endDate) return "N/A";
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const startOptions = {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    };
+
+    const endOptions = {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    };
+    if (start.toDateString() === end.toDateString()) {
+      // Same day: "Sep 10 • 8:00 PM - 11:30 PM"
+      return `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })} • ${start.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })} - ${end.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}`;
+    } else {
+      // Different days: "Sep 10, 8:00 PM - Sep 12, 9:30 AM"
+      return `${start.toLocaleDateString("en-US", { month: "short", day: "numeric" })}, ${start.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })} - ${end.toLocaleDateString("en-US", { month: "short", day: "numeric" })}, ${end.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}`;
+    }
+  };
+
+  const formatLocation = (city, state, country) => {
+    const parts = [];
+    if (city) parts.push(city);
+    if (state) parts.push(state);
+    if (country) parts.push(country);
+
+    return parts.length > 0 ? parts.join(", ") : "N/A";
+  };
 
   const handleApprovalSubmit = async (formData) => {
-        if (eventToReview) {
-          try {
-            const reviewData = {
-              id: eventToReview.id,
-              data:{
-                approvalStatus: String(formData.approvalStatus).toLowerCase().trim(),
-                reviewReason: String(formData.reviewReason).trim(),
-              }
-             
-            };
-    
-            // Additional validation to ensure values are correct
-            if (!["approved", "rejected"].includes(reviewData?.data?.approvalStatus)) {
-              toast.error("Invalid approval status");
-              return;
-            }
-            if (!reviewData?.data?.reviewReason) {
-              toast.error("Review reason is required");
-              return;
-            }
-            const result = await dispatch(reviewEvents(reviewData));
-            console.log("result", result)
-            if (result?.payload?.status === 200) {
-              dispatch(getEvents());
-              
-              // Show success toast based on approval status
-              switch (reviewData?.data?.approvalStatus) {
-                case "approved":
-                  toast.success("Event are approved successfully!");
-                  break;
-                case "rejected":
-                  toast.success("Event are rejected successfully!");
-                  break;
-                default:
-                  toast.success("Event are reviewed successfully!");
-              }
-              // Reset state
-              setApprovalModalOpen(false);
-              setEventToReview(null);
-            } else {
-              // Handle API error response
-              const errorMessage = result.payload?.message || result.error?.message || "Failed to review Event";
-              toast.error(errorMessage);
-            }
-            
-          } catch (error) {
-            console.error("Error reviewing Event:", error);
-            const errorMessage = error.response?.data?.message || error.message || "Failed to review Event. Please try again.";
-            toast.error(errorMessage);
-          }
-        }
-      };
+    if (eventToReview) {
+      try {
+        const reviewData = {
+          id: eventToReview.id,
+          data: {
+            approvalStatus: String(formData.approvalStatus)
+              .toLowerCase()
+              .trim(),
+            reviewReason: String(formData.reviewReason).trim(),
+          },
+        };
 
-      
+        // Additional validation to ensure values are correct
+        if (
+          !["approved", "rejected"].includes(reviewData?.data?.approvalStatus)
+        ) {
+          toast.error("Invalid approval status");
+          return;
+        }
+        if (!reviewData?.data?.reviewReason) {
+          toast.error("Review reason is required");
+          return;
+        }
+        const result = await dispatch(reviewEvents(reviewData));
+        console.log("result", result);
+        if (result?.payload?.status === 200) {
+          dispatch(getEvents());
+
+          // Show success toast based on approval status
+          switch (reviewData?.data?.approvalStatus) {
+            case "approved":
+              toast.success("Event are approved successfully!");
+              break;
+            case "rejected":
+              toast.success("Event are rejected successfully!");
+              break;
+            default:
+              toast.success("Event are reviewed successfully!");
+          }
+          // Reset state
+          setApprovalModalOpen(false);
+          setEventToReview(null);
+        } else {
+          // Handle API error response
+          const errorMessage =
+            result.payload?.message ||
+            result.error?.message ||
+            "Failed to review Event";
+          toast.error(errorMessage);
+        }
+      } catch (error) {
+        console.error("Error reviewing Event:", error);
+        const errorMessage =
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to review Event. Please try again.";
+        toast.error(errorMessage);
+      }
+    }
+  };
+
   const isReviewed = (approvalStatus) => {
     return approvalStatus === "approved" || approvalStatus === "rejected";
   };
-
 
   return (
     <div className="pt-2 pb-4">
@@ -387,21 +396,23 @@ const formatLocation = (city, state, country) => {
                         page * rowsPerPage,
                         page * rowsPerPage + rowsPerPage
                       )
-                      .map((events,ind) => (
+                      .map((events, ind) => (
                         <BodyTableRow
                           key={events.id}
                           // active={selectedEvents?.id === events.id ? 1 : 0}
                           // onClick={() => setSelectedEvents(events)}
                           // onClick={()=>handleNavigationEventDetailsPage(events?.id)}
-                           onClick={(e) => {
-                                setSelectedEvents(events);
-                                handleRowClick(e, events.id);
-                              }}
-                        >   <BodyTableCell align="let">
-                                <Typography variant="caption">
-                                  {page * rowsPerPage + ind + 1}
-                                </Typography>
-                              </BodyTableCell>
+                          onClick={(e) => {
+                            setSelectedEvents(events);
+                            handleRowClick(e, events.id);
+                          }}
+                        >
+                          {" "}
+                          <BodyTableCell align="let">
+                            <Typography variant="caption">
+                              {page * rowsPerPage + ind + 1}
+                            </Typography>
+                          </BodyTableCell>
                           <BodyTableCell align="center">
                             <Stack
                               direction="row"
@@ -415,18 +426,29 @@ const formatLocation = (city, state, country) => {
                                   backgroundColor: "grey.100",
                                 }}
                               />
-                              <H6 fontSize={12} color="text.primary" style={{textTransform:"capitalize"}}>
-                                {limitWords(events.title,10)}
+                              <H6
+                                fontSize={12}
+                                color="text.primary"
+                                style={{ textTransform: "capitalize" }}
+                              >
+                                {limitWords(events.title, 10)}
                               </H6>
                             </Stack>
                           </BodyTableCell>
                           <BodyTableCell align="center">
                             <H6 fontSize={12} color="text.primary">
-                                {formatDateRange(events.startDateTime, events.endDateTime)}
+                              {formatDateRange(
+                                events.startDateTime,
+                                events.endDateTime
+                              )}
                             </H6>
                           </BodyTableCell>
                           <BodyTableCell align="center">
-    {formatLocation(events.city, events.state, events.country)}
+                            {formatLocation(
+                              events.city,
+                              events.state,
+                              events.country
+                            )}
                             {/* <Chip
                               label={
                                 events.discountType
@@ -448,7 +470,6 @@ const formatLocation = (city, state, country) => {
                           <BodyTableCell align="center">
                             ₹ {Math.floor(events?.startFromTicketPrice)}
                           </BodyTableCell>
-                    
                           <BodyTableCell alignItems="center">
                             {/* {addoncatgory.approvalStatus ?? "N/A"} */}
                             <Chip
@@ -475,19 +496,19 @@ const formatLocation = (city, state, country) => {
                           </BodyTableCell>
                           <BodyTableCell>{events?.reviewedBy}</BodyTableCell>
                           <BodyTableCell>
-                                                      <Button
-                                                            size="small"
-                                                            variant="outlined"
-                                                            disabled={events.approvalStatus === "approved" || events.approvalStatus === "rejected"}
-                                                            onClick={(e) => {
-                                                              e.stopPropagation();
-                                                              handleReviewClick(events);
-                                                            }}
-                                                          >
-                                                                                              {isReviewed(events.approvalStatus) ? "Re-review" : "Review"}
-
-                                                          </Button>
-                                                    </BodyTableCell>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleReviewClick(events);
+                              }}
+                            >
+                              {isReviewed(events.approvalStatus)
+                                ? "Re-review"
+                                : "Review"}
+                            </Button>
+                          </BodyTableCell>
                         </BodyTableRow>
                       ))}
 
@@ -510,7 +531,7 @@ const formatLocation = (city, state, country) => {
           </Card>
         </Grid>
       </Grid>
-     {/* APPROVAL MODAL */}
+      {/* APPROVAL MODAL */}
       <ApprovalModal
         open={approvalModalOpen}
         handleClose={handleApprovalCancel}
@@ -518,7 +539,7 @@ const formatLocation = (city, state, country) => {
         onSubmit={handleApprovalSubmit}
         initialData={{
           approvalStatus: eventToReview?.approvalStatus || "",
-          reviewReason: eventToReview?.reviewReason || ""
+          reviewReason: eventToReview?.reviewReason || "",
         }}
       />
     </div>

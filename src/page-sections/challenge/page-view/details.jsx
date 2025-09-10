@@ -270,7 +270,7 @@ const DetailsSkeleton = () => (
 export default function ChallengeDetailsPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-   const { id } = useParams()
+  const { id } = useParams();
   // const getChallengeID = localStorage.getItem("challengeId");
   const [isLoading, setIsLoading] = useState(true);
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
@@ -304,11 +304,11 @@ export default function ChallengeDetailsPage() {
   };
 
   const handleReviewClick = () => {
-     setApprovalModalOpen(true);
+    setApprovalModalOpen(true);
   };
 
-    const handleApprovalCancel = () => {
-     setApprovalModalOpen(false);
+  const handleApprovalCancel = () => {
+    setApprovalModalOpen(false);
   };
 
   const handleCloseReviewModal = () => {
@@ -362,47 +362,49 @@ export default function ChallengeDetailsPage() {
     }
   };
 
-const handleApprovalSubmit = async (formData) => {
-  try {
-    const reviewData = {
-      challengeId: id,
-      reviewData: {
-        approvalStatus: String(formData.approvalStatus).toLowerCase().trim(),
-        reviewReason: String(formData.reviewReason).trim(),
-      },
-    };
+  const handleApprovalSubmit = async (formData) => {
+    try {
+      const reviewData = {
+        challengeId: id,
+        reviewData: {
+          approvalStatus: String(formData.approvalStatus).toLowerCase().trim(),
+          reviewReason: String(formData.reviewReason).trim(),
+        },
+      };
 
-    if (!["approved", "rejected"].includes(reviewData.reviewData.approvalStatus)) {
-      toast.error("Invalid approval status");
-      return;
+      if (
+        !["approved", "rejected"].includes(reviewData.reviewData.approvalStatus)
+      ) {
+        toast.error("Invalid approval status");
+        return;
+      }
+
+      if (!reviewData.reviewData.reviewReason) {
+        toast.error("Review reason is required");
+        return;
+      }
+
+      const result = await dispatch(reviewChallenges(reviewData));
+
+      if (result.meta?.requestStatus === "fulfilled") {
+        const response = await dispatch(getChallengesById(id));
+        setChallengeData(response?.payload);
+
+        toast.success(
+          reviewData.reviewData.approvalStatus === "approved"
+            ? "Challenge approved successfully!"
+            : "Challenge rejected successfully!"
+        );
+
+        setApprovalModalOpen(false);
+      } else {
+        toast.error("Failed to review Challenge");
+      }
+    } catch (error) {
+      console.error("Error reviewing Challenge:", error);
+      toast.error("Failed to review Challenge. Please try again.");
     }
-
-    if (!reviewData.reviewData.reviewReason) {
-      toast.error("Review reason is required");
-      return;
-    }
-
-    const result = await dispatch(reviewChallenges(reviewData));
-
-    if (result.meta?.requestStatus === "fulfilled") {
-      const response = await dispatch(getChallengesById(id));
-      setChallengeData(response?.payload);
-
-      toast.success(
-        reviewData.reviewData.approvalStatus === "approved"
-          ? "Challenge approved successfully!"
-          : "Challenge rejected successfully!"
-      );
-
-      setApprovalModalOpen(false);
-    } else {
-      toast.error("Failed to review Challenge");
-    }
-  } catch (error) {
-    console.error("Error reviewing Challenge:", error);
-    toast.error("Failed to review Challenge. Please try again.");
-  }
-};
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -411,6 +413,13 @@ const handleApprovalSubmit = async (formData) => {
     } catch {
       return dateString;
     }
+  };
+
+  const isChallengeExpired = () => {
+    if (!challengeData?.endDate) return false;
+    const now = new Date();
+    const endDate = new Date(challengeData.endDate);
+    return now > endDate;
   };
 
   const getStatusIcon = (status) => {
@@ -624,7 +633,10 @@ const handleApprovalSubmit = async (formData) => {
                           <Paragraph
                             lineHeight={1}
                             fontWeight={500}
-                            style={{ marginRight: "15px" }}
+                            style={{
+                              marginRight: "15px",
+                              textTransform: "capitalize",
+                            }}
                           >
                             {sport.name}
                           </Paragraph>
@@ -647,7 +659,7 @@ const handleApprovalSubmit = async (formData) => {
                       <Paragraph fontWeight={600} mb={2}>
                         Participants
                       </Paragraph>
-                    <Box
+                      <Box
                         mt={2}
                         style={{
                           display: "flex",
@@ -857,86 +869,90 @@ const handleApprovalSubmit = async (formData) => {
 
                 <Divider sx={{ my: 2 }} />
 
-             <Box>
-  <H6 fontSize={18} mb={3}>
-    Leaderboard
-  </H6>
-  {challengeData.leaderboard && challengeData.leaderboard.length > 0 ? (
-    <Grid container spacing={2}>
-      {challengeData.leaderboard
-        .sort((a, b) => parseFloat(b.progress) - parseFloat(a.progress)) // Sort by progress descending
-        .map((participant, index) => (
-          <Grid item xs={12} key={participant.id}>
-            <Card
-              variant="outlined"
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                p: 2,
-              }}
-            >
-              <Box
-                sx={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor:
-                    index === 0
-                      ? "gold"
-                      : index === 1
-                        ? "silver"
-                        : index === 2
-                          ? "#cd7f32"
-                          : "grey",
-                  color: "white",
-                  fontWeight: "bold",
-                  mr: 2,
-                }}
-              >
-                {index + 1}
-              </Box>
-              <Avatar
-                src={participant.user.profilePhoto}
-                alt={participant.user.name}
-                sx={{ width: 50, height: 50, mr: 2 }}
-              />
-              <Box sx={{ flex: 1 }}>
-                <Typography variant="subtitle2">
-                  {participant.user.name}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                >
-                  Score: {participant.progress || "N/A"}
-                </Typography>
-              </Box>
-            </Card>
-          </Grid>
-        ))}
-    </Grid>
-  ) : (
-    <Box textAlign="center" py={5}>
-      <EmojiEventsIcon
-        sx={{
-          fontSize: 60,
-          color: "text.secondary",
-          mb: 2,
-        }}
-      />
-      <Typography variant="h6" color="text.secondary">
-        No leaderboard data
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        Leaderboard will be available once participants join the
-        challenge.
-      </Typography>
-    </Box>
-  )}
-</Box>
+                <Box>
+                  <H6 fontSize={18} mb={3}>
+                    Leaderboard
+                  </H6>
+                  {challengeData.leaderboard &&
+                  challengeData.leaderboard.length > 0 ? (
+                    <Grid container spacing={2}>
+                      {challengeData.leaderboard
+                        .sort(
+                          (a, b) =>
+                            parseFloat(b.progress) - parseFloat(a.progress)
+                        ) // Sort by progress descending
+                        .map((participant, index) => (
+                          <Grid item xs={12} key={participant.id}>
+                            <Card
+                              variant="outlined"
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                p: 2,
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  width: 40,
+                                  height: 40,
+                                  borderRadius: "50%",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  backgroundColor:
+                                    index === 0
+                                      ? "gold"
+                                      : index === 1
+                                        ? "silver"
+                                        : index === 2
+                                          ? "#cd7f32"
+                                          : "grey",
+                                  color: "white",
+                                  fontWeight: "bold",
+                                  mr: 2,
+                                }}
+                              >
+                                {index + 1}
+                              </Box>
+                              <Avatar
+                                src={participant.user.profilePhoto}
+                                alt={participant.user.name}
+                                sx={{ width: 50, height: 50, mr: 2 }}
+                              />
+                              <Box sx={{ flex: 1 }}>
+                                <Typography variant="subtitle2">
+                                  {participant.user.name}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                >
+                                  Score: {participant.progress || "N/A"}
+                                </Typography>
+                              </Box>
+                            </Card>
+                          </Grid>
+                        ))}
+                    </Grid>
+                  ) : (
+                    <Box textAlign="center" py={5}>
+                      <EmojiEventsIcon
+                        sx={{
+                          fontSize: 60,
+                          color: "text.secondary",
+                          mb: 2,
+                        }}
+                      />
+                      <Typography variant="h6" color="text.secondary">
+                        No leaderboard data
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Leaderboard will be available once participants join the
+                        challenge.
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
               </TabPanel>
 
               {/* Rewards Tab */}
@@ -1524,11 +1540,39 @@ const handleApprovalSubmit = async (formData) => {
                     </Typography>
                   </Box>
                 )}
+                {/* Show expired warning */}
+                {isChallengeExpired() && (
+                  <Alert
+                    severity="error"
+                    sx={{ mb: 2, py: 0.5, px: 1 }}
+                    icon={<InfoIcon fontSize="small" />}
+                  >
+                    <Typography variant="caption">
+                      This challenge has expired and cannot be reviewed.
+                    </Typography>
+                  </Alert>
+                )}
+                {(challengeData.deletedAt !== null ||
+                  challengeData.deletedBy !== null) && (
+                  <Alert
+                    severity="error"
+                    sx={{ mb: 2, py: 0.5, px: 1 }}
+                    icon={<InfoIcon fontSize="small" />}
+                  >
+                    <Typography variant="caption">
+                      This challenge has been deleted and cannot be reviewed.
+                    </Typography>
+                  </Alert>
+                )}
                 <Button
                   fullWidth
                   variant="contained"
                   size="medium"
                   onClick={handleReviewClick}
+                  disabled={
+                    challengeData.deletedAt !== null ||
+                    challengeData.deletedBy !== null || isChallengeExpired()
+                  }
                 >
                   {challengeData.approvalStatus !== "pending"
                     ? "Re-review Challenge"
@@ -1615,16 +1659,16 @@ const handleApprovalSubmit = async (formData) => {
       {/* Review Dialog */}
 
       {/* Approval Modal */}
-<ApprovalModal
-  open={approvalModalOpen}
-  handleClose={handleApprovalCancel}
-  title="Review Challenge"
-  onSubmit={handleApprovalSubmit}
-  initialData={{
-    approvalStatus: challengeData?.approvalStatus || "",
-    reviewReason: challengeData?.reviewReason || "",
-  }}
-/>
+      <ApprovalModal
+        open={approvalModalOpen}
+        handleClose={handleApprovalCancel}
+        title="Review Challenge"
+        onSubmit={handleApprovalSubmit}
+        initialData={{
+          approvalStatus: challengeData?.approvalStatus || "",
+          reviewReason: challengeData?.reviewReason || "",
+        }}
+      />
     </Container>
   );
 }

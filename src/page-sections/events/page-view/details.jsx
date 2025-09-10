@@ -49,7 +49,7 @@ import { FlexBox, FlexBetween } from "@/components/flexbox";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useContext, useEffect, useState } from "react";
-import { getEventsById } from "../../../store/apps/events";
+import { getEventsById, reviewEvents } from "../../../store/apps/events";
 import { toast } from "react-hot-toast";
 import { PROJECT_FILES } from "@/__fakeData__/projects";
 import IconButton from "@mui/material/IconButton";
@@ -61,8 +61,8 @@ import {
   Numbers,
   Visibility,
   Edit,
-  Add
-} from '@mui/icons-material';
+  Add,
+} from "@mui/icons-material";
 import {
   CardContent,
   CardHeader,
@@ -80,6 +80,7 @@ import {
 } from "@mui/material";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { formatDate } from "@/utils/dateFormatter";
+import ApprovalModal from "@/components/approval-modal";
 
 const StyledAvatar = styled(Avatar)({
   width: 34,
@@ -127,6 +128,19 @@ const InfoCard = styled(Card)({
   borderRadius: "8px",
 });
 
+const getStatusColor = (status) => {
+  switch (status?.toLowerCase()) {
+    case "approved":
+      return "success";
+    case "rejected":
+      return "error";
+    case "pending":
+      return "warning";
+    default:
+      return "default";
+  }
+};
+
 const StatusChip = styled(Chip)(({ theme, status }) => ({
   fontWeight: 500,
   ...(status === "pending" && {
@@ -166,6 +180,7 @@ export default function EventsDetailsPageView() {
   const [eventsData, setEventsData] = useState({});
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
+  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -253,6 +268,69 @@ export default function EventsDetailsPageView() {
     });
   };
 
+  const handleReviewClick = () => {
+    setApprovalModalOpen(true);
+  };
+
+  const handleApprovalCancel = () => {
+    setApprovalModalOpen(false);
+  };
+
+  const handleApprovalSubmit = async (formData) => {
+    try {
+      const reviewPayload = {
+        id: id,
+        data: {
+          approvalStatus: String(formData.approvalStatus).toLowerCase().trim(),
+          reviewReason: String(formData.reviewReason).trim(),
+        },
+      };
+
+      if (
+        !["approved", "rejected","pending"].includes(reviewPayload.data.approvalStatus)
+      ) {
+        toast.error("Invalid approval status");
+        return;
+      }
+
+      if (!reviewPayload.data.reviewReason) {
+        toast.error("Review reason is required");
+        return;
+      }
+          console.log("Submitting review with payload:", reviewPayload); // Debug log
+
+      const result = await dispatch(reviewEvents(reviewPayload));
+
+      if (result.meta?.requestStatus === "fulfilled") {
+        const response = await dispatch(getEventsById(id));
+        setEventsData(response?.payload);
+
+         toast.success(
+        reviewPayload.data.approvalStatus === "approved"
+          ? "Event approved successfully!"
+          : reviewPayload.data.approvalStatus === "rejected"
+          ? "Event rejected successfully!"
+          : "Event review updated successfully!"
+      );
+
+        setApprovalModalOpen(false);
+      } else {
+       const errorMessage = result.payload?.message || "Failed to review Event";
+      toast.error(errorMessage);
+      }
+    } catch (error) {
+      console.error("Error reviewing Event:", error);
+      toast.error("Failed to review Event. Please try again.");
+    }
+  };
+
+  const isEventExpired = () => {
+    if (!eventsData?.endDate) return false;
+    const now = new Date();
+    const endDate = new Date(eventsData.endDate);
+    return now > endDate;
+  };
+
   return (
     <div className="pt-2 pb-4">
       <Grid container spacing={3}>
@@ -286,8 +364,8 @@ export default function EventsDetailsPageView() {
                         status={eventsData?.approvalStatus}
                         size="small"
                         style={{
-                                              textTransform: "capitalize",
-                                            }}
+                          textTransform: "capitalize",
+                        }}
                       />
                     </FlexBetween>
 
@@ -1514,13 +1592,12 @@ export default function EventsDetailsPageView() {
                             width: 40,
                             height: 40,
                             borderRadius: "12px",
-                            background:
-                              "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                            bgcolor:"primary.main",
                             boxShadow: "0 4px 12px rgba(102, 126, 234, 0.2)",
                           }}
                         >
                           <AssignmentIcon
-                            sx={{ color: "white", fontSize: 20 }}
+                            sx={{ color: "white", fontSize: 20, bgcolor: "primary.main"}}
                           />
                         </Box>
                         <Box>
@@ -1620,8 +1697,8 @@ export default function EventsDetailsPageView() {
                                     border: "none",
                                   }}
                                   style={{
-                                              textTransform: "capitalize",
-                                            }}
+                                    textTransform: "capitalize",
+                                  }}
                                 />
                               </FlexBetween>
 
@@ -1638,7 +1715,7 @@ export default function EventsDetailsPageView() {
                                   <TextFields
                                     sx={{
                                       fontSize: 18,
-                                      color: "text.secondary",
+                                      color: "primary.main",
                                     }}
                                   />
                                   <Paragraph fontSize={15} fontWeight={600}>
@@ -1669,14 +1746,14 @@ export default function EventsDetailsPageView() {
                                           borderRadius: "8px",
                                           p: 2,
                                           backgroundColor: field.required
-                                            ? "#fafcff"
+                                            ? "primary.50"
                                             : "#fafafa",
                                           transition: "all 0.2s ease",
                                           position: "relative",
                                           overflow: "hidden",
                                           "&:hover": {
                                             borderColor: field.required
-                                              ? "#90caf9"
+                                              ? "primary.500"
                                               : "#e0e0e0",
                                             transform: "translateY(-1px)",
                                             boxShadow:
@@ -1692,9 +1769,9 @@ export default function EventsDetailsPageView() {
                                             right: -1,
                                             width: 32,
                                             height: 32,
-                                           background: field.required 
-                              ? '#667eea'
-                              : '#e0e0e0',
+                                            bgcolor: field.required
+                                              ? "primary.main"
+                                              : "#e0e0e0",
                                             borderRadius: "0 8px 0 12px",
                                             display: "flex",
                                             alignItems: "center",
@@ -1710,7 +1787,7 @@ export default function EventsDetailsPageView() {
                                             />
                                           )}
                                           {field.type === "email" && (
-                                            <EmailIcon
+                                            <Email
                                               sx={{
                                                 fontSize: 14,
                                                 color: "white",
@@ -1819,7 +1896,7 @@ export default function EventsDetailsPageView() {
                                                 p: 1,
                                                 backgroundColor: "#f8f9fa",
                                                 borderRadius: "4px",
-                                                borderLeft: "3px solid #90caf9",
+                                                borderLeft: (theme) => `3px solid ${theme.palette.primary.main}`,
                                               }}
                                             >
                                               <Paragraph
@@ -1837,7 +1914,6 @@ export default function EventsDetailsPageView() {
                                   ))}
                                 </Grid>
                               </Box>
-
                             </Box>
                           </InfoCard>
                         ))}
@@ -1864,18 +1940,17 @@ export default function EventsDetailsPageView() {
                         >
                           No forms configured yet
                         </Paragraph>
-                        <Paragraph fontSize={14} color="text.disabled" mb={3}>
-                          Create your first registration form to start
-                          collecting attendee information
-                        </Paragraph>
-                        <Button
+                        {/* <Paragraph fontSize={14} color="text.disabled" mb={3}>
+                          Create your first form to start
+                          collecting attendee information in event creation.
+                        </Paragraph> */}
+                        {/* <Button
                           variant="contained"
-                          startIcon={<AddIcon />}
+                          startIcon={<Add />}
                           sx={{
                             borderRadius: "6px",
                             textTransform: "none",
-                            background:
-                              "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                            background:"#667eea",
                             boxShadow: "0 2px 8px rgba(102, 126, 234, 0.3)",
                             "&:hover": {
                               boxShadow: "0 4px 16px rgba(102, 126, 234, 0.4)",
@@ -1883,105 +1958,11 @@ export default function EventsDetailsPageView() {
                           }}
                         >
                           Create Form
-                        </Button>
+                        </Button> */}
                       </Box>
                     )}
                   </Div>
                 </Grid>
-                {/* <Grid size={12}>
-                  <Div>
-                    <SectionHeader>
-                      <AssignmentIcon color="action" />
-                      <H6 fontSize={16}>Registration Forms</H6>
-                    </SectionHeader>
-
-                    {eventsData?.forms?.length > 0 ? (
-                      eventsData.forms.map((form, idx) => (
-                        <InfoCard key={form.id} sx={{ mb: 2 }}>
-                          <Box p={2}>
-                            <FlexBetween mb={2}>
-                              <Box>
-                                <Paragraph
-                                  fontWeight={600}
-                                  fontSize={16}
-                                  style={{ textTransform: "capitalize" }}
-                                >
-                                  {form.formType?.replace("_", " ")} Form
-                                </Paragraph>
-                                <Paragraph fontSize={13} color="text.secondary">
-                                  Show: {form.showTiming?.replace("_", " ")}
-                                </Paragraph>
-                              </Box>
-                              <Chip
-                                label={form.approvalStatus || "Pending"}
-                                color={
-                                  form.approvalStatus === "approved"
-                                    ? "success"
-                                    : "warning"
-                                }
-                                size="small"
-                              />
-                            </FlexBetween>
-
-                            <Divider sx={{ my: 2 }} />
-
-                            <Paragraph fontSize={14} fontWeight={500} mb={2}>
-                              Form Fields:
-                            </Paragraph>
-                            <Grid container spacing={2}>
-                              {form.fields?.map((field, fieldIdx) => (
-                                <Grid size={6} key={fieldIdx}>
-                                  <Box
-                                    sx={{
-                                      border: "1px solid #e0e0e0",
-                                      borderRadius: 1,
-                                      p: 1.5,
-                                      backgroundColor: "#fafafa",
-                                    }}
-                                  >
-                                    <FlexBetween>
-                                      <Paragraph fontSize={13} fontWeight={500}>
-                                        {field.label}
-                                      </Paragraph>
-                                      {field.required && (
-                                        <Chip
-                                          label="Required"
-                                          size="small"
-                                          color="error"
-                                          variant="outlined"
-                                        />
-                                      )}
-                                    </FlexBetween>
-                                    <Paragraph
-                                      fontSize={12}
-                                      color="text.secondary"
-                                      mt={0.5}
-                                    >
-                                      Type: {field.type}
-                                    </Paragraph>
-                                    {field.helpText && (
-                                      <Paragraph
-                                        fontSize={11}
-                                        color="text.secondary"
-                                        mt={0.5}
-                                      >
-                                        {field.helpText}
-                                      </Paragraph>
-                                    )}
-                                  </Box>
-                                </Grid>
-                              ))}
-                            </Grid>
-                          </Box>
-                        </InfoCard>
-                      ))
-                    ) : (
-                      <Paragraph fontSize={14} color="text.secondary">
-                        No forms configured
-                      </Paragraph>
-                    )}
-                  </Div>
-                </Grid> */}
 
                 {/* PARTICIPANTS SECTION */}
 
@@ -2256,7 +2237,6 @@ export default function EventsDetailsPageView() {
                                       size="small"
                                       color="primary"
                                       sx={{ minWidth: 32 }}
-                                      
                                     />
                                     <Typography
                                       variant="body2"
@@ -2321,6 +2301,82 @@ export default function EventsDetailsPageView() {
         {/* RIGHT COLUMN */}
         <Grid size={{ md: 4, xs: 12 }}>
           <Grid container spacing={3}>
+            <Grid size={12}>
+              {/* Status Card */}
+              <Card variant="outlined">
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="subtitle2" fontWeight={500} gutterBottom>
+                    Approval Status
+                  </Typography>
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={1}
+                    sx={{ mt: 1.5, mb: 2 }}
+                  >
+                    <Chip
+                      label={
+                        eventsData.approvalStatus
+                          ? eventsData.approvalStatus.charAt(0).toUpperCase() +
+                            eventsData.approvalStatus.slice(1)
+                          : "N/A"
+                      }
+                      color={getStatusColor(eventsData.approvalStatus)}
+                      size="small"
+                    />
+                  </Stack>
+                  {eventsData.reviewedBy && (
+                    <Box mb={2}>
+                      <Typography variant="caption" color="text.secondary">
+                        Reviewed By
+                      </Typography>
+                      <Typography variant="body2">
+                        {eventsData.reviewedBy}
+                      </Typography>
+                    </Box>
+                  )}
+                  {/* Show expired warning */}
+                  {isEventExpired() && (
+                    <Alert
+                      severity="error"
+                      sx={{ mb: 2, py: 0.5, px: 1 }}
+                      icon={<InfoIcon fontSize="small" />}
+                    >
+                      <Typography variant="caption">
+                        This Event has expired and cannot be reviewed.
+                      </Typography>
+                    </Alert>
+                  )}
+                  {(eventsData.deletedAt !== null ||
+                    eventsData.deletedBy !== null) && (
+                    <Alert
+                      severity="error"
+                      sx={{ mb: 2, py: 0.5, px: 1 }}
+                      icon={<InfoIcon fontSize="small" />}
+                    >
+                      <Typography variant="caption">
+                        This Event has been deleted and cannot be reviewed.
+                      </Typography>
+                    </Alert>
+                  )}
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    size="medium"
+                    onClick={handleReviewClick}
+                    disabled={
+                      eventsData.deletedAt !== null ||
+                      eventsData.deletedBy !== null ||
+                      isEventExpired()
+                    }
+                  >
+                    {eventsData.approvalStatus !== "pending"
+                      ? "Re-review Event"
+                      : "Review Event"}
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
             {/* ORGANIZER DETAILS */}
             <Grid size={12}>
               <Card>
@@ -2503,6 +2559,17 @@ export default function EventsDetailsPageView() {
           </Grid>
         </Grid>
       </Grid>
+      {/* Approval Modal */}
+      <ApprovalModal
+        open={approvalModalOpen}
+        handleClose={handleApprovalCancel}
+        title="Review Challenge"
+        onSubmit={handleApprovalSubmit}
+        initialData={{
+          approvalStatus: eventsData?.approvalStatus || "",
+          reviewReason: eventsData?.reviewReason || "",
+        }}
+      />
     </div>
   );
 }
