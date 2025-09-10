@@ -543,179 +543,192 @@ export default function Faq2PageView() {
                   </TableHead>
 
                   {/* TABLE BODY AND DATA */}
-                  <TableBody>
-                    {isLoading
-                      ? // Show skeleton rows while loading
-                        Array.from({ length: rowsPerPage }).map(
-                          (_, index) => (
-                            <SkeletonTableRow
-                              key={`skeleton-${index}`}
-                            />
-                          )
-                        )
-                      : filteredFaq
-                          .filter((faq) => faq.deletedAt === null)
-                          .slice(
-                            page * rowsPerPage,
-                            page * rowsPerPage + rowsPerPage
-                          )
-                          .map((faq, ind) => (
-                            <>
-                              <BodyTableRow
-                                key={faq.id}
-                                active={
-                                  selectedFaq?.id === faq.id ? 1 : 0
-                                }
-                                onClick={(e) => {
-                                  setSelectedFaq(faq);
-                                  handleRowClick(e, faq.id);
-                                }}
-                              >
-                                <BodyTableCell align="center">
-                                  <Typography variant="caption">
-                                    {page * rowsPerPage + ind + 1}
-                                  </Typography>
-                                </BodyTableCell>
+               <TableBody>
+  {isLoading
+    ? // Show skeleton rows while loading
+      Array.from({ length: rowsPerPage }).map((_, index) => (
+        <SkeletonTableRow key={`skeleton-${index}`} />
+      ))
+    : filteredFaq
+        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+        .map((faq, ind) => (
+          <>
+            <BodyTableRow
+              key={faq.id}
+              active={selectedFaq?.id === faq.id ? 1 : 0}
+              onClick={(e) => {
+                // Allow clicking for deleted items too, just for viewing
+                setSelectedFaq(faq);
+                if (!faq.deletedAt) {
+                  handleRowClick(e, faq.id);
+                }
+              }}
+              sx={{
+                // Subtle styling for deleted items
+                opacity: faq.deletedAt ? 0.6 : 1,
+              }}
+            >
+              <BodyTableCell align="center">
+                <Typography variant="caption">
+                  {page * rowsPerPage + ind + 1}
+                </Typography>
+              </BodyTableCell>
 
-                                <BodyTableCell align="center">
-                                  <IconButton
-                                    size="small"
-                                    onClick={(e) =>
-                                      handleToggleExpand(e, faq.id)
-                                    }
-                                  >
-                                    {expandedRows.has(faq.id) ? (
-                                      <KeyboardArrowUpIcon />
-                                    ) : (
-                                      <KeyboardArrowDownIcon />
-                                    )}
-                                  </IconButton>
-                                </BodyTableCell>
+              <BodyTableCell align="center">
+                <IconButton
+                  size="small"
+                  onClick={(e) => handleToggleExpand(e, faq.id)}
+                >
+                  {expandedRows.has(faq.id) ? (
+                    <KeyboardArrowUpIcon />
+                  ) : (
+                    <KeyboardArrowDownIcon />
+                  )}
+                </IconButton>
+              </BodyTableCell>
 
-                                <BodyTableCell align="center">
-                                  <QuestionCell
-                                    content={faq.question}
-                                  />
-                                </BodyTableCell>
-                                <BodyTableCell align="center">
-                                  <Typography
-                                    variant="caption"
-                                    sx={{ fontWeight: 400 }}
-                                  >
-                                    {faq?.createdBy || "N/A"}
-                                  </Typography>
-                                </BodyTableCell>
+              <BodyTableCell align="center">
+                <QuestionCell content={faq.question} />
+              </BodyTableCell>
 
-                                <BodyTableCell align="center">
-                                  <Typography
-                                    variant="caption"
-                                    sx={{ fontWeight: 400 }}
-                                  >
-                                    {formatDate(faq?.createdAt)}
-                                  </Typography>
-                                </BodyTableCell>
+              <BodyTableCell align="center">
+                <Typography
+                  variant="caption"
+                  sx={{ fontWeight: 400 }}
+                >
+                  {faq?.createdBy || "N/A"}
+                </Typography>
+              </BodyTableCell>
 
-                                <BodyTableCell align="center">
-                                  <Typography
-                                    variant="caption"
-                                    sx={{ fontWeight: 400 }}
-                                  >
-                                    {faq?.reviewedBy ||
-                                      "Not Reviewed"}
-                                  </Typography>
-                                </BodyTableCell>
-                                <BodyTableCell align="center">
-                                  <Chip
-                                    label={
-                                      faq.approvalStatus
-                                        ? faq.approvalStatus
-                                            .charAt(0)
-                                            .toUpperCase() +
-                                          faq.approvalStatus.slice(1)
-                                        : "N/A"
-                                    }
-                                    color={
-                                      faq.approvalStatus ===
-                                      "approved"
-                                        ? "success"
-                                        : faq.approvalStatus ===
-                                            "pending"
-                                          ? "warning"
-                                          : faq.approvalStatus ===
-                                              "rejected"
-                                            ? "error"
-                                            : "default"
-                                    }
-                                    variant="outlined"
-                                    size="small"
-                                  />
-                                </BodyTableCell>
+              <BodyTableCell align="center">
+                <Typography
+                  variant="caption"
+                  sx={{ fontWeight: 400 }}
+                >
+                  {formatDate(faq?.createdAt)}
+                </Typography>
+              </BodyTableCell>
 
-                                <BodyTableCell align="center">
-                                  <Button
-                                    size="small"
-                                    variant="outlined"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleReviewClick(faq);
-                                    }}
-                                  >
-                                    {isReviewed(faq.approvalStatus)
-                                      ? "Re-review"
-                                      : "Review"}
-                                  </Button>
-                                </BodyTableCell>
-                              </BodyTableRow>
+              <BodyTableCell align="center">
+                <Typography
+                  variant="caption"
+                  sx={{ fontWeight: 400 }}
+                >
+                  {faq?.reviewedBy || "Not Reviewed"}
+                </Typography>
+              </BodyTableCell>
 
-                              {/* EXPANDABLE ANSWER ROW */}
-                              <ExpandableRow>
-                                <TableCell
-                                  style={{
-                                    paddingBottom: 0,
-                                    paddingTop: 0,
-                                  }}
-                                  colSpan={headCells.length}
-                                >
-                                  <Collapse
-                                    in={expandedRows.has(faq.id)}
-                                    timeout="auto"
-                                    unmountOnExit
-                                  >
-                                    <AnswerContainer elevation={0}>
-                                      <Typography
-                                        variant="subtitle2"
-                                        gutterBottom
-                                        sx={{
-                                          color: "primary.main",
-                                          fontWeight: 600,
-                                          mb: 2,
-                                        }}
-                                      >
-                                        Answer
-                                      </Typography>
-                                      <Typography
-                                        variant="body2"
-                                        sx={{
-                                          lineHeight: 1.8,
-                                          color: "text.secondary",
-                                          whiteSpace: "pre-wrap",
-                                          textTransform: "capitalize",
-                                        }}
-                                      >
-                                        {faq.answer ||
-                                          "No answer provided yet."}
-                                      </Typography>
-                                    </AnswerContainer>
-                                  </Collapse>
-                                </TableCell>
-                              </ExpandableRow>
-                            </>
-                          ))}
+              <BodyTableCell align="center">
+                <Chip
+                  label={
+                    faq.deletedAt 
+                      ? "Deleted"
+                      : faq.approvalStatus
+                        ? faq.approvalStatus.charAt(0).toUpperCase() + 
+                          faq.approvalStatus.slice(1)
+                        : "N/A"
+                  }
+                  color={
+                    faq.deletedAt
+                      ? "error"
+                      : faq.approvalStatus === "approved"
+                        ? "success"
+                        : faq.approvalStatus === "pending"
+                          ? "warning"
+                          : faq.approvalStatus === "rejected"
+                            ? "error"
+                            : "default"
+                  }
+                  variant="outlined"
+                  size="small"
+                />
+              </BodyTableCell>
 
-                    {!isLoading && filteredFaq.length === 0 && (
-                      <TableDataNotFound />
+              <BodyTableCell align="center">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  disabled={faq.deletedAt}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!faq.deletedAt) {
+                      handleReviewClick(faq);
+                    }
+                  }}
+                >
+                  {faq.deletedAt 
+                    ? "N/A" 
+                    : isReviewed(faq.approvalStatus)
+                      ? "Re-review"
+                      : "Review"}
+                </Button>
+              </BodyTableCell>
+            </BodyTableRow>
+
+            {/* EXPANDABLE ANSWER ROW - Works for all items including deleted */}
+            <ExpandableRow>
+              <TableCell
+                style={{
+                  paddingBottom: 0,
+                  paddingTop: 0,
+                }}
+                colSpan={headCells.length}
+              >
+                <Collapse
+                  in={expandedRows.has(faq.id)}
+                  timeout="auto"
+                  unmountOnExit
+                >
+                  <AnswerContainer 
+                    elevation={0}
+                    sx={{
+                      opacity: faq.deletedAt ? 0.85 : 1,
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      gutterBottom
+                      sx={{
+                        color: "primary.main",
+                        fontWeight: 600,
+                        mb: 2,
+                      }}
+                    >
+                      Answer
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        lineHeight: 1.8,
+                        color: "text.secondary",
+                        whiteSpace: "pre-wrap",
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {faq.answer || "No answer provided yet."}
+                    </Typography>
+                    
+                    {/* Show deleted info if applicable */}
+                    {faq.deletedAt && (
+                      <Box sx={{ mt: 2, pt: 2, borderTop: 1, borderColor: 'divider' }}>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ color: 'error.main', fontStyle: 'italic' }}
+                        >
+                          This FAQ was deleted on {formatDate(faq.deletedAt)}
+                        </Typography>
+                      </Box>
                     )}
-                  </TableBody>
+                  </AnswerContainer>
+                </Collapse>
+              </TableCell>
+            </ExpandableRow>
+          </>
+        ))}
+
+  {!isLoading && filteredFaq.length === 0 && <TableDataNotFound />}
+</TableBody>
+                  
                 </Table>
               </Scrollbar>
             </TableContainer>
@@ -725,13 +738,7 @@ export default function Faq2PageView() {
               page={page}
               component="div"
               rowsPerPage={rowsPerPage}
-              count={
-                isLoading
-                  ? 0
-                  : filteredFaq.filter(
-                      (faq) => faq.deletedAt === null
-                    ).length
-              }
+              count={isLoading ? 0 : filteredFaq.length} 
               onPageChange={handleChangePage}
               rowsPerPageOptions={[5, 10, 25]}
               onRowsPerPageChange={handleChangeRowsPerPage}

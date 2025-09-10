@@ -461,98 +461,95 @@ export default function Tnc2PageView() {
 
                   {/* TABLE BODY AND DATA */}
                   <TableBody>
-                    {isLoading
-                      ? // Show skeleton rows while loading
-                        Array.from({ length: rowsPerPage }).map(
-                          (_, index) => (
-                            <SkeletonTableRow
-                              key={`skeleton-${index}`}
-                            />
-                          )
-                        )
-                      : filteredTnc
-                          .filter((tnc) => tnc.deletedAt === null)
-                          .slice(
-                            page * rowsPerPage,
-                            page * rowsPerPage + rowsPerPage
-                          )
-                          .map((tnc, ind) => (
-                            <BodyTableRow
-                              key={tnc.id}
-                              active={
-                                selectedTnc?.id === tnc.id ? 1 : 0
-                              }
-                              onClick={(e) => {
-                                setSelectedTnc(tnc);
-                                handleRowClick(e, tnc.id);
-                              }}
-                            >
-                              <BodyTableCell align="center">
-                                <Typography variant="caption">
-                                  {page * rowsPerPage + ind + 1}
-                                </Typography>
-                              </BodyTableCell>
+  {isLoading
+    ? // Show skeleton rows while loading
+      Array.from({ length: rowsPerPage }).map((_, index) => (
+        <SkeletonTableRow key={`skeleton-${index}`} />
+      ))
+    : filteredTnc
+        .slice(
+          page * rowsPerPage,
+          page * rowsPerPage + rowsPerPage
+        )
+        .map((tnc, ind) => (
+          <BodyTableRow
+            key={tnc.id}
+            active={selectedTnc?.id === tnc.id ? 1 : 0}
+            onClick={(e) => {
+              setSelectedTnc(tnc);
+              handleRowClick(e, tnc.id);
+            }}
+            sx={{
+              opacity: tnc.deletedAt ? 0.6 : 1,
+            }}
+          >
+            <BodyTableCell align="center">
+              <Typography variant="caption">
+                {page * rowsPerPage + ind + 1}
+              </Typography>
+            </BodyTableCell>
 
-                              <BodyTableCell align="center">
-                                <MultiLineContentCell
-                                  content={tnc.content}
-                                  maxLines={1}
-                                />
-                              </BodyTableCell>
+            <BodyTableCell align="center">
+              <MultiLineContentCell
+                content={tnc.content}
+                maxLines={1}
+              />
+            </BodyTableCell>
 
-                              <BodyTableCell align="center">
-                                <Typography
-                                  variant="caption"
-                                  sx={{ fontWeight: 400 }}
-                                >
-                                  {tnc?.createdBy || "N/A"}
-                                </Typography>
-                              </BodyTableCell>
-                              <BodyTableCell align="center">
-                                <Typography
-                                  variant="caption"
-                                  sx={{ fontWeight: 400 }}
-                                >
-                                  {formatDate(tnc?.createdAt)}
-                                </Typography>
-                              </BodyTableCell>
+            <BodyTableCell align="center">
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 400 }}
+              >
+                {tnc?.createdBy || "N/A"}
+              </Typography>
+            </BodyTableCell>
+            
+            <BodyTableCell align="center">
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 400 }}
+              >
+                {formatDate(tnc?.createdAt)}
+              </Typography>
+            </BodyTableCell>
 
-                              <BodyTableCell align="center">
-                                <Typography
-                                  variant="caption"
-                                  sx={{ fontWeight: 400 }}
-                                >
-                                  {tnc?.reviewedBy || "Not Reviewed"}
-                                </Typography>
-                              </BodyTableCell>
+            <BodyTableCell align="center">
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 400 }}
+              >
+                {tnc?.reviewedBy || "Not Reviewed"}
+              </Typography>
+            </BodyTableCell>
 
-                              <BodyTableCell align="center">
-                                <Chip
-                                  label={
-                                    tnc.approvalStatus
-                                      ? tnc.approvalStatus
-                                          .charAt(0)
-                                          .toUpperCase() +
-                                        tnc.approvalStatus.slice(1)
-                                      : "N/A"
-                                  }
-                                  color={
-                                    tnc.approvalStatus === "approved"
-                                      ? "success"
-                                      : tnc.approvalStatus ===
-                                          "pending"
-                                        ? "warning"
-                                        : tnc.approvalStatus ===
-                                            "rejected"
-                                          ? "error"
-                                          : "default"
-                                  }
-                                  variant="outlined"
-                                  size="small"
-                                />
-                              </BodyTableCell>
+            <BodyTableCell align="center">
+               <Chip
+                  label={
+                    tnc.deletedAt 
+                      ? "Deleted"
+                      : tnc.approvalStatus
+                        ? tnc.approvalStatus.charAt(0).toUpperCase() + 
+                          tnc.approvalStatus.slice(1)
+                        : "N/A"
+                  }
+                  color={
+                    tnc.deletedAt
+                      ? "error"
+                      : tnc.approvalStatus === "approved"
+                        ? "success"
+                        : tnc.approvalStatus === "pending"
+                          ? "warning"
+                          : tnc.approvalStatus === "rejected"
+                            ? "error"
+                            : "default"
+                  }
+                  variant="outlined"
+                  size="small"
+                />
+            </BodyTableCell>
 
-                              <BodyTableCell align="center">
+             <BodyTableCell align="center">
                                 <Button
                                   size="small"
                                   variant="outlined"
@@ -566,13 +563,14 @@ export default function Tnc2PageView() {
                                     : "Review"}
                                 </Button>
                               </BodyTableCell>
-                            </BodyTableRow>
-                          ))}
 
-                    {!isLoading && filteredTnc.length === 0 && (
-                      <TableDataNotFound />
-                    )}
-                  </TableBody>
+          </BodyTableRow>
+        ))}
+
+  {!isLoading && filteredTnc.length === 0 && (
+    <TableDataNotFound />
+  )}
+</TableBody>
                 </Table>
               </Scrollbar>
             </TableContainer>
@@ -582,13 +580,8 @@ export default function Tnc2PageView() {
               page={page}
               component="div"
               rowsPerPage={rowsPerPage}
-              count={
-                isLoading
-                  ? 0
-                  : filteredTnc.filter(
-                      (tnc) => tnc.deletedAt === null
-                    ).length
-              }
+                count={isLoading ? 0 : filteredTnc.length}
+
               onPageChange={handleChangePage}
               rowsPerPageOptions={[5, 10, 25]}
               onRowsPerPageChange={handleChangeRowsPerPage}

@@ -128,7 +128,7 @@ export default function EditAdminPageView() {
       ).unwrap();
       if (response?.status === 200) {
         toast.success("Employee updated successfully!");
-        dispatch(getAllAdmin())
+        dispatch(getAllAdmin()).unwrap();
         navigate("/employee-list-2");
       } else {
         toast.error(response?.message || "Failed to update Employee");

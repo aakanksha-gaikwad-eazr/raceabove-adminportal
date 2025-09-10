@@ -160,7 +160,7 @@ export default function AdminList2PageView() {
 
   useEffect(() => {
     dispatch(getAllAdmin());
-  }, [dispatch]);
+  }, []);
 
   const handleEditClick = async (id) => {
     navigate(`/edit-employee/${id}`);
@@ -483,9 +483,10 @@ export default function AdminList2PageView() {
 
       <DeleteModal
         open={deleteModalOpen}
+        title="Delete Employee"
         handleClose={handleDeleteCancel}
         handleConfirm={handleDeleteConfirm}
-        message={`Are you sure you want to delete ${selectedAdmin?.name || "N/A"}?`}
+        message={<>Are you sure you want to delete <strong style={{textTransform:"capitalize"}}> {selectedAdmin?.name || "N/A"}</strong> ?</>}
         actions={[
           {
             label: "Cancel",

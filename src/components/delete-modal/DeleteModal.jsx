@@ -19,16 +19,41 @@ export default function DeleteModal({
   return (
     <MuiModal open={open} onClose={handleClose}>
       <Wrapper {...props}>
+        {/* MODAL HEADER */}
         <Box
           display="flex"
           justifyContent="space-between"
           alignItems="center"
-          p={2}
+          px={2.5}
+          py={1.5}
+          sx={{
+            borderBottom: '1px solid #e1e5e9',
+            backgroundColor: 'white'
+          }}
         >
-          <Typography variant="h6" color="black">{title}</Typography>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              fontWeight: 500,
+              color: '#1a1a1a',
+              fontSize: '12px'
+            }}
+          >
+            {title}
+          </Typography>
           {showCloseButton && (
-            <IconButton onClick={handleClose}>
-              <GridCloseIcon />
+            <IconButton 
+              onClick={handleClose}
+              size="small"
+              sx={{ 
+                color: '#6b7280',
+                '&:hover': { 
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151'
+                } 
+              }}
+            >
+              <GridCloseIcon fontSize="small" />
             </IconButton>
           )}
         </Box>

@@ -459,120 +459,117 @@ export default function PrivacyPolicy2PageView() {
                   </TableHead>
 
                   {/* TABLE BODY AND DATA */}
-                  <TableBody>
-                    {isLoading
-                      ? // Show skeleton rows while loading
-                        Array.from({ length: rowsPerPage }).map(
-                          (_, index) => (
-                            <SkeletonTableRow
-                              key={`skeleton-${index}`}
-                            />
-                          )
-                        )
-                      : filteredPrivacyPolicy
-                          .filter((pp) => pp.deletedAt === null)
-                          .slice(
-                            page * rowsPerPage,
-                            page * rowsPerPage + rowsPerPage
-                          )
-                          .map((pp, ind) => (
-                            <BodyTableRow
-                              key={pp.id}
-                              active={
-                                selectedPrivacyPolicy?.id === pp.id
-                                  ? 1
-                                  : 0
-                              }
-                              onClick={(e) => {
-                                setSelectedPrivacyPolicy(pp);
-                                handleRowClick(e, pp.id);
-                              }}
-                            >
-                              <BodyTableCell align="center">
-                                <Typography variant="caption">
-                                  {page * rowsPerPage + ind + 1}
-                                </Typography>
-                              </BodyTableCell>
+                <TableBody>
+  {isLoading
+    ? // Show skeleton rows while loading
+      Array.from({ length: rowsPerPage }).map((_, index) => (
+        <SkeletonTableRow key={`skeleton-${index}`} />
+      ))
+    : filteredPrivacyPolicy
+        .slice(
+          page * rowsPerPage,
+          page * rowsPerPage + rowsPerPage
+        )
+        .map((pp, ind) => (
+          <BodyTableRow
+            key={pp.id}
+            active={
+              selectedPrivacyPolicy?.id === pp.id ? 1 : 0
+            }
+            onClick={(e) => {
+              setSelectedPrivacyPolicy(pp);
+              handleRowClick(e, pp.id);
+            }}
+            sx={{
+              opacity: pp.deletedAt ? 0.6 : 1,
+            }}
+          >
+            <BodyTableCell align="center">
+              <Typography variant="caption">
+                {page * rowsPerPage + ind + 1}
+              </Typography>
+            </BodyTableCell>
 
-                              <BodyTableCell align="center">
-                                <MultiLineContentCell
-                                  content={pp.content}
-                                  maxLines={1}
-                                />
-                              </BodyTableCell>
-                              <BodyTableCell align="center">
-                                <Typography
-                                  variant="caption"
-                                  sx={{ fontWeight: 400 }}
-                                >
-                                  {pp?.createdBy || "N/A"}
-                                </Typography>
-                              </BodyTableCell>
-                              <BodyTableCell align="center">
-                                <Typography
-                                  variant="caption"
-                                  sx={{ fontWeight: 400 }}
-                                >
-                                  {formatDate(pp?.createdAt)}
-                                </Typography>
-                              </BodyTableCell>
-                              <BodyTableCell align="center">
-                                <Typography
-                                  variant="caption"
-                                  sx={{ fontWeight: 400 }}
-                                >
-                                  {pp?.reviewedBy || "Not Reviewed"}
-                                </Typography>
-                              </BodyTableCell>
+            <BodyTableCell align="center">
+              <MultiLineContentCell
+                content={pp.content}
+                maxLines={1}
+              />
+            </BodyTableCell>
+            <BodyTableCell align="center">
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 400 }}
+              >
+                {pp?.createdBy || "N/A"}
+              </Typography>
+            </BodyTableCell>
+            <BodyTableCell align="center">
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 400 }}
+              >
+                {formatDate(pp?.createdAt)}
+              </Typography>
+            </BodyTableCell>
+            <BodyTableCell align="center">
+              <Typography
+                variant="caption"
+                sx={{ fontWeight: 400 }}
+              >
+                {pp?.reviewedBy || "Not Reviewed"}
+              </Typography>
+            </BodyTableCell>
 
-                              <BodyTableCell align="center">
-                                <Chip
-                                  label={
-                                    pp.approvalStatus
-                                      ? pp.approvalStatus
-                                          .charAt(0)
-                                          .toUpperCase() +
+            <BodyTableCell align="center">
+                <Chip
+                                label={
+                                  pp.deletedAt 
+                                    ? "Deleted"
+                                    : pp.approvalStatus
+                                      ? pp.approvalStatus.charAt(0).toUpperCase() + 
                                         pp.approvalStatus.slice(1)
                                       : "N/A"
-                                  }
-                                  color={
-                                    pp.approvalStatus === "approved"
+                                }
+                                color={
+                                  pp.deletedAt
+                                    ? "error"
+                                    : pp.approvalStatus === "approved"
                                       ? "success"
-                                      : pp.approvalStatus ===
-                                          "pending"
+                                      : pp.approvalStatus === "pending"
                                         ? "warning"
-                                        : pp.approvalStatus ===
-                                            "rejected"
+                                        : pp.approvalStatus === "rejected"
                                           ? "error"
                                           : "default"
-                                  }
-                                  variant="outlined"
-                                  size="small"
-                                />
-                              </BodyTableCell>
+                                }
+                                variant="outlined"
+                                size="small"
+                              />
+            </BodyTableCell>
 
-                              <BodyTableCell align="center">
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleReviewClick(pp);
-                                  }}
-                                >
-                                  {isReviewed(pp.approvalStatus)
-                                    ? "Re-review"
-                                    : "Review"}
-                                </Button>
-                              </BodyTableCell>
-                            </BodyTableRow>
-                          ))}
 
-                    {!isLoading &&
-                      filteredPrivacyPolicy.length === 0 && (
-                        <TableDataNotFound />
-                      )}
-                  </TableBody>
+            <BodyTableCell align="center">
+              <Button
+                size="small"
+                variant="outlined"
+                disabled={pp.deletedAt !== null}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReviewClick(pp);
+                }}
+              >
+                {isReviewed(pp.approvalStatus)
+                  ? "Re-review"
+                  : "Review"}
+              </Button>
+            </BodyTableCell>
+          </BodyTableRow>
+        ))}
+
+  {!isLoading && filteredPrivacyPolicy.length === 0 && (
+    <TableDataNotFound />
+  )}
+</TableBody>
                 </Table>
               </Scrollbar>
             </TableContainer>
@@ -582,13 +579,7 @@ export default function PrivacyPolicy2PageView() {
               page={page}
               component="div"
               rowsPerPage={rowsPerPage}
-              count={
-                isLoading
-                  ? 0
-                  : filteredPrivacyPolicy.filter(
-                      (pp) => pp.deletedAt === null
-                    ).length
-              }
+              count={isLoading ? 0 : filteredPrivacyPolicy.length}
               onPageChange={handleChangePage}
               rowsPerPageOptions={[5, 10, 25]}
               onRowsPerPageChange={handleChangeRowsPerPage}

@@ -229,7 +229,7 @@ export default function FAQDetailsPage() {
                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                   QUESTION
                 </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                <Typography variant="body1" sx={{ fontWeight: 500 }} style={{textTransform:"capitalize"}}>
                   {faqData.question || "No question provided"}
                 </Typography>
               </Box>
@@ -241,7 +241,7 @@ export default function FAQDetailsPage() {
                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                   ANSWER
                 </Typography>
-                <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
+                <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", lineHeight: 1.6 }} style={{textTransform:"capitalize"}}>
                   {faqData.answer || "No answer provided"}
                 </Typography>
               </Box>
