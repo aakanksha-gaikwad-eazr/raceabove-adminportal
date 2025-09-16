@@ -18,6 +18,8 @@ import tickettype from './apps/tickettype'
 import tickettemplate from './apps/tickettemplate'
 import tnc from './apps/tnc'
 import privacypolicy from './apps/privacypolicy'
+import apptnc from './apps/apptnc'
+import appprivacypolicy from './apps/appprivacypolicy'
 import faq from './apps/faq'
 import employee from "./apps/employee";
 import Notification from "./apps/notification";
@@ -47,6 +49,9 @@ export const store = configureStore({
     Notification,
     platformSettings,
     eventCategories,
+    apptnc,
+    appprivacypolicy,
+    
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

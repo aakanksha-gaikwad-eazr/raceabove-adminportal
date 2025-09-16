@@ -154,6 +154,30 @@ const TncGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/tnc/tnc-grid-2"))
 );
 
+
+// App Tnc
+const AddNewAppTnc = Loadable(
+  lazy(() => import("@/pages/dashboard/apptnc/add-new-apptnc"))
+);
+const DetailsAppTnc = Loadable(
+  lazy(() => import("@/pages/dashboard/apptnc/details"))
+);
+const EditAppTnc = Loadable(
+  lazy(() => import("@/pages/dashboard/apptnc/edit-apptnc"))
+);
+const AppTncListView = Loadable(
+  lazy(() => import("@/pages/dashboard/apptnc/apptnc-list-1"))
+);
+const AppTncGridView = Loadable(
+  lazy(() => import("@/pages/dashboard/apptnc/apptnc-grid-1"))
+);
+const AppTncListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/apptnc/apptnc-list-2"))
+);
+const AppTncGridView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/apptnc/apptnc-grid-2"))
+);
+
 // Faq
 const AddNewFaq = Loadable(
   lazy(() => import("@/pages/dashboard/faqsection/add-new-faq"))
@@ -191,6 +215,28 @@ const PrivacyPolicyGridView2 = Loadable(
   lazy(() => import("@/pages/dashboard/privacypolicy/privacypolicy-grid-2"))
 );
 
+// App privacy policy
+const AddNewAppPrivacyPolicy = Loadable(
+  lazy(() => import("@/pages/dashboard/appprivacypolicy/add-new-appprivacypolicy"))
+);
+const EditAppPrivacyPolicy = Loadable(
+  lazy(() => import("@/pages/dashboard/appprivacypolicy/edit-appprivacypolicy"))
+);
+const DetailsAppPrivacyPolicy = Loadable(
+  lazy(() => import("@/pages/dashboard/appprivacypolicy/details"))
+);
+const AppPrivacyPolicyListView = Loadable(
+  lazy(() => import("@/pages/dashboard/appprivacypolicy/appprivacypolicy-list-1"))
+);
+const AppPrivacyPolicyGridView = Loadable(
+  lazy(() => import("@/pages/dashboard/appprivacypolicy/appprivacypolicy-grid-1"))
+);
+const AppPrivacyPolicyListView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/appprivacypolicy/appprivacypolicy-list-2"))
+);
+const AppPrivacyPolicyGridView2 = Loadable(
+  lazy(() => import("@/pages/dashboard/appprivacypolicy/appprivacypolicy-grid-2"))
+);
 
 
 
@@ -755,6 +801,8 @@ export const DashboardRoutes = [
         element: <CouponsGridView2 />,
       },
 
+      
+
       // tnc
       {
         path: "add-tnc",
@@ -784,6 +832,39 @@ export const DashboardRoutes = [
       {
         path: "tnc-grid-2",
         element: <TncGridView2 />,
+      },
+
+
+
+      // App tnc
+      {
+        path: "add-apptnc",
+        element: <AddNewAppTnc />,
+      },
+      {
+        path: "edit-apptnc/:id",
+        element: <EditAppTnc />,
+      },
+      {
+        path: "apptnc-details/:id",
+        element: <DetailsAppTnc />,
+      },
+
+      {
+        path: "apptnc-list",
+        element: <AppTncListView />,
+      },
+      {
+        path: "apptnc-grid",
+        element: <AppTncGridView />,
+      },
+      {
+        path: "apptnc-list-2",
+        element: <AppTncListView2 />,
+      },
+      {
+        path: "apptnc-grid-2",
+        element: <AppTncGridView2 />,
       },
 
       // faq
@@ -832,6 +913,35 @@ export const DashboardRoutes = [
       {
         path: "privacy-policy-grid-2",
         element: <PrivacyPolicyGridView2 />,
+      },
+      // App privacypolicy
+      {
+        path: "add-appprivacy-policy",
+        element: <AddNewAppPrivacyPolicy />,
+      },
+      {
+        path: "edit-appprivacy-policy/:id",
+        element: <EditAppPrivacyPolicy />,
+      },
+      {
+        path: "appprivacy-policy-details/:id",
+        element: <DetailsAppPrivacyPolicy />,
+      },
+      {
+        path: "appprivacy-policy-list",
+        element: <AppPrivacyPolicyListView />,
+      },
+      {
+        path: "appprivacy-policy-grid",
+        element: <AppPrivacyPolicyGridView />,
+      },
+      {
+        path: "appprivacy-policy-list-2",
+        element: <AppPrivacyPolicyListView2 />,
+      },
+      {
+        path: "appprivacy-policy-grid-2",
+        element: <AppPrivacyPolicyGridView2 />,
       },
 
       // ticket type

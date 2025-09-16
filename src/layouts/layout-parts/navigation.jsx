@@ -95,7 +95,7 @@ export const navigations = [
     path: "/sports-list-2",
   },
   {
-    name: "TNC",
+    name: "Terms",
     icon: duotone.Calender,
     path: "/tnc-list-2",
   },
@@ -118,6 +118,20 @@ export const navigations = [
     name: "Employee",
     icon: duotone.Accounts,
     path: "/employee-list-2",
+  },
+    {
+    type: "label",
+    label: "App Setting",
+  },
+   {
+    name: "App Terms",
+    icon: duotone.Calender,
+    path: "/apptnc-list-2",
+  },
+  {
+    name: "App Privacy Policy",
+    icon: duotone.Calender,
+    path: "/appprivacy-policy-list-2",
   },
 
 ];
