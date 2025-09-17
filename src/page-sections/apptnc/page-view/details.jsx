@@ -17,16 +17,20 @@ import {
   Skeleton,
   Alert,
   Container,
+    Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import PendingIcon from "@mui/icons-material/Pending";
 import { format } from "date-fns";
-import { getSingleFaq, reviewFaq } from "@/store/apps/faq";
 import toast from "react-hot-toast";
-import ApprovalModal from "@/components/approval-modal";
-import { getSingleTnc, reviewTnc } from "@/store/apps/tnc";
+import { getSingleAppTnc } from "@/store/apps/apptnc";
+import { deleteAppTnc } from "@/store/apps/apptnc";
 
 // Skeleton loader component
 const DetailsSkeleton = () => (
@@ -81,20 +85,23 @@ export default function AppTNCDetailsPage() {
   const { id } = useParams();
 
   const [isLoading, setIsLoading] = useState(true);
-  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [tncData, setTncData] = useState(null);
+    const [anchorEl, setAnchorEl] = useState(null);
+  const menuOpen = Boolean(anchorEl);
+      const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+      const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch FAQ data
   useEffect(() => {
     const fetchTncDetails = async () => {
       setIsLoading(true);
       try {
-        const response = await dispatch(getSingleTnc(id));
+        const response = await dispatch(getSingleAppTnc(id));
         console.log("res",response)
         setTncData(response?.payload);
       } catch (error) {
-        console.error("Error fetching Terms & Conditions details:", error);
-        toast.error("Failed to load Terms & Conditions details");
+        console.error("Error fetching App Terms & Conditions details:", error);
+        toast.error("Failed to load App Terms & Conditions details");
       } finally {
         setIsLoading(false);
       }
@@ -105,55 +112,6 @@ export default function AppTNCDetailsPage() {
     }
   }, [id, dispatch]);
 
-  const handleReviewClick = () => {
-    setApprovalModalOpen(true);
-  };
-
-  const handleApprovalCancel = () => {
-    setApprovalModalOpen(false);
-  };
-
-  const handleApprovalSubmit = async (formData) => {
-    try {
-      const reviewData = {
-        id: id,
-        data: {
-          approvalStatus: String(formData.approvalStatus).toLowerCase().trim(),
-          reviewReason: String(formData.reviewReason).trim(),
-        },
-      };
-
-      if (!["approved", "rejected"].includes(reviewData.data.approvalStatus)) {
-        toast.error("Invalid approval status");
-        return;
-      }
-
-      if (!reviewData.data.reviewReason) {
-        toast.error("Review reason is required");
-        return;
-      }
-
-      const result = await dispatch(reviewTnc(reviewData));
-
-      if (result.meta?.requestStatus === "fulfilled") {
-        const response = await dispatch(getSingleTnc(id));
-        setTncData(response?.payload);
-
-        toast.success(
-          reviewData.data.approvalStatus === "approved"
-            ? "Terms & Conditions approved successfully!"
-            : "Terms & Conditions rejected successfully!"
-        );
-
-        setApprovalModalOpen(false);
-      } else {
-        toast.error("Failed to review Terms & Conditions");
-      }
-    } catch (error) {
-      console.error("Error reviewing Terms & Conditions:", error);
-      toast.error("Failed to review Terms & Conditions. Please try again.");
-    }
-  };
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
@@ -161,6 +119,41 @@ export default function AppTNCDetailsPage() {
       return format(new Date(dateString), "MMM d, yyyy 'at' h:mm a");
     } catch {
       return dateString;
+    }
+  };
+
+    const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+  };
+
+    const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+    const handleEdit = () => {
+    console.log("clicked");
+    handleMenuClose();
+    navigate(`/tnc-details/${id}`);
+  };
+
+  const handleDeleteClick = () => {
+    console.log("clciked")
+    handleMenuClose();
+    setDeleteDialogOpen(true);
+  };
+
+  
+  const handleDeleteConfirm = async () => {
+    setIsDeleting(true);
+    try {
+      await dispatch(deleteAppTnc(id));
+      toast.success("App Terms deleted successfully");
+      setDeleteDialogOpen(false);
+      navigate(-1);
+    } catch (error) {
+      console.error("Error deleting App Terms:", error);
+      toast.error("Failed to delete App Terms");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -201,7 +194,7 @@ export default function AppTNCDetailsPage() {
   if (!tncData) {
     return (
       <Container maxWidth="lg" sx={{ py: 3 }}>
-        <Alert severity="error">Terms & Conditions not found</Alert>
+        <Alert severity="error">App Terms & Conditions not found</Alert>
         <Button
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate(-1)}
@@ -222,7 +215,7 @@ export default function AppTNCDetailsPage() {
           <ArrowBackIcon fontSize="small" />
         </IconButton>
         <Typography variant="h6" fontWeight={500}>
-          Terms & Conditions Details
+          Apps Terms & Conditions Details
         </Typography>
       </Stack>
 
@@ -362,50 +355,42 @@ export default function AppTNCDetailsPage() {
 
         {/* Sidebar */}
         <Grid item xs={12} md={4}>
-          {/* Status Card */}
-          <Card variant="outlined" sx={{ mb: 2 }}>
+                      <Card variant="outlined">
             <CardContent sx={{ p: 3 }}>
               <Typography variant="subtitle2" fontWeight={500} gutterBottom>
-                Approval Status
+                Actions
               </Typography>
 
               <Stack
                 direction="row"
                 alignItems="center"
                 spacing={1}
-                sx={{ mt: 1.5, mb: 2 }}
+                sx={{ mt: 1.5, mb: 2, cursor:"pointer" }}
               >
                 <Chip
-                  label={
-                    tncData.approvalStatus
-                      ? tncData.approvalStatus.charAt(0).toUpperCase() +
-                        tncData.approvalStatus.slice(1)
-                      : "N/A"
-                  }
-                  color={getStatusColor(tncData.approvalStatus)}
+                  label={"Edit"}
+                  color={"primary"}
+                  variant="outlined"
                   size="small"
+                  sx={{ mt: 1 }}
+                  onClick={() => navigate(`/edit-apptnc/${id}`)}
+                />
+                <Chip
+                  label={"Delete"}
+                  color={"error"}
+                  variant="outlined"
+                  size="small"
+                  sx={{ mt: 1 }}
+                  onClick={handleDeleteClick}
+                />
+                <Chip
+                  label={tncData.isActive ? "Active" : "Inactive"}
+                  color={tncData.isActive ? "success" : "default"}
+                  variant="outlined"
+                  size="small"
+                  sx={{ mt: 1 }}
                 />
               </Stack>
-
-              {tncData.reviewedBy && (
-                <Box mb={2}>
-                  <Typography variant="caption" color="text.secondary">
-                    Reviewed By
-                  </Typography>
-                  <Typography variant="body2">{tncData.reviewedBy}</Typography>
-                </Box>
-              )}
-
-              <Button
-                fullWidth
-                variant="contained"
-                size="medium"
-                onClick={handleReviewClick}
-              >
-                {tncData.approvalStatus !== "pending"
-                  ? "Re-review Terms & Conditions"
-                  : "Review Terms & Conditions"}
-              </Button>
             </CardContent>
           </Card>
 
@@ -461,36 +446,44 @@ export default function AppTNCDetailsPage() {
               </CardContent>
             </Card>
           )}
-
-          {/* Activity Status */}
-          <Card variant="outlined">
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="subtitle2" fontWeight={500} gutterBottom>
-                Status
-              </Typography>
-              <Chip
-                label={tncData.isActive ? "Active" : "Inactive"}
-                color={tncData.isActive ? "success" : "default"}
-                variant="outlined"
-                size="small"
-                sx={{ mt: 1 }}
-              />
-            </CardContent>
-          </Card>
         </Grid>
       </Grid>
 
-      {/* Approval Modal */}
-      <ApprovalModal
-        open={approvalModalOpen}
-        handleClose={handleApprovalCancel}
-        title="Review Terms & Conditions"
-        onSubmit={handleApprovalSubmit}
-        initialData={{
-          approvalStatus: tncData?.approvalStatus || "",
-          reviewReason: tncData?.reviewReason || "",
-        }}
-      />
+          {/* Delete Confirmation Dialog */}
+            <Dialog
+              open={deleteDialogOpen}
+              onClose={handleDeleteCancel}
+              aria-labelledby="delete-dialog-title"
+              aria-describedby="delete-dialog-description"
+            >
+              <DialogTitle id="delete-dialog-title">Delete Terms and Conditions</DialogTitle>
+              <DialogContent>
+                <DialogContentText id="delete-dialog-description">
+                  Are you sure you want to delete this Terms and Conditions? This action cannot be
+                  undone.
+                </DialogContentText>
+                {tncData?.content && (
+                  <Paper sx={{ p: 2, mt: 2, bgcolor: "grey.50" }}>
+                    <Typography variant="body2" fontWeight={500}>
+                      "{tncData.content}"
+                    </Typography>
+                  </Paper>
+                )}
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleDeleteCancel} disabled={isDeleting}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDeleteConfirm}
+                  color="error"
+                  variant="contained"
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </Button>
+              </DialogActions>
+            </Dialog>
     </Container>
   );
 }

@@ -16,8 +16,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { FlexBox } from "@/components/flexbox";
 import "react-datepicker/dist/react-datepicker.css";
 import styled from "@mui/material/styles/styled";
-import { getSingleTnc } from "@/store/apps/tnc";
-// import { getSingleTnc, getTnc, updateTnc } from "@/store/apps/tnc";
+import { getAppTnc, getSingleAppTnc } from "@/store/apps/apptnc";
+import { updateAppTnc } from "@/store/apps/apptnc";
 
 
 const categoryOptions = [
@@ -137,8 +137,8 @@ export default function AppEditTnc() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { singleTnc } = useSelector((state) => state.tnc);
-  console.log("singleTnc",singleTnc)
+  const {singleAppTnc}= useSelector((state) => state.apptnc);
+  console.log("singleAppTnc",singleAppTnc)
   const [categoryAnchorEl, setCategoryAnchorEl] = useState(null);
 
   const initialValues = {
@@ -167,15 +167,15 @@ export default function AppEditTnc() {
         const payload = {content: values.content}
 
         const res = await dispatch(
-          // updateTnc({ id: id, data: payload })
+          updateAppTnc({ id: id, data: payload })
         );
 
         if (res?.payload?.status === 200) {
-          toast.success("Terms and conditions updated successfully");
-          dispatch(getTnc());
-          navigate("/tnc-list-2");
+          toast.success("App Terms and conditions updated successfully");
+          dispatch(getAppTnc());
+          navigate("/apptnc-list-2");
         } else {
-          toast.error("Update failed");
+          toast.error("Updating App Terms failed");
         }
       } catch (err) {
         toast.error("Something went wrong");
@@ -186,33 +186,34 @@ export default function AppEditTnc() {
 
   useEffect(() => {
     if (id) {
-      dispatch(getSingleTnc(id));
+      dispatch(getSingleAppTnc(id));
     }
   }, [id]);
 
   useEffect(() => {
-    if (singleTnc?.id === id) {
+    if (singleAppTnc?.id === id) {
       setValues({
         ...initialValues,
-        ...singleTnc,
+        ...singleAppTnc,
       });
     }
-  }, [singleTnc]);
+  }, [singleAppTnc]);
 
   return (
     <Box className="pt-2 pb-4">
       <Card sx={{ p: 3 }}>
         <Typography variant="h6" fontWeight={600} mb={2}>
-          Edit Terms and Conditions
+          Edit Apps Terms and Conditions
         </Typography>
 
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             {/* Text Fields */}
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={12}>
               <TextField
               multiline
-                label="Terms and Conditions Content"
+                label="App Terms and Conditions Content"
+                minRows={4}
                 name="content"
                 fullWidth
                 value={values.content}
@@ -231,7 +232,7 @@ export default function AppEditTnc() {
                 <Button
                   variant="outlined"
                   color="secondary"
-                  onClick={() => navigate("/tnc-list-2")}
+                  onClick={() => navigate("/apptnc-list-2")}
                 >
                   Cancel
                 </Button>

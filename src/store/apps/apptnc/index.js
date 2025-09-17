@@ -115,7 +115,7 @@ export const updateAppTnc = createAsyncThunk(
 
       let url = `${ip}/v2/app-terms-and-conditions/${id}`;
 
-      const response = await axiosInstance.put(url, data, {
+      const response = await axiosInstance.patch(url, data, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -123,7 +123,7 @@ export const updateAppTnc = createAsyncThunk(
 
       console.log("update app Tnc data", response.data);
 
-      return response?.data?.data;
+      return response?.data;
     } catch (error) {
       console.error(
         "❌ API Request Failed:",
@@ -156,7 +156,7 @@ export const deleteAppTnc = createAsyncThunk(
         },
       });
 
-      console.log("delete app Tnc data", response.data);
+      // console.log("delete app Tnc data", response.data);
 
       return id;
     } catch (error) {

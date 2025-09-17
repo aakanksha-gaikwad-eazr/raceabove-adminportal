@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"; // MUI
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid2";
@@ -11,22 +11,32 @@ import TableHead from "@mui/material/TableHead";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import TableContainer from "@mui/material/TableContainer";
 import TablePagination from "@mui/material/TablePagination";
-import styled from "@mui/material/styles/styled"; // CUSTOM COMPONENTS
+import styled from "@mui/material/styles/styled";
 import Scrollbar from "@/components/scrollbar";
-import { TableDataNotFound } from "@/components/table"; // CUSTOM PAGE SECTION COMPONENTS
+import { TableDataNotFound } from "@/components/table";
 import { useNavigate } from "react-router-dom";
 import SearchArea from "../SearchArea";
-import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable"; // CUSTOM UTILS METHOD
-import { isDark } from "@/utils/constants"; // CUSTOM DUMMY DATA
+import useMuiTable, { getComparator, stableSort } from "@/hooks/useMuiTable";
+import { isDark } from "@/utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import HeadingArea from "../HeadingArea";
 import toast from "react-hot-toast";
-import { Button, Chip, Typography, Skeleton, Switch, Tooltip, IconButton } from "@mui/material";
-import ApprovalModal from "@/components/approval-modal";
-import { Paragraph } from "@/components/typography";
+import {
+  Button,
+  Chip,
+  Typography,
+  Skeleton,
+  Switch,
+  Tooltip,
+  IconButton,
+  CircularProgress,
+} from "@mui/material";
 import { getAppTnc } from "@/store/apps/apptnc";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteEventModal from "@/components/delete-modal-event";
+import { deleteAppTnc } from "@/store/apps/apptnc";
+import { updateAppTnc } from "@/store/apps/apptnc";
 
 const HeadTableCell = styled(TableCell)(({ theme }) => ({
   fontSize: 14,
@@ -81,7 +91,6 @@ const headCells = [
     width: "15%",
     align: "center",
   },
-
   {
     id: "admin",
     numeric: false,
@@ -98,7 +107,6 @@ const headCells = [
     width: "12%",
     align: "center",
   },
-
   {
     id: "status",
     numeric: false,
@@ -107,7 +115,6 @@ const headCells = [
     width: "18%",
     align: "center",
   },
-
   {
     id: "actions",
     numeric: false,
@@ -118,36 +125,57 @@ const headCells = [
   },
 ];
 
-// MUI Skeleton Component for Table Row
+// Improved Skeleton Row with proper alignment and sizing
 const SkeletonTableRow = () => (
-  <TableRow>
+  <BodyTableRow>
+    {/* Sr No - Small centered number */}
     <BodyTableCell align="center">
-      <Skeleton variant="text" width={32} height={32} />
+      <Stack alignItems="center" justifyContent="center">
+        <Skeleton variant="text" width={20} height={20} />
+      </Stack>
     </BodyTableCell>
+    
+    {/* Content - Multi-line text skeleton */}
     <BodyTableCell align="center">
-      <Skeleton variant="text" width="80%" height={20} />
+      <Stack alignItems="flex-start" px={1}>
+        <Skeleton variant="text" width="90%" height={16} />
+        <Skeleton variant="text" width="70%" height={16} />
+      </Stack>
     </BodyTableCell>
+    
+    {/* Admin - Medium text */}
     <BodyTableCell align="center">
-      <Skeleton variant="rounded" width={80} height={28} />
+      <Stack alignItems="center" justifyContent="center">
+        <Skeleton variant="text" width={80} height={20} />
+      </Stack>
     </BodyTableCell>
+    
+    {/* Date - Date format skeleton */}
     <BodyTableCell align="center">
-      <Skeleton variant="text" width={100} height={20} />
+      <Stack alignItems="center" justifyContent="center">
+        <Skeleton variant="text" width={90} height={20} />
+      </Stack>
     </BodyTableCell>
+    
+    {/* Status - Switch skeleton */}
     <BodyTableCell align="center">
-      <Skeleton variant="text" width={80} height={20} />
+      <Stack alignItems="center" justifyContent="center">
+        <Skeleton variant="rounded" width={34} height={20} />
+      </Stack>
     </BodyTableCell>
+    
+    {/* Actions - Two icon buttons */}
     <BodyTableCell align="center">
-      <Skeleton variant="text" width={80} height={20} />
+      <Stack direction="row" spacing={1} justifyContent="center">
+        <Skeleton variant="circular" width={32} height={32} />
+        <Skeleton variant="circular" width={32} height={32} />
+      </Stack>
     </BodyTableCell>
-    <BodyTableCell align="center">
-      <Skeleton variant="rounded" width={70} height={36} />
-    </BodyTableCell>
-  </TableRow>
+  </BodyTableRow>
 );
 
-// MUI Skeleton Component for Search Area
 const SkeletonSearchArea = () => (
-  <Box px={2} py={2}>
+  <Box px={3} py={2}>
     <Stack direction="row" spacing={2} alignItems="center">
       <Box flex={1}>
         <Skeleton variant="rounded" width="100%" height={40} />
@@ -156,7 +184,6 @@ const SkeletonSearchArea = () => (
   </Box>
 );
 
-// Date formatter function
 const formatDate = (dateString) => {
   if (!dateString) return "N/A";
 
@@ -181,7 +208,8 @@ export default function AppTnc2PageView() {
   const [selectedTnc, setSelectedTnc] = useState();
   const [isLoading, setIsLoading] = useState(true);
   const [loadingStates, setLoadingStates] = useState({});
-  
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [appTncId, setAppTncId] = useState(null);
 
   const {
     page,
@@ -200,7 +228,6 @@ export default function AppTnc2PageView() {
   const navigate = useNavigate();
 
   const { allAppTnc } = useSelector((state) => state.apptnc);
-  // console.log("allAppTnc", allAppTnc);
 
   const filteredTnc = stableSort(
     allAppTnc,
@@ -219,7 +246,6 @@ export default function AppTnc2PageView() {
       } catch (error) {
         console.error("Error fetching Terms and Conditions:", error);
       } finally {
-        // Add minimum loading time for better UX
         setTimeout(() => {
           setIsLoading(false);
         }, 800);
@@ -238,7 +264,6 @@ export default function AppTnc2PageView() {
     }
   }, [allAppTnc]);
 
-  // Multi-line with CSS line clamping
   const MultiLineContentCell = ({ content, maxLines = 1 }) => (
     <Box
       sx={{
@@ -254,14 +279,12 @@ export default function AppTnc2PageView() {
         textAlign: "left",
         px: 1,
       }}
-      // title={content}
     >
       {content || "N/A"}
     </Box>
   );
 
-
-    const handleActionClick = (e, action, tnc) => {
+  const handleActionClick = (e, action, tnc) => {
     e.stopPropagation();
     if (action === "edit") {
       handleOpenEditPage(tnc);
@@ -270,24 +293,117 @@ export default function AppTnc2PageView() {
     }
   };
 
-   const handleOpenEditPage = (tnc) => {
-    navigate(`/edit-apptnc/${tnc.id}`);
-  };
-
-
-  const handleRowClick = (event, tncId) => {
-    const clickedElement = event.target;
-    const isInteractiveElement =
-      clickedElement.closest("button") ||
-      clickedElement.closest('[role="button"]') ||
-      clickedElement.closest(".MuiChip-root") ||
-      clickedElement.closest(".MuiIconButton-root") ||
-      clickedElement.closest(".MuiButton-root");
-
-    if (isInteractiveElement) {
+  const handleOpenDeleteModal = (tnc) => {
+    // Prevent deleting already deleted items
+    if (tnc.deletedAt !== null) {
+      toast.error("Item is already deleted");
       return;
     }
-    navigate(`/apptnc-details/${tncId}`);
+    setAppTncId(tnc.id);
+    setOpenDeleteModal(true);
+  };
+
+  const handleOpenEditPage = (tnc) => {
+    navigate(`/edit-apptnc/${tnc.id}`);
+  };
+  
+  const handleCloseDeleteModal = () => {
+    setOpenDeleteModal(false);
+    setAppTncId(null);
+  };
+
+  const handleDelete = async () => {
+    try {
+      const result = await dispatch(deleteAppTnc(appTncId));
+      if (
+        result.payload?.data?.status === 200 ||
+        result.meta?.requestStatus === "fulfilled"
+      ) {
+        toast.success("App Terms deleted successfully");
+
+        await dispatch(getAppTnc()).unwrap();
+
+        if (selectedTnc?.id === appTncId) {
+          const remainingAppTerms = allAppTnc.filter(
+            (terms) => terms.id !== appTncId && terms.deletedAt === null
+          );
+          setSelectedTnc(remainingAppTerms[0] || null);
+        }
+      } else {
+        toast.error("Failed to delete App Terms");
+      }
+    } catch (error) {
+      console.error("Error deleting App Terms:", error);
+      toast.error("An error occurred while deleting the App Terms");
+    } finally {
+      handleCloseDeleteModal();
+    }
+  };
+
+  const handleStatusToggle = async (e, appTncId, currentStatus, isDeleted) => {
+    // Stop propagation to prevent row click
+    e.stopPropagation();
+    
+    if (isDeleted) {
+      toast.error("Cannot update status of deleted items");
+      return;
+    }
+
+    setLoadingStates((prev) => ({ ...prev, [appTncId]: true }));
+
+    try {
+      const updateData = {
+        id: appTncId,
+        data: {
+          isActive: !currentStatus,
+        },
+      };
+      console.log("::updateData", updateData);
+
+      const result = await dispatch(updateAppTnc(updateData)).unwrap();
+      console.log(":::::result", result);
+      if (result?.status === 200 || result?.success) {
+        toast.success("Status updated successfully");
+
+        await dispatch(getAppTnc()).unwrap();
+
+        if (selectedTnc?.id === appTncId) {
+          setSelectedTnc((prevSelected) => ({
+            ...prevSelected,
+            isActive: !currentStatus,
+          }));
+        }
+      } else {
+        toast.error(result?.message || "Status update failed");
+      }
+    } catch (error) {
+      console.error("Error updating App Terms status:", error);
+      toast.error(error?.message || "Failed to update status");
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, [appTncId]: false }));
+    }
+  };
+
+  const handleRowClick = (event, tncId) => {
+    // Get the actual target that was clicked
+    const clickedElement = event.target;
+    
+    // Check if the clicked element or any of its parents is an interactive element
+    const isInteractiveElement = 
+      clickedElement.tagName === 'INPUT' || // For checkbox/switch input
+      clickedElement.closest('input') ||
+      clickedElement.closest('button') ||
+      clickedElement.closest('[role="button"]') ||
+      clickedElement.closest('[role="switch"]') ||
+      clickedElement.closest('.MuiSwitch-root') ||
+      clickedElement.closest('.MuiIconButton-root') ||
+      clickedElement.closest('.MuiButton-root') ||
+      clickedElement.closest('.MuiChip-root');
+
+    // Only navigate if we didn't click on an interactive element
+    if (!isInteractiveElement) {
+      navigate(`/apptnc-details/${tncId}`);
+    }
   };
 
   return (
@@ -307,7 +423,6 @@ export default function AppTnc2PageView() {
               boxShadow: "2px 4px 20px rgba(0, 0, 0, 0.05)",
             }}
           >
-            {/* SEARCH BOX AREA */}
             {isLoading ? (
               <SkeletonSearchArea />
             ) : (
@@ -315,13 +430,12 @@ export default function AppTnc2PageView() {
                 <SearchArea
                   value={searchFilter}
                   onChange={(e) => setSearchFilter(e.target.value)}
-                  gridRoute="/tnc-grid"
-                  listRoute="/tnc-list-2"
+                  gridRoute="/apptnc-grid"
+                  listRoute="/apptnc-list-2"
                 />
               </Box>
             )}
 
-            {/* TABLE HEAD & BODY ROWS */}
             <TableContainer
               sx={{
                 overflowX: { xs: "auto", md: "unset" },
@@ -329,7 +443,6 @@ export default function AppTnc2PageView() {
             >
               <Scrollbar autoHide={false}>
                 <Table sx={{ tableLayout: "fixed", minWidth: 800 }}>
-                  {/* TABLE HEADER */}
                   <TableHead>
                     <TableRow>
                       {headCells.map((headCell) => (
@@ -354,7 +467,6 @@ export default function AppTnc2PageView() {
                     </TableRow>
                   </TableHead>
 
-                  {/* TABLE BODY AND DATA */}
                   <TableBody>
                     {isLoading
                       ? // Show skeleton rows while loading
@@ -414,6 +526,7 @@ export default function AppTnc2PageView() {
                                 <BodyTableCell
                                   align="center"
                                   isDeleted={isDeleted}
+                                  onClick={(e) => e.stopPropagation()}
                                 >
                                   <Stack
                                     direction="row"
@@ -427,13 +540,14 @@ export default function AppTnc2PageView() {
                                       <Switch
                                         checked={tnc?.isActive || false}
                                         onChange={(e) => {
-                                          e.stopPropagation();
                                           handleStatusToggle(
+                                            e,
                                             tnc.id,
                                             tnc.isActive,
                                             isDeleted
                                           );
                                         }}
+                                        onClick={(e) => e.stopPropagation()}
                                         size="small"
                                         color="success"
                                         disabled={isDeleted}
@@ -442,65 +556,55 @@ export default function AppTnc2PageView() {
                                   </Stack>
                                 </BodyTableCell>
 
-                                       <BodyTableCell
-                                    align="center"
-                                    isDeleted={isDeleted}
+                                <BodyTableCell
+                                  align="center"
+                                  isDeleted={isDeleted}
+                                >
+                                  <Stack
+                                    direction="row"
+                                    spacing={1}
+                                    justifyContent="center"
                                   >
-                                    <Stack
-                                      direction="row"
-                                      spacing={1}
-                                      justifyContent="center"
+                                    <Tooltip
+                                      title={
+                                        isDeleted
+                                          ? "Cannot edit deleted items"
+                                          : "Edit"
+                                      }
                                     >
-                                      <Tooltip
-                                        title={
-                                          isDeleted
-                                            ? "Cannot edit deleted items"
-                                            : "Edit"
-                                        }
-                                      >
-                                        <span>
-                                          <IconButton
-                                            size="small"
-                                            color="primary"
-                                            onClick={(e) =>
-                                              handleActionClick(
-                                                e,
-                                                "edit",
-                                                tnc
-                                              )
-                                            }
-                                            disabled={isDeleted}
-                                          >
-                                            <EditIcon fontSize="small" />
-                                          </IconButton>
-                                        </span>
-                                      </Tooltip>
-                                      <Tooltip
-                                        title={
-                                          isDeleted
-                                            ? "Already deleted"
-                                            : "Delete"
-                                        }
-                                      >
-                                        <span>
-                                          <IconButton
-                                            size="small"
-                                            color="error"
-                                            onClick={(e) =>
-                                              handleActionClick(
-                                                e,
-                                                "delete",
-                                                tnc
-                                              )
-                                            }
-                                            disabled={isDeleted}
-                                          >
-                                            <DeleteIcon fontSize="small" />
-                                          </IconButton>
-                                        </span>
-                                      </Tooltip>
-                                    </Stack>
-                                  </BodyTableCell>
+                                      <span>
+                                        <IconButton
+                                          size="small"
+                                          color="primary"
+                                          onClick={(e) =>
+                                            handleActionClick(e, "edit", tnc)
+                                          }
+                                          disabled={isDeleted}
+                                        >
+                                          <EditIcon fontSize="small" />
+                                        </IconButton>
+                                      </span>
+                                    </Tooltip>
+                                    <Tooltip
+                                      title={
+                                        isDeleted ? "Already deleted" : "Delete"
+                                      }
+                                    >
+                                      <span>
+                                        <IconButton
+                                          size="small"
+                                          color="error"
+                                          onClick={(e) =>
+                                            handleActionClick(e, "delete", tnc)
+                                          }
+                                          disabled={isDeleted}
+                                        >
+                                          <DeleteIcon fontSize="small" />
+                                        </IconButton>
+                                      </span>
+                                    </Tooltip>
+                                  </Stack>
+                                </BodyTableCell>
                               </BodyTableRow>
                             );
                           })}
@@ -526,6 +630,25 @@ export default function AppTnc2PageView() {
           </Card>
         </Grid>
       </Grid>
+      <DeleteEventModal
+        open={openDeleteModal}
+        handleClose={handleCloseDeleteModal}
+        title="Delete Confirmation"
+        message="Are you sure you want to Delete this App Terms?"
+        actions={[
+          {
+            label: "Cancel",
+            props: {
+              onClick: handleCloseDeleteModal,
+              variant: "outlined",
+            },
+          },
+          {
+            label: "Delete",
+            props: { onClick: handleDelete, color: "error" },
+          },
+        ]}
+      />
     </div>
   );
 }
