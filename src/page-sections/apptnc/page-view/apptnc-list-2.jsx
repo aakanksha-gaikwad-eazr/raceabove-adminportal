@@ -585,7 +585,7 @@ export default function AppTnc2PageView() {
                                         </IconButton>
                                       </span>
                                     </Tooltip>
-                                    <Tooltip
+                                    {/* <Tooltip
                                       title={
                                         isDeleted ? "Already deleted" : "Delete"
                                       }
@@ -602,7 +602,7 @@ export default function AppTnc2PageView() {
                                           <DeleteIcon fontSize="small" />
                                         </IconButton>
                                       </span>
-                                    </Tooltip>
+                                    </Tooltip> */}
                                   </Stack>
                                 </BodyTableCell>
                               </BodyTableRow>

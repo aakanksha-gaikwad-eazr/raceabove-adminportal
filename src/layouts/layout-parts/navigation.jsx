@@ -126,12 +126,12 @@ export const navigations = [
    {
     name: "App Terms",
     icon: duotone.Calender,
-    path: "/apptnc-list-2",
+    path: "/apptnc-details/0199522f-2e66-9327-e5ca-fddd327246bb",
   },
   {
     name: "App Privacy Policy",
     icon: duotone.Calender,
-    path: "/appprivacy-policy-list-2",
+    path: "/appprivacy-policy-details/019951d9-1e6d-f341-898a-0bd36980c6bd",
   },
 
 ];

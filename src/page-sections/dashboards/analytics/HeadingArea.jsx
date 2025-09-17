@@ -40,17 +40,10 @@ export default function HeadingArea({
         </IconWrapper>
 
         <Paragraph fontSize={20} fontWeight="bold">
-          Users
+          Analytics
         </Paragraph>
       </FlexBox>
 
-      <Button
-        variant="contained"
-        startIcon={<Add />}
-        onClick={() => navigate("/add-user")}
-      >
-        Add New User
-      </Button>
     </FlexBetween>
   );
 }

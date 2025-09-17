@@ -1,0 +1,153 @@
+{
+  "status": 200,
+  "statusText": "OK",
+  "message": "Analytics fetched successfully",
+  "data": {
+    "organizersProfileOverviews": [
+      {
+        "personalInformation": {
+          "id": "01992ca1-5765-d0ff-34e9-f9180eb848e5",
+          "name": "new orgnaiser",
+          "company": "newest com",
+          "logo": "https://raceabove-dev.s3.ap-south-1.amazonaws.com/organizers/01992ca1-5765-d0ff-34e9-f9180eb848e5/company-logo.jpg",
+          "contact": {
+            "email": "new123@gmail.com",
+            "phone": "+916786786786",
+            "address": null
+          },
+          "registration": {
+            "date": "2025-09-09T09:29:55+05:30",
+            "status": "active"
+          },
+          "verification": {
+            "documents": "unavailable",
+            "bankDetails": "unavailable"
+          },
+          "rating": {
+            "average": 0,
+            "totalReviews": 0
+          },
+          "totals": {
+            "eventsOrganized": 0
+          }
+        },
+        "financialSummary": {
+          "revenueMetrics": {
+            "totalRevenueGenerated": 0,
+            "commissionEarnedByPlatform": 0,
+            "pendingPayouts": 0,
+            "lastPaymentDate": null,
+            "paymentMethods": {},
+            "bankDetails": "unavailable",
+            "taxInformation": "unavailable"
+          },
+          "transactionOverview": {
+            "monthlyRevenueTrends": {},
+            "refundRequests": 0,
+            "refundAmount": 0,
+            "chargebackHistory": "unavailable"
+          }
+        }
+      }
+    ],
+    "eventsOverview": [
+      {
+        "details": {
+          "id": "0198a755-56fd-185e-55a0-9a9349dda401",
+          "title": "hello",
+          "category": "Sport",
+          "type": "in_person",
+          "status": "draft",
+          "visibility": "public",
+          "startDateTime": "2025-08-14T18:30:00.000Z",
+          "endDateTime": "2025-08-15T03:30:00.000Z",
+          "language": "English",
+          "locationType": "virtual",
+          "totalSlots": 0,
+          "totalTicketsSoldAcrossAllSlots": 0,
+          "revenue": 0,
+          "platformFeePayBy": "me",
+          "gatewayFeePayBy": "me",
+          "gstRate": "0.00"
+        },
+        "statistics": {
+          "isActive": false,
+          "isDraft": true,
+          "isPast": true,
+          "isUpcoming": false
+        },
+        "performanceMetrics": {
+          "totalRevenueGenerated": 0,
+          "averageEventCapacityUtilization": 0,
+          "mostPopularEventCategories": [
+            {
+              "name": "Sport",
+              "count": 1
+            }
+          ],
+          "eventSuccessRate": 0
+        },
+        "ticketSalesAnalytics": {
+          "overall": {
+            "totalTicketsAvailable": 0,
+            "totalTicketsSold": 0,
+            "revenueFromTicketSales": 0,
+            "averageTicketPrice": 0,
+            "mostPopularTicketTypes": []
+          },
+          "slotWisePerformance": []
+        },
+        "addOnProductsPerformance": {
+          "productOverview": {
+            "totalProductsCreated": 0,
+            "productsByCategory": {},
+            "totalAddOnRevenue": 0,
+            "mostPopularProducts": []
+          },
+          "details": []
+        },
+        "eventComponentsAndFeatures": {
+          "forms": [],
+          "announcements": {
+            "totalAnnouncements": 0,
+            "notificationSentStatus": false,
+            "announcementReach": null,
+            "recentAnnouncements": []
+          },
+          "locations": {
+            "physical": null,
+            "virtual": null
+          }
+        },
+        "legalAndCompliance": {
+          "termsAndConditionsAttached": false,
+          "privacyPolicyAttached": false,
+          "faqAvailable": false,
+          "gstComplianceStatus": true
+        }
+      }
+    ],
+    "couponsAndDiscounts": {
+      "totalCouponsCreated": 12,
+      "activeCoupons": 11,
+      "expiredCoupons": 7,
+      "mostUsedCoupons": [
+        {
+          "id": "0199130a-a1b3-e1b4-d40f-8544d64f9359",
+          "title": "Promotion Discount",
+          "code": "L01XKJOP",
+          "usage": 0
+        }
+      ]
+    },
+    "challengesManagement": {
+      "totalChallengesCreated": 15,
+      "activeChallenges": 14,
+      "completedChallenges": 13,
+      "challengeTypes": {
+        "daily": 10,
+        "collective": 5
+      }
+    }
+  }
+}

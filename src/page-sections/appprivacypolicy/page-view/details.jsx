@@ -18,6 +18,7 @@ import {
   Alert,
   Container,
   Switch,
+  CircularProgress
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -31,7 +32,102 @@ import { format } from "date-fns";
 import toast from "react-hot-toast";
 import ApprovalModal from "@/components/approval-modal";
 import { getSingleAppPrivacyPolicies } from "@/store/apps/appprivacypolicy";
+import { getAppPrivacyPolicies, updateAppPrivacyPolicy } from "@/store/apps/appprivacypolicy";
+import styled from "@emotion/styled";
 
+
+const QuillContentRenderer = styled("div")(({ theme }) => ({
+  fontSize: "0.875rem",
+  lineHeight: 1.6,
+  fontFamily: theme.typography.fontFamily,
+  color: theme.palette.text.primary,
+
+  // Headers
+  "& h1": {
+    fontSize: "1.5rem",
+    fontWeight: 600,
+    margin: "1rem 0 0.5rem 0",
+    color: theme.palette.text.primary,
+  },
+  "& h2": {
+    fontSize: "1.25rem",
+    fontWeight: 600,
+    margin: "1rem 0 0.5rem 0",
+    color: theme.palette.text.primary,
+  },
+  "& h3": {
+    fontSize: "1.1rem",
+    fontWeight: 600,
+    margin: "1rem 0 0.5rem 0",
+    color: theme.palette.text.primary,
+  },
+
+  // Paragraphs
+  "& p": {
+    margin: "0.5rem 0",
+    textAlign: "left",
+    "&:first-of-type": {
+      marginTop: 0,
+    },
+    "&:last-of-type": {
+      marginBottom: 0,
+    },
+  },
+
+  // Lists
+  "& ul, & ol": {
+    paddingLeft: "1.5rem",
+    margin: "0.5rem 0",
+  },
+  "& li": {
+    margin: "0.25rem 0",
+  },
+
+  // Text formatting
+  "& strong": {
+    fontWeight: 600,
+  },
+  "& em": {
+    fontStyle: "italic",
+  },
+  "& u": {
+    textDecoration: "underline",
+  },
+  "& s": {
+    textDecoration: "line-through",
+  },
+
+  // Links
+  "& a": {
+    color: theme.palette.primary.main,
+    textDecoration: "none",
+    "&:hover": {
+      textDecoration: "underline",
+    },
+  },
+
+  // Text alignment
+  "& .ql-align-center": {
+    textAlign: "center",
+  },
+  "& .ql-align-right": {
+    textAlign: "right",
+  },
+  "& .ql-align-justify": {
+    textAlign: "justify",
+  },
+
+  // Indentation
+  "& .ql-indent-1": {
+    paddingLeft: "2rem",
+  },
+  "& .ql-indent-2": {
+    paddingLeft: "4rem",
+  },
+  "& .ql-indent-3": {
+    paddingLeft: "6rem",
+  },
+}));
 // Skeleton loader component
 const DetailsSkeleton = () => (
   <Box>
@@ -77,6 +173,7 @@ export default function AppPrivacyPolicyDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [ppData, setPPData] = useState(null);
+  const [isToggling, setIsToggling] = useState(false);
   
 
   // Fetch FAQ data
@@ -104,48 +201,46 @@ export default function AppPrivacyPolicyDetailsPage() {
     setApprovalModalOpen(true);
   };
 
-    const handleStatusToggle = async (policyId, currentStatus) => {
+const handleStatusToggle = async () => {
+  setIsToggling(true);
 
-      setLoadingStates((prev) => ({ ...prev, [policyId]: true }));
-  
-      try {
-        const updateData = {
-          id: policyId,
-          data: {
-            isActive: !currentStatus,
-          },
-        };
-        console.log("::updateData", updateData);
-  
-        const result = await dispatch(
-          updateAppPrivacyPolicy(updateData)
-        ).unwrap();
-        console.log(":::::resilt", result);
-        // Check for successful response
-        if (result?.status === 200 || result?.success) {
-          toast.success("Status updated successfully");
-  
-          // Force refresh the privacy policies list
-          await dispatch(getAppPrivacyPolicies()).unwrap();
-  
-          // Update selected privacy policy if it's the one being toggled
-          if (selectedPrivacyPolicy?.id === policyId) {
-            setSelectedPrivacyPolicy((prevSelected) => ({
-              ...prevSelected,
-              isActive: !currentStatus,
-            }));
-          }
-        } else {
-          toast.error(result?.message || "Status update failed");
-        }
-      } catch (error) {
-        console.error("Error updating privacy policy status:", error);
-        toast.error(error?.message || "Failed to update status");
-      } finally {
-        setLoadingStates((prev) => ({ ...prev, [policyId]: false }));
-      }
+  try {
+    const updateData = {
+      id: id, // Using id from params
+      data: {
+        isActive: !ppData.isActive, // Toggle current status from ppData
+      },
     };
-  
+    console.log("::updateData", updateData);
+
+    const result = await dispatch(
+      updateAppPrivacyPolicy(updateData)
+    ).unwrap();
+    console.log(":::::result", result);
+    
+    // Check for successful response
+    if (result?.status === 200 || result?.success) {
+      toast.success("Status updated successfully");
+
+      // Update local state with new status
+      setPPData(prevData => ({
+        ...prevData,
+        isActive: !prevData.isActive
+      }));
+
+      // Optionally refresh the full data
+      const response = await dispatch(getSingleAppPrivacyPolicies(id));
+      setPPData(response?.payload);
+    } else {
+      toast.error(result?.message || "Status update failed");
+    }
+  } catch (error) {
+    console.error("Error updating privacy policy status:", error);
+    toast.error(error?.message || "Failed to update status");
+  } finally {
+    setIsToggling(false);
+  }
+};
 
   const handleApprovalCancel = () => {
     setApprovalModalOpen(false);
@@ -221,7 +316,7 @@ export default function AppPrivacyPolicyDetailsPage() {
           <ArrowBackIcon fontSize="small" />
         </IconButton>
         <Typography variant="h6" fontWeight={500}>
-          Privacy Policy Details
+          App Privacy Policy Details
         </Typography>
       </Stack>
 
@@ -236,9 +331,15 @@ export default function AppPrivacyPolicyDetailsPage() {
                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                   CONTENT
                 </Typography>
-                <Typography variant="body2" style={{textTransform:"capitalize"}}>
-                  {ppData.content || "No Content provided"}
-                </Typography>
+               {ppData?.content ? (
+                  <QuillContentRenderer
+                    dangerouslySetInnerHTML={{ __html: ppData.content }}
+                  />
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    No content provided
+                  </Typography>
+                )}
               </Box>
 
               {/* Review REASONS */}
@@ -342,7 +443,56 @@ export default function AppPrivacyPolicyDetailsPage() {
 
         {/* Sidebar */}
         <Grid item xs={12} md={4}>
+ <Card variant="outlined">
+            <CardContent sx={{ p: 3 }}>
+              <Typography variant="subtitle2" fontWeight={500} gutterBottom>
+                Actions
+              </Typography>
 
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={1}
+                sx={{ mt: 1.5, mb: 2, cursor: "pointer" }}
+              >
+                <Chip
+                  label={"Edit"}
+                  color={"primary"}
+                  variant="outlined"
+                  size="small"
+                  sx={{ mt: 1 }}
+                  onClick={() => navigate(`/edit-appprivacy-policy/${id}`)}
+                />
+                {/* <Chip
+                  label={"Delete"}
+                  color={"error"}
+                  variant="outlined"
+                  size="small"
+                  sx={{ mt: 1 }}
+                  onClick={handleDeleteClick}
+                /> */}
+                {/* <Chip
+                  label={ppData.isActive ? "Active" : "Inactive"}
+                  color={ppData.isActive ? "success" : "default"}
+                  variant="outlined"
+                  size="small"
+                  sx={{ mt: 1 }}
+                /> */}
+               {isToggling ? (
+  <CircularProgress size={20} />
+) : (
+  <Switch
+    checked={ppData?.isActive || false}
+    onChange={handleStatusToggle} // No parameters needed now
+    onClick={(e) => e.stopPropagation()}
+    size="small"
+    color="success"
+    disabled={ppData?.isDeleted}
+  />
+)}
+              </Stack>
+            </CardContent>
+          </Card>
 
           {/* Organizer Info Card */}
           {ppData.organizer && (
@@ -396,7 +546,7 @@ export default function AppPrivacyPolicyDetailsPage() {
           )}
 
           {/* Activity Status */}
-          <Card variant="outlined">
+          {/* <Card variant="outlined">
             <CardContent sx={{ p: 3 }}>
               <Typography variant="subtitle2" fontWeight={500} gutterBottom>
                 Status
@@ -409,7 +559,7 @@ export default function AppPrivacyPolicyDetailsPage() {
                 sx={{ mt: 1 }}
               />
             </CardContent>
-          </Card>
+          </Card> */}
         </Grid>
       </Grid>
     </Container>

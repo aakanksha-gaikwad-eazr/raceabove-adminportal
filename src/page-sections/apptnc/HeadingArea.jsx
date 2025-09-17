@@ -40,7 +40,7 @@ export default function HeadingArea({
         </IconWrapper>
 
         <Paragraph fontSize={20} fontWeight="bold">
-          Terms and Conditions
+          App Terms and Conditions
         </Paragraph>
       </FlexBox>
 
@@ -53,14 +53,14 @@ export default function HeadingArea({
           <Tab disableRipple label="Subscriber" value="subscriber" />
         </TabListWrapper>
       </TabContext> */}
-
+{/* 
       <Button
         variant="contained"
         startIcon={<Add/>}
         onClick={() => navigate("/add-apptnc")}
       >
         Add New App Terms
-      </Button>
+      </Button> */}
     </FlexBetween>
   );
 }

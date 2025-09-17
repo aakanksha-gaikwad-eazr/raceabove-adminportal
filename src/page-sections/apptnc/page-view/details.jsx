@@ -17,11 +17,13 @@ import {
   Skeleton,
   Alert,
   Container,
-    Dialog,
+  Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   DialogContentText,
+  Switch,
+  CircularProgress,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -31,7 +33,102 @@ import { format } from "date-fns";
 import toast from "react-hot-toast";
 import { getSingleAppTnc } from "@/store/apps/apptnc";
 import { deleteAppTnc } from "@/store/apps/apptnc";
+import { getAppTnc, updateAppTnc } from "@/store/apps/apptnc";
+import styled from "@emotion/styled";
 
+
+const QuillContentRenderer = styled("div")(({ theme }) => ({
+  fontSize: "0.875rem",
+  lineHeight: 1.6,
+  fontFamily: theme.typography.fontFamily,
+  color: theme.palette.text.primary,
+
+  // Headers
+  "& h1": {
+    fontSize: "1.5rem",
+    fontWeight: 600,
+    margin: "1rem 0 0.5rem 0",
+    color: theme.palette.text.primary,
+  },
+  "& h2": {
+    fontSize: "1.25rem",
+    fontWeight: 600,
+    margin: "1rem 0 0.5rem 0",
+    color: theme.palette.text.primary,
+  },
+  "& h3": {
+    fontSize: "1.1rem",
+    fontWeight: 600,
+    margin: "1rem 0 0.5rem 0",
+    color: theme.palette.text.primary,
+  },
+
+  // Paragraphs
+  "& p": {
+    margin: "0.5rem 0",
+    textAlign: "left",
+    "&:first-of-type": {
+      marginTop: 0,
+    },
+    "&:last-of-type": {
+      marginBottom: 0,
+    },
+  },
+
+  // Lists
+  "& ul, & ol": {
+    paddingLeft: "1.5rem",
+    margin: "0.5rem 0",
+  },
+  "& li": {
+    margin: "0.25rem 0",
+  },
+
+  // Text formatting
+  "& strong": {
+    fontWeight: 600,
+  },
+  "& em": {
+    fontStyle: "italic",
+  },
+  "& u": {
+    textDecoration: "underline",
+  },
+  "& s": {
+    textDecoration: "line-through",
+  },
+
+  // Links
+  "& a": {
+    color: theme.palette.primary.main,
+    textDecoration: "none",
+    "&:hover": {
+      textDecoration: "underline",
+    },
+  },
+
+  // Text alignment
+  "& .ql-align-center": {
+    textAlign: "center",
+  },
+  "& .ql-align-right": {
+    textAlign: "right",
+  },
+  "& .ql-align-justify": {
+    textAlign: "justify",
+  },
+
+  // Indentation
+  "& .ql-indent-1": {
+    paddingLeft: "2rem",
+  },
+  "& .ql-indent-2": {
+    paddingLeft: "4rem",
+  },
+  "& .ql-indent-3": {
+    paddingLeft: "6rem",
+  },
+}));
 // Skeleton loader component
 const DetailsSkeleton = () => (
   <Box>
@@ -86,10 +183,12 @@ export default function AppTNCDetailsPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [tncData, setTncData] = useState(null);
-    const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const menuOpen = Boolean(anchorEl);
-      const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-      const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [loadingStates, setLoadingStates] = useState({});
+  const [isToggling, setIsToggling] = useState(false);
 
   // Fetch FAQ data
   useEffect(() => {
@@ -97,7 +196,7 @@ export default function AppTNCDetailsPage() {
       setIsLoading(true);
       try {
         const response = await dispatch(getSingleAppTnc(id));
-        console.log("res",response)
+        console.log("res", response);
         setTncData(response?.payload);
       } catch (error) {
         console.error("Error fetching App Terms & Conditions details:", error);
@@ -112,7 +211,6 @@ export default function AppTNCDetailsPage() {
     }
   }, [id, dispatch]);
 
-
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     try {
@@ -122,26 +220,25 @@ export default function AppTNCDetailsPage() {
     }
   };
 
-    const handleDeleteCancel = () => {
+  const handleDeleteCancel = () => {
     setDeleteDialogOpen(false);
   };
 
-    const handleMenuClose = () => {
+  const handleMenuClose = () => {
     setAnchorEl(null);
   };
-    const handleEdit = () => {
+  const handleEdit = () => {
     console.log("clicked");
     handleMenuClose();
     navigate(`/tnc-details/${id}`);
   };
 
   const handleDeleteClick = () => {
-    console.log("clciked")
+    console.log("clciked");
     handleMenuClose();
     setDeleteDialogOpen(true);
   };
 
-  
   const handleDeleteConfirm = async () => {
     setIsDeleting(true);
     try {
@@ -157,6 +254,106 @@ export default function AppTNCDetailsPage() {
     }
   };
 
+  // const handleStatusToggle = async (e, appTncId, currentStatus, isDeleted) => {
+  //   // Stop propagation to prevent row click
+  //   e.stopPropagation();
+
+  //   if (isDeleted) {
+  //     toast.error("Cannot update status of deleted items");
+  //     return;
+  //   }
+
+  //   setLoadingStates((prev) => ({ ...prev, [appTncId]: true }));
+
+  //   try {
+  //     const updateData = {
+  //       id: appTncId,
+  //       data: {
+  //         isActive: !currentStatus,
+  //       },
+  //     };
+  //     console.log("::updateData", updateData);
+
+  //     const result = await dispatch(updateAppTnc(updateData)).unwrap();
+  //     console.log(":::::result", result);
+  //     if (result?.status === 200 || result?.success) {
+  //       toast.success("Status updated successfully");
+
+  //       await dispatch(getAppTnc()).unwrap();
+
+  //       if (id === appTncId) {
+  //         setSelectedTnc((prevSelected) => ({
+  //           ...prevSelected,
+  //           isActive: !currentStatus,
+  //         }));
+  //       }
+  //     } else {
+  //       toast.error(result?.message || "Status update failed");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating App Terms status:", error);
+  //     toast.error(error?.message || "Failed to update status");
+  //   } finally {
+  //     setLoadingStates((prev) => ({ ...prev, [appTncId]: false }));
+  //   }
+  // };
+
+  const handleStatusToggle = async (e) => {
+    // Stop propagation to prevent any parent click events
+    e.stopPropagation();
+
+    // Check if item is deleted (if you have this check)
+    if (tncData?.isDeleted) {
+      toast.error("Cannot update status of deleted items");
+      return;
+    }
+
+    setIsToggling(true);
+
+    try {
+      const updateData = {
+        id: id, // Use id from params directly
+        data: {
+          isActive: !tncData.isActive, // Toggle current status
+        },
+      };
+
+      console.log("::updateData", updateData);
+
+      const result = await dispatch(updateAppTnc(updateData)).unwrap();
+      console.log(":::::result", result);
+
+      if (result?.status === 200 || result?.success) {
+        toast.success("Status updated successfully");
+
+        // Update local state immediately for better UX
+        setTncData((prevData) => ({
+          ...prevData,
+          isActive: !prevData.isActive,
+        }));
+
+        // Optional: Refresh the data from server to ensure consistency
+        // You can remove this if you trust the local update
+        try {
+          const refreshResponse = await dispatch(getSingleAppTnc(id));
+          setTncData(refreshResponse?.payload);
+        } catch (refreshError) {
+          console.warn(
+            "Failed to refresh data after status update:",
+            refreshError
+          );
+          // Don't show error toast for this as the update was successful
+        }
+      } else {
+        toast.error(result?.message || "Status update failed");
+      }
+    } catch (error) {
+      console.error("Error updating App Terms status:", error);
+      toast.error(error?.message || "Failed to update status");
+    } finally {
+      setIsToggling(false);
+    }
+  };
   const getStatusIcon = (status) => {
     switch (status?.toLowerCase()) {
       case "approved":
@@ -226,18 +423,25 @@ export default function AppTNCDetailsPage() {
           <Card variant="outlined" sx={{ mb: 2 }}>
             <CardContent sx={{ p: 3 }}>
               {/* Question Section */}
-              <Box mb={3}>
-                <Typography
-                  variant="subtitle2"
-                  color="text.secondary"
-                  gutterBottom
-                >
-                  Content
-                </Typography>
-                <Typography variant="body2" style={{textTransform:"capitalize"}}>
-                  {tncData?.content || "No content provided"}
-                </Typography>
-              </Box>
+
+            <Box mb={3}>
+  <Typography
+    variant="subtitle2"
+    color="text.secondary"
+    gutterBottom
+  >
+    Content
+  </Typography>
+  {tncData?.content ? (
+    <QuillContentRenderer
+      dangerouslySetInnerHTML={{ __html: tncData.content }}
+    />
+  ) : (
+    <Typography variant="body2" color="text.secondary">
+      No content provided
+    </Typography>
+  )}
+</Box>
 
               {/* Review REASONS */}
               {tncData.reviewReason && (
@@ -285,14 +489,17 @@ export default function AppTNCDetailsPage() {
                       <Typography variant="caption" color="text.secondary">
                         Created By
                       </Typography>
-                      <Typography variant="body2" style={{textTransform:"capitalize"}}>
+                      <Typography
+                        variant="body2"
+                        style={{ textTransform: "capitalize" }}
+                      >
                         {tncData.createdBy || "Unknown"}
                         {tncData.createdByRole && (
                           <Typography
                             component="span"
                             variant="caption"
-                            color="text.secondary" 
-                            style={{textTransform:"capitalize"}}
+                            color="text.secondary"
+                            style={{ textTransform: "capitalize" }}
                           >
                             {" "}
                             • {tncData.createdByRole}
@@ -319,14 +526,17 @@ export default function AppTNCDetailsPage() {
                         <Typography variant="caption" color="text.secondary">
                           Updated By
                         </Typography>
-                        <Typography variant="body2" style={{textTransform:"capitalize"}}>
+                        <Typography
+                          variant="body2"
+                          style={{ textTransform: "capitalize" }}
+                        >
                           {tncData.updatedBy}
                           {tncData.updatedByRole && (
                             <Typography
                               component="span"
                               variant="caption"
                               color="text.secondary"
-                              style={{textTransform:"capitalize"}}
+                              style={{ textTransform: "capitalize" }}
                             >
                               {" "}
                               • {tncData.updatedByRole}
@@ -355,7 +565,7 @@ export default function AppTNCDetailsPage() {
 
         {/* Sidebar */}
         <Grid item xs={12} md={4}>
-                      <Card variant="outlined">
+          <Card variant="outlined">
             <CardContent sx={{ p: 3 }}>
               <Typography variant="subtitle2" fontWeight={500} gutterBottom>
                 Actions
@@ -365,7 +575,7 @@ export default function AppTNCDetailsPage() {
                 direction="row"
                 alignItems="center"
                 spacing={1}
-                sx={{ mt: 1.5, mb: 2, cursor:"pointer" }}
+                sx={{ mt: 1.5, mb: 2, cursor: "pointer" }}
               >
                 <Chip
                   label={"Edit"}
@@ -375,21 +585,33 @@ export default function AppTNCDetailsPage() {
                   sx={{ mt: 1 }}
                   onClick={() => navigate(`/edit-apptnc/${id}`)}
                 />
-                <Chip
+                {/* <Chip
                   label={"Delete"}
                   color={"error"}
                   variant="outlined"
                   size="small"
                   sx={{ mt: 1 }}
                   onClick={handleDeleteClick}
-                />
-                <Chip
+                /> */}
+                {/* <Chip
                   label={tncData.isActive ? "Active" : "Inactive"}
                   color={tncData.isActive ? "success" : "default"}
                   variant="outlined"
                   size="small"
                   sx={{ mt: 1 }}
-                />
+                /> */}
+                {loadingStates[tncData.id] ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <Switch
+                    checked={tncData?.isActive || false}
+                    onChange={handleStatusToggle}
+                    onClick={(e) => e.stopPropagation()}
+                    size="small"
+                    color="success"
+                    disabled={tncData?.isDeleted}
+                  />
+                )}
               </Stack>
             </CardContent>
           </Card>
@@ -425,7 +647,7 @@ export default function AppTNCDetailsPage() {
                         <Typography variant="caption" color="text.secondary">
                           Name
                         </Typography>
-                        <Typography variant="body2" >
+                        <Typography variant="body2">
                           {tncData.organizer.name}
                         </Typography>
                       </Box>
@@ -449,41 +671,43 @@ export default function AppTNCDetailsPage() {
         </Grid>
       </Grid>
 
-          {/* Delete Confirmation Dialog */}
-            <Dialog
-              open={deleteDialogOpen}
-              onClose={handleDeleteCancel}
-              aria-labelledby="delete-dialog-title"
-              aria-describedby="delete-dialog-description"
-            >
-              <DialogTitle id="delete-dialog-title">Delete Terms and Conditions</DialogTitle>
-              <DialogContent>
-                <DialogContentText id="delete-dialog-description">
-                  Are you sure you want to delete this Terms and Conditions? This action cannot be
-                  undone.
-                </DialogContentText>
-                {tncData?.content && (
-                  <Paper sx={{ p: 2, mt: 2, bgcolor: "grey.50" }}>
-                    <Typography variant="body2" fontWeight={500}>
-                      "{tncData.content}"
-                    </Typography>
-                  </Paper>
-                )}
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleDeleteCancel} disabled={isDeleting}>
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleDeleteConfirm}
-                  color="error"
-                  variant="contained"
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? "Deleting..." : "Delete"}
-                </Button>
-              </DialogActions>
-            </Dialog>
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleDeleteCancel}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+      >
+        <DialogTitle id="delete-dialog-title">
+          Delete Terms and Conditions
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-dialog-description">
+            Are you sure you want to delete this Terms and Conditions? This
+            action cannot be undone.
+          </DialogContentText>
+          {tncData?.content && (
+            <Paper sx={{ p: 2, mt: 2, bgcolor: "grey.50" }}>
+              <Typography variant="body2" fontWeight={500}>
+                "{tncData.content}"
+              </Typography>
+            </Paper>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteCancel} disabled={isDeleting}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteConfirm}
+            color="error"
+            variant="contained"
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
