@@ -12,32 +12,33 @@ import SessionBrowser from '../SessionBrowser';
 import SalesByCountry from '../SalesByCountry';
 import AveragePosition from '../AveragePosition';
 import HeadingArea from '../HeadingArea';
+import EventMetrics from '../Metrics';
 export default function Analytics2PageView() {
   return (
   
   <div className="pt-2 pb-4">
          <HeadingArea />
-      <Grid container spacing={3}>
+      <Grid container spacing={3} style={{marginTop:"10px"}}>
 
         {
         /* AVERAGE POSITION CHART CARD */
       }
         <Grid size={{
-        md: 4,
         xs: 12
       }}>
-          <AveragePosition />
-        </Grid>
+          {/* <AveragePosition /> */}
+          <EventMetrics/>
+        </Grid> 
 
         {
         /* DIFFERENT DATA SHOW WITH CHART */
       }
-        <Grid size={{
+        {/* <Grid size={{
         md: 8,
         xs: 12
       }}>
           <ChartFilters type="line" />
-        </Grid>
+        </Grid> */}
 
         {
         /* VISIT BY TOP REFERRAL SOURCE CHART CARD */

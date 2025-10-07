@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 
  
 const axiosInstance = axios.create({
-  baseURL: "https://dev.raceabove.eazr.in",
+  baseURL: "https://raceabove.eazr.in",
 });
  
 let isRefreshing = false;
@@ -67,7 +67,7 @@ axiosInstance.interceptors.response.use(
         }
  
         const res = await axios.post(
-          "https://dev.raceabove.eazr.in/v1/auth/refresh-tokens",
+          "https://raceabove.eazr.in/v2/auth/refresh-tokens",
           {},
           {
             headers: {

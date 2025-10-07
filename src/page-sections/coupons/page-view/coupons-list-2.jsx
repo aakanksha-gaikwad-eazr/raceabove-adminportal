@@ -360,7 +360,7 @@ export default function Coupons2PageView() {
                           </BodyTableCell>
                           <BodyTableCell
                             align="center"
-                            textTransform="capitalize"
+                            style={{textTransform:"capitalize"}}
                           >
                             {coupons?.discountType}
                           </BodyTableCell>

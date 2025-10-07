@@ -23,10 +23,8 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import PendingIcon from "@mui/icons-material/Pending";
 import { format } from "date-fns";
-import { getSingleFaq, reviewFaq } from "@/store/apps/faq";
 import toast from "react-hot-toast";
 import ApprovalModal from "@/components/approval-modal";
-import { getSingleTnc, reviewTnc } from "@/store/apps/tnc";
 import { getCouponsById } from "@/store/apps/coupons";
 import { reviewCoupons } from "@/store/apps/coupons";
 
@@ -138,9 +136,9 @@ export default function CouponsDetailsPage() {
       const result = await dispatch(reviewCoupons(reviewData));
 
       if (result.meta?.requestStatus === "fulfilled") {
-        const response = await dispatch(getSingleTnc(id));
+        const response = await dispatch(getCouponsById(id));
         setCouponsData(response?.payload);
-
+navigate(`/coupon-details/${id}`)
         toast.success(
           reviewData.data.approvalStatus === "approved"
             ? "Coupons approved successfully!"

@@ -29,7 +29,7 @@ export default function HeadingArea({
 }) {
   const navigate = useNavigate();
   return (
-    <FlexBetween flexWrap="wrap" gap={1}>
+    <FlexBetween flexWrap="wrap" gap={1} style={{margineBottom:"20px"}}>
       <FlexBox alignItems="center">
         <IconWrapper>
           <GroupSenior
@@ -40,7 +40,7 @@ export default function HeadingArea({
         </IconWrapper>
 
         <Paragraph fontSize={20} fontWeight="bold">
-          Analytics
+          Analytics Dashboard
         </Paragraph>
       </FlexBox>
 

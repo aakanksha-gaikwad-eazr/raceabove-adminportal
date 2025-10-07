@@ -90,7 +90,40 @@ export const createEvents = createAsyncThunk(
   }
 );
 
-// //update challenge
+export const createFeaturedEvents = createAsyncThunk(
+  "appEventsSlice/createFeaturedEvents",
+  async (payload) => {
+    try {
+      const adminData = JSON.parse(localStorage.getItem("raceabove"));
+      const accessToken = adminData.accessToken;
+
+      if (!accessToken) {
+        throw new Error("Access token not found in localStorage");
+      }
+
+      // Assuming you have an endpoint for updating featured status
+      const url = `${ip}/v2/events/featured`; // Adjust the endpoint as needed
+
+      const response = await axiosInstance.post(url, payload, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      console.log("Featured events response:", response);
+      return response?.data;
+    } catch (error) {
+      console.error(
+        "❌ API Request Failed:",
+        error.response?.data || error.message
+      );
+      throw new Error("Failed to update featured events status");
+    }
+  }
+);
+
+// //update events
 export const updateEvents = createAsyncThunk(
   "appEventsSlice/updateEvents",
   async (req, { rejectWithValue }) => {
@@ -174,6 +207,7 @@ export const appEventsSlice = createSlice({
     allEvents:[],
     singleEvents:[],
     isLoading: false,
+    allFeaturedEvents:[],
   },
   reducers: {},
   extraReducers: builder => {
@@ -188,12 +222,14 @@ export const appEventsSlice = createSlice({
     .addCase(getEvents.rejected, (state) => {
       state.isLoading = false
     })
-
     .addCase(getEventsById.fulfilled, (state, action) => {
         state.singleEvents = action.payload
     })
     .addCase(updateEvents.fulfilled, (state, action) => {
       state.success = true
+    })
+    .addCase(createFeaturedEvents.fulfilled, (state, action) => {
+      state.allFeaturedEvents = action.payload 
     })
     .addCase(reviewEvents.fulfilled, (state, action) => {
       state.success = true

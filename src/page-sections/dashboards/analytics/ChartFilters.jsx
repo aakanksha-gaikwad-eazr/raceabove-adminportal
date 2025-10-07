@@ -55,29 +55,56 @@ const BoxWrapper = styled('div', {
   })
 })); // CUSTOM DUMMY DATA
 
-const LIST = [{
-  id: 1,
-  title: 'Users',
-  value: format(12060),
-  percentage: 12.5
-}, {
-  id: 2,
-  title: 'Sessions',
-  value: format(30000),
-  percentage: 5.56
-}, {
-  id: 3,
-  title: 'Bounce Rate',
-  value: '53%',
-  percentage: -1.5
-}, {
-  id: 4,
-  title: 'Session Duration',
-  value: '3m 10s',
-  percentage: -10.5
-}]; // ==============================================================
+// const LIST = [{
+//   id: 1,
+//   title: 'Users',
+//   value: format(12060),
+//   percentage: 12.5
+// }, {
+//   id: 2,
+//   title: 'Sessions',
+//   value: format(30000),
+//   percentage: 5.56
+// }, {
+//   id: 3,
+//   title: 'Bounce Rate',
+//   value: '53%',
+//   percentage: -1.5
+// }, {
+//   id: 4,
+//   title: 'Session Duration',
+//   value: '3m 10s',
+//   percentage: -10.5
+// }];
+
 
 // ==============================================================
+
+// ==============================================================
+
+
+const LIST = [
+  {
+    id: 1,
+    title: 'Total Revenue',
+    value: format(0), // <- replace with data.financialSummary.revenueMetrics.totalRevenueGenerated
+    percentage: 0
+  },
+  {
+    id: 2,
+    title: 'Pending Payouts',
+    value: format(0), // <- replace with data.financialSummary.revenueMetrics.pendingPayouts
+    percentage: 0
+  },
+  {
+    id: 3,
+    title: 'Commission Earned',
+    value: format(0), // <- replace with data.financialSummary.revenueMetrics.commissionEarnedByPlatform
+    percentage: 0
+  }
+];
+
+
 export default function ChartFilters({
   type = 'area'
 }) {
@@ -89,13 +116,14 @@ export default function ChartFilters({
 
   const handleChange = id => () => setSelectedItem(id); // REACT CHART DATA SERIES
 
+const revenueData = [1200, 2500, 1800, 3000, 2200, 4000, 3500, 5000, 4200, 4800, 6000, 7500]; 
 
   const chartSeries = [{
     name: 'Sales',
     data: [8000, 4000, 4500, 17000, 18000, 40000, 18000, 10000, 6000, 20000]
-  }]; // REACT CHART CATEGORIES LABEL
+  }];
 
-  const chartCategories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; // REACT CHART OPTIONS
+  const chartCategories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; 
 
   const chartOptions = merge(baseChartOptions(theme), {
     dataLabels: {

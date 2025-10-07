@@ -163,6 +163,7 @@ export default function TicketTemplate2PageView() {
         .includes(searchFilter?.toLowerCase());
     else return true;
   });
+  console.log("filteredTicketTemplates",filteredTicketTemplates)
 
   useEffect(() => {
     dispatch(getTicketTemplate());

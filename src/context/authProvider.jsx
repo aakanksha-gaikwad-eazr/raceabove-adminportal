@@ -5,7 +5,7 @@ import AuthContext from "./jwtContext";
 import { LoadingProgress } from "@/components/loader";
 import { ip } from "@/config/config";
  
-const API_URL = "https://dev.raceabove.eazr.in";
+const API_URL = "https://raceabove.eazr.in";
  
 const initialState = {
   user: null,

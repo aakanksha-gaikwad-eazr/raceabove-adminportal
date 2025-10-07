@@ -36,7 +36,7 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import SettingsIcon from "@mui/icons-material/Settings";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import PeopleIcon from "@mui/icons-material/People";
-import { Pagination, Select, MenuItem, Button } from "@mui/material";
+import { Pagination, Select, MenuItem, Button, Switch } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
@@ -49,7 +49,7 @@ import { FlexBox, FlexBetween } from "@/components/flexbox";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useContext, useEffect, useState } from "react";
-import { getEventsById, reviewEvents } from "../../../store/apps/events";
+import { createFeaturedEvents, getEventsById, reviewEvents } from "../../../store/apps/events";
 import { toast } from "react-hot-toast";
 import { PROJECT_FILES } from "@/__fakeData__/projects";
 import IconButton from "@mui/material/IconButton";
@@ -81,6 +81,7 @@ import {
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { formatDate } from "@/utils/dateFormatter";
 import ApprovalModal from "@/components/approval-modal";
+import { validatePayload } from "@/utils/validatePayload";
 
 const StyledAvatar = styled(Avatar)({
   width: 34,
@@ -181,12 +182,49 @@ export default function EventsDetailsPageView() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
+  const [eventApprovalStatus, setEventApprovalStatus] = useState("");
 
   const navigate = useNavigate();
   const { id } = useParams();
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+const handleEventFeaturedStatusToggle = async (id) => {
+  // Get the current featured status (you may need to adjust this based on your data structure)
+  const currentFeaturedStatus = eventsData?.featuredEvent || false;
+  const newFeaturedStatus = !currentFeaturedStatus;
+  
+  try {
+    // Prepare the payload matching the API expectation
+    const payload = {
+      eventIds: [id], // API expects an array of IDs
+      isFeatured: newFeaturedStatus // API expects 'isFeatured', not 'featuredEvent'
+    };
+    
+    // Dispatch the action with the correct payload
+    const result = await dispatch(createFeaturedEvents(payload));
+    
+    // Check if the action was fulfilled (make sure the action name matches)
+    if (createFeaturedEvents.fulfilled.match(result)) {
+      // Update local state
+      setEventsData(prevData => ({
+        ...prevData,
+        featuredEvent: newFeaturedStatus
+      }));
+      
+      // Show success message
+      toast.success(`Event ${newFeaturedStatus ? 'featured' : 'unfeatured'} successfully`);
+    } else {
+      // Handle failure
+      toast.error('Failed to update featured status');
+      console.error('Failed to update event featured status:', result.error);
+    }
+  } catch (error) {
+    console.error('Error updating event featured status:', error);
+    toast.error('Error updating featured status');
+  }
+};
 
   function TabPanel({ children, value, index, ...other }) {
     return (
@@ -238,6 +276,7 @@ export default function EventsDetailsPageView() {
         .then((response) => {
           if (response?.payload) {
             setEventsData(response?.payload);
+            setEventApprovalStatus(validatePayload(response.payload));
           }
         })
         .catch((error) => {
@@ -287,7 +326,9 @@ export default function EventsDetailsPageView() {
       };
 
       if (
-        !["approved", "rejected","pending"].includes(reviewPayload.data.approvalStatus)
+        !["approved", "rejected", "pending"].includes(
+          reviewPayload.data.approvalStatus
+        )
       ) {
         toast.error("Invalid approval status");
         return;
@@ -297,7 +338,7 @@ export default function EventsDetailsPageView() {
         toast.error("Review reason is required");
         return;
       }
-          console.log("Submitting review with payload:", reviewPayload); // Debug log
+      console.log("Submitting review with payload:", reviewPayload); // Debug log
 
       const result = await dispatch(reviewEvents(reviewPayload));
 
@@ -305,18 +346,19 @@ export default function EventsDetailsPageView() {
         const response = await dispatch(getEventsById(id));
         setEventsData(response?.payload);
 
-         toast.success(
-        reviewPayload.data.approvalStatus === "approved"
-          ? "Event approved successfully!"
-          : reviewPayload.data.approvalStatus === "rejected"
-          ? "Event rejected successfully!"
-          : "Event review updated successfully!"
-      );
+        toast.success(
+          reviewPayload.data.approvalStatus === "approved"
+            ? "Event approved successfully!"
+            : reviewPayload.data.approvalStatus === "rejected"
+              ? "Event rejected successfully!"
+              : "Event review updated successfully!"
+        );
 
         setApprovalModalOpen(false);
       } else {
-       const errorMessage = result.payload?.message || "Failed to review Event";
-      toast.error(errorMessage);
+        const errorMessage =
+          result.payload?.message || "Failed to review Event";
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error("Error reviewing Event:", error);
@@ -359,14 +401,14 @@ export default function EventsDetailsPageView() {
                   <Div>
                     <FlexBetween mb={2} style={{ textTransform: "capitalize" }}>
                       <H6 fontSize={18}>{eventsData?.title?.toUpperCase()}</H6>
-                      <StatusChip
+                      {/* <StatusChip
                         label={eventsData?.approvalStatus || "Pending"}
                         status={eventsData?.approvalStatus}
                         size="small"
                         style={{
                           textTransform: "capitalize",
                         }}
-                      />
+                      /> */}
                     </FlexBetween>
 
                     {/* Event Banner */}
@@ -1592,12 +1634,16 @@ export default function EventsDetailsPageView() {
                             width: 40,
                             height: 40,
                             borderRadius: "12px",
-                            bgcolor:"primary.main",
+                            bgcolor: "primary.main",
                             boxShadow: "0 4px 12px rgba(102, 126, 234, 0.2)",
                           }}
                         >
                           <AssignmentIcon
-                            sx={{ color: "white", fontSize: 20, bgcolor: "primary.main"}}
+                            sx={{
+                              color: "white",
+                              fontSize: 20,
+                              bgcolor: "primary.main",
+                            }}
                           />
                         </Box>
                         <Box>
@@ -1896,7 +1942,8 @@ export default function EventsDetailsPageView() {
                                                 p: 1,
                                                 backgroundColor: "#f8f9fa",
                                                 borderRadius: "4px",
-                                                borderLeft: (theme) => `3px solid ${theme.palette.primary.main}`,
+                                                borderLeft: (theme) =>
+                                                  `3px solid ${theme.palette.primary.main}`,
                                               }}
                                             >
                                               <Paragraph
@@ -2324,6 +2371,11 @@ export default function EventsDetailsPageView() {
                       color={getStatusColor(eventsData.approvalStatus)}
                       size="small"
                     />
+                    <Chip
+                      label={eventApprovalStatus}
+                      color={getStatusColor(eventsData.approvalStatus)}
+                      size="small"
+                    />
                   </Stack>
                   {eventsData.reviewedBy && (
                     <Box mb={2}>
@@ -2374,6 +2426,47 @@ export default function EventsDetailsPageView() {
                       ? "Re-review Event"
                       : "Review Event"}
                   </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid size={12}>
+              {/*Featured Card */}
+              <Card variant="outlined">
+                <CardContent sx={{ p: 3 }}>
+                  <Typography variant="subtitle2" fontWeight={500} gutterBottom>
+                    Featured Event
+                  </Typography>
+
+                  {/* Show expired warning */}
+                  {isEventExpired() && (
+                    <Alert
+                      severity="error"
+                      sx={{ mb: 2, py: 0.5, px: 1 }}
+                      icon={<InfoIcon fontSize="small" />}
+                    >
+                      <Typography variant="caption">
+                        This Event has expired and cannot be reviewed.
+                      </Typography>
+                    </Alert>
+                  )}
+                  {(eventsData.deletedAt !== null ||
+                    eventsData.deletedBy !== null) && (
+                    <Alert
+                      severity="error"
+                      sx={{ mb: 2, py: 0.5, px: 1 }}
+                      icon={<InfoIcon fontSize="small" />}
+                    >
+                      <Typography variant="caption">
+                        This Event has been deleted and cannot be Featured.
+                      </Typography>
+                    </Alert>
+                  )}
+                  <Switch
+                    checked={eventsData.featuredEvent}
+                    onChange={() =>
+                      handleEventFeaturedStatusToggle(eventsData.id)
+                    }
+                  />
                 </CardContent>
               </Card>
             </Grid>

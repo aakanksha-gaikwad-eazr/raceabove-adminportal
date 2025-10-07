@@ -53,7 +53,7 @@ const HeadTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 const BodyTableCell = styled(HeadTableCell)({
-  fontSize: 12,
+  fontSize: 10,
   fontWeight: 400,
   backgroundColor: "transparent",
 });
@@ -78,14 +78,14 @@ const headCells = [
     numeric: true,
     disablePadding: false,
     label: "Title",
-    width: "20%",
+    width: "10%",
   },
   {
     id: "date",
     numeric: true,
     disablePadding: false,
     label: "Date",
-    width: "25%",
+    width: "32%",
   },
   {
     id: "location",
@@ -419,15 +419,15 @@ export default function EventsVersionFivePageView() {
                               alignItems="center"
                               spacing={1}
                             >
-                              <Avatar
+                              {/* <Avatar
                                 src={events.mobileCoverImage}
                                 sx={{
                                   borderRadius: "20%",
                                   backgroundColor: "grey.100",
                                 }}
-                              />
+                              /> */}
                               <H6
-                                fontSize={12}
+                                fontSize={10}
                                 color="text.primary"
                                 style={{ textTransform: "capitalize" }}
                               >
@@ -436,14 +436,14 @@ export default function EventsVersionFivePageView() {
                             </Stack>
                           </BodyTableCell>
                           <BodyTableCell align="center">
-                            <H6 fontSize={12} color="text.primary">
+                            <H6 fontSize={10} color="text.primary">
                               {formatDateRange(
                                 events.startDateTime,
                                 events.endDateTime
                               )}
                             </H6>
                           </BodyTableCell>
-                          <BodyTableCell align="center">
+                          <BodyTableCell align="center" fontSize={10}>
                             {formatLocation(
                               events.city,
                               events.state,
