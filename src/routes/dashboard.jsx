@@ -625,10 +625,10 @@ export const DashboardRoutes = [
         path: "finance",
         element: <Finance />,
       },
-      {
-        path: "finance-2",
-        element: <FinanceV2 />,
-      },
+      // {
+      //   path: "finance-2",
+      //   element: <FinanceV2 />,
+      // },
       {
         path: "ecommerce",
         element: <Ecommerce />,
@@ -641,10 +641,10 @@ export const DashboardRoutes = [
         path: "marketing",
         element: <Marketing />,
       },
-      {
-        path: "analytics-2",
-        element: <AnalyticsV2 />,
-      },
+      // {
+      //   path: "analytics-2",
+      //   element: <AnalyticsV2 />,
+      // },
       {
         path: "learning-management",
         element: <LMS />,
